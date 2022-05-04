@@ -1,0 +1,1 @@
+set_item_data(ITEM_POUCH, 0, 0);
