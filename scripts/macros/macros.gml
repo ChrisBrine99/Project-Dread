@@ -74,6 +74,10 @@
 // is no parent object assigned to the object in question. 
 #macro	NO_PARENT			   -100
 
+// Macro values for constants that are returned by functions created by myself within the code.
+#macro	ROOM_INDEX_INVALID     -200
+#macro	EVENT_FLAG_INVALID	   -300
+
 // Two constants that refer to the coordinate that is tied to a given value of a 2D vector array. Helps
 // explain what the values of "0" and "1" refer to in the context of said vector within the code.
 #macro	X						0
@@ -170,6 +174,27 @@
 #macro	PUZZLE_DIFFICULTY		global.gameplay.puzzleDifficulty
 #macro	PLAYER_DAMAGE_MOD		global.gameplay.pDamageModifier
 #macro	ENEMY_DAMAGE_MOD		global.gameplay.eDamageModifier
+
+// 
+#macro	MINIMUM_INVENTORY_SIZE	global.gameplay.startingItemInvSize
+#macro	MAXIMUM_INVENTORY_SIZE	global.gameplay.maximumItemInvSize
+
+// Macro values that represent the functions that initialize the gameplay struct to specific gameplay difficulty
+// levels; with the puzzle difficulty levels being set as the argument value for each of these functions.
+#macro	GAME_SET_FORGIVING		global.gameplay.initialize_difficulty_forgiving
+#macro	GAME_SET_STANDARD		global.gameplay.initialize_difficulty_standard
+#macro	GAME_SET_PUNISHING		global.gameplay.initialize_difficulty_punishing
+#macro	GAME_SET_NIGHTMARE		global.gameplay.initialize_difficulty_nightmare
+#macro	GAME_SET_ONE_LIFE_MODE	global.gameplay.initialize_difficulty_one_life_mode
+
+// Macro that represents the function for setting the audio listener's linked object; saving on typing.
+#macro	LISTENER_SET_OBJECT		global.audioListener.set_linked_object
+
+// Macro values that represent the functions that handle the game's event flag data; allowing the creation,
+// manipulating, and retrieving a given flag's current state.
+#macro	EVENT_CREATE_FLAG		global.events.create_flag
+#macro	EVENT_SET_FLAG			global.events.set_flag
+#macro	EVENT_GET_FLAG			global.events.get_flag
 
 #endregion
 

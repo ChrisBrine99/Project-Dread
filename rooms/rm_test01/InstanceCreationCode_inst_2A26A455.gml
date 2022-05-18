@@ -1,1 +1,1 @@
-set_item_data(ITEM_POUCH, 0, 0);
+set_to_item_pouch(2);

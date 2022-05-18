@@ -1,0 +1,1 @@
+set_item_data(SHOTGUN_SHELLS, 5, 0, 1);

@@ -23,20 +23,12 @@ room_goto(rm_test01);
 
 /// FOR TESTING
 show_debug_overlay(true);
-global.gameplay.initialize_difficulty_standard(Difficulty.Standard);
 
-inventory_item_add(TRIPLE_BURST_HANDGUN, global.itemData[? KEY_ITEM_LIST][? TRIPLE_BURST_HANDGUN][? ITEM_QUANTITY], 0);
-inventory_item_add(HANDGUN_AMMO, global.itemData[? KEY_ITEM_LIST][? HANDGUN_AMMO][? ITEM_QUANTITY], 0);
-inventory_item_add(HANDGUN_AMMO_PLUS, global.itemData[? KEY_ITEM_LIST][? HANDGUN_AMMO_PLUS][? ITEM_QUANTITY], 0);
-inventory_item_add(HANDGUN_AMMO_WEAK, global.itemData[? KEY_ITEM_LIST][? HANDGUN_AMMO_WEAK][? ITEM_QUANTITY], 0);
+GAME_SET_STANDARD(Difficulty.Standard);
+LISTENER_SET_OBJECT(PLAYER);
+
 inventory_item_add(BRIGHT_FLASHLIGHT, 1, 0);
-//inventory_item_add(IMPURE_SULFUR, 8, 0);
-//inventory_item_add(IMPURE_CHARCOAL, 8, 0);
-//inventory_item_combine(5, 6);
-
-global.audioListener.set_linked_object(PLAYER);
 with(PLAYER){
 	initialize();
 	equip_item_to_player(0);
-	equip_item_to_player(4);
 }

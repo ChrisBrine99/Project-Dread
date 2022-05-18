@@ -1,5 +1,4 @@
 varying float yPosition;
-
 uniform float opacity;
 
 void main(){

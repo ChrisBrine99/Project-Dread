@@ -74,9 +74,10 @@ function string_format_width(_string, _maxWidth, _usedFont){
 	// After properly storing the currently in use font and replacing it with the font that is required for
 	// the supplied string, begin looping through the characters and formatting it in such a way that it 
 	// doesn't exceed the supplied maximum width value.
-	var _newString, _curLine, _length, _curChar, _curWord;
+	var _newString, _curLine, _curWord, _length, _curChar;
 	_newString = ""; // Initialize as empty in case the for loop doesn't execute; prevents crashing
 	_curLine = "";
+	_curWord = "";
 	_length = string_length(_string);
 	for (var i = 1; i <= _length; i++){
 		_curChar = string_char_at(_string, i);
@@ -98,6 +99,10 @@ function string_format_width(_string, _maxWidth, _usedFont){
 	// prevents any errors specifically with the outline shader, since changing fonts without updating the
 	// current texel size could cause rendering errors.
 	draw_set_font(_previousFont);
+	
+	// UNIQUE CASE -- Only one line was parsed by this function, so it will be what is returned since no
+	// actually formatting was necessary from the function.
+	if (_newString == "") {return _curLine + _curChar;}
 	
 	// Finally, return the new string; formatted in such a way that there are line breaks allowing it to fit
 	// within the bounds of 0 and the "_maxWidth" argument provided by the code.
@@ -399,13 +404,8 @@ function inventory_item_add(_itemName, _quantity, _durability, _createItem = fal
 		}
 	}
 	
-	// If there was an excess amount of the item that was to be added that didn't fit within the inventory,
-	// and the flag to create a physical item object in the game world for that excess has been toggled true,
-	// the item object will be created with the information for the item and its excess amount.
-	if (_quantity > 0 && _createItem){
-		show_debug_message("Item will be created here");
-		// TODO -- Create the item object here.
-	}
+	// 
+	if (_quantity > 0 && _createItem) {object_create_world_item(PLAYER.x, PLAYER.y, _itemName, _quantity, _durability);}
 	
 	// If the loop completed its execution before the entire quantity of the desired item could be added into
 	// the inventory; return that remaining quantity back to wherever this function was called, so it can be
@@ -422,7 +422,6 @@ function inventory_item_add(_itemName, _quantity, _durability, _createItem = fal
 /// inventory item removal. (Ex. Player losing all their items for whatever reason, and can't get them back)
 /// @param itemName
 /// @param quantity
-/// @param createItem
 function inventory_item_remove_amount(_itemName, _quantity){
 	// Loop through the inventory and remove as much of the quantity required of the item from it as possible.
 	// This is done by linearly going through each slot and comparing the name data of the item within the 
@@ -459,19 +458,21 @@ function inventory_item_remove_amount(_itemName, _quantity){
 /// @param slotIndex
 /// @param createItem
 function inventory_item_remove_slot(_slotIndex, _createItem = false){
+	// 
+	if (global.items[_slotIndex] == noone) {return;}
+	
 	// If the flag to create a physical game object was toggled from the function's call, it will be created
 	// BEFORE the item's data is cleared from the inventory slot. Otherwise, the item's data will be lost with
 	// the struct deletion and it won't be able to be referenced for the item object's variables to use.
 	if (_createItem){
-		// TODO -- Create item object here with removed item's data
+		with(global.items[_slotIndex]){ // 
+			object_create_world_item(PLAYER.x, PLAYER.y, itemName, quantity, durability);
+		}
 	}
 	
-	// Make sure there's actually a valid pointer found within the slot index before deleting it from memory.
-	// After that, reset the slot's stored value to the Game Maker default for no instance id: -4 (AKA noone).
-	if (global.items[_slotIndex] != noone){
-		delete global.items[_slotIndex];
-		global.items[_slotIndex] = noone;
-	}
+	// 
+	delete global.items[_slotIndex];
+	global.items[_slotIndex] = noone;
 }
 
 /// @description Swaps the data between two of the avaiable slots in the inventory array, which is as simple
@@ -651,6 +652,39 @@ function inventory_item_craft_default(_craftingData, _firstItemName, _secondItem
 function object_set_next_state(_nextState){
 	nextState = _nextState;
 	lastState = curState;
+}
+
+/// @description 
+/// @param warpID
+function object_perform_room_warp(_warpID){
+	with(_warpID){
+		// 
+		room_goto(targetRoom);
+		
+		// 
+		var _targetX, _targetY;
+		_targetX = targetX;
+		_targetY = targetY;
+		with(PLAYER){
+			x = floor(_targetX);
+			y = floor(_targetY);
+		}
+	}
+}
+
+/// @description A function that is used by both "obj_dynamic_entity" and "obj_static_entity", so it is a
+/// global function that both can easily reference instead of having two identical functions found within
+/// both of those parent objects. It allows easy adjustments to an entity's drop shadow; its size, offset,
+/// and whether or not it should actually be rendered or not.
+/// @param displayShadow
+/// @param radius
+/// @param offsetX
+/// @param offsetY
+function object_set_shadow(_displayShadow, _radius = 0, _offsetX = 0, _offsetY = 0){
+	displayShadow = _displayShadow;
+	shadowRadius = _radius;
+	shadowOffsetX = _offsetX;
+	shadowOffsetY = _offsetY;
 }
 
 #endregion

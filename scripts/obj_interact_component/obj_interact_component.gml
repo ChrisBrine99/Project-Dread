@@ -23,31 +23,33 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _id) constru
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_interact_component;
 	
-	// 
+	// Much like Game Maker's built-in x and y variables for their standard objects, this pair will store the
+	// origin of the interact component's position, which is then used in tandem with the interact's radius
+	// area is being hit by the player's interaction point.
 	x = _x;
 	y = _y;
 	
-	// 
+	// Two important variables for this component; the first determining how large of an area from the position
+	// of the component's origin the player's interact point can be considered "interacting" with the parent
+	// object of this component. The second variable stores the index to the function that is called when
+	// an interaction actually occurs.
 	radius = _radius;
 	interactFunction = _interactFunction;
 	
-	//
+	// Stores the unique ID value for the instance that this interact component is attached to. This allows
+	// the component to always know exactly which instance is linked to their respective interaction function
+	// if that function requires the parent object to be referenced.
 	parentID = _id;
 	
-	// 
+	// The flag that determines if the player is allowed to interact with said interactable object. This
+	// interactability is determined by the room's current lighting OR if the player's flashlight is active.
 	canInteract = false;
 	
-	/// @description 
+	/// @description The function that is called in order to check if the player can see the item or not in
+	/// the current room. This is determined by searching for the closest light source to the object and 
+	/// then comparing if that distance is within range of the output from said light source; returning true
+	/// or false depending on the result of this check.
 	can_player_interact = function(){
-		// 
-		with(PLAYER){
-			if (isFlashlightOn){
-				other.canInteract = true;
-				return; // No calculations necessary, the player will alows be able to interact with the component.
-			}
-		}
-		
-		// 
 		var _x, _y, _radius, _nearestLight, _nearestDistance, _length, _tempDistance;
 		_x = x;
 		_y = y;
@@ -65,7 +67,10 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _id) constru
 			}
 		}
 		
-		// 
+		// Oonce all of the lights have been parsed through and compared with the position of the interact 
+		// component's parent object for interactability, the flag that allows it to be interacted with is 
+		// set based on if an instance ID value is stored in the _nearestLight variable is a valid instance 
+		// ID. (No instance will be a value of "noone")
 		canInteract = (_nearestLight != noone);
 	}
 }
@@ -74,7 +79,10 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _id) constru
 
 #region Global functions related to obj_interact_component
 
-/// @description 
+/// @description The function that allows an interact component to be created and have its pointer stored 
+/// within a variable for later use within that entity instance object. It will also add this component to
+/// a global list of interact component instances which is used to figure out which one the player has 
+/// interacted with whenever they press their interact input.
 /// @param x
 /// @param y
 /// @param radius

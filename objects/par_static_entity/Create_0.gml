@@ -10,12 +10,17 @@ interactComponent = noone;
 z = 0;
 zHeight = 0;
 
-// Variables for the entity shadow system. These "shadows" are just circles displayed on the floor beneath
-// the entity's feet if the flag for doing so is set within the entity. The radius variable stores the radius
-// for the width of the shadow; that value being halved for the height of the shadow to make it match the
-// perspective that the game is going for.
-displayShadow = false;
+//
+shadowOffsetX = 0;
+shadowOffsetY = 0;
 shadowRadius = 0;
+
+//
+displayShadow = false;
+
+// A flag that allows entities to have their rendering toggled on and off at any given moment. Useful for objects
+// that are classified as entities, but shouldn't be rendered for the player to see. (Ex. Door warp objects)
+displaySprite = true;
 
 // Adds the entity to the depth sorter's global grid by expanding itself by one; making room for this entity's
 // information for the depth sorting logic.

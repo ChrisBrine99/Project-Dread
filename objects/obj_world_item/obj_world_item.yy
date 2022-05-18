@@ -33,8 +33,8 @@
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "Interactables",
-    "path": "folders/Resources/Core/Entities/Static/Interactables.yy",
+    "name": "World Item",
+    "path": "folders/Resources/Core/Entities/Static/Interactables/World Item.yy",
   },
   "resourceVersion": "1.0",
   "name": "obj_world_item",

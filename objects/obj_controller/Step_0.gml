@@ -1,9 +1,11 @@
 // Call the function stored within the gamepad data struct that handles the hotswapping of the game's input
 // between the currently connected controller and the keyboard depending on the most recent input(s) from both.
-with(global.gamepad) {step();}
+with(global.gamepad)	{step();}
 
-// Call the textbox handler's step event, which handles it player input functionality.
-with(TEXTBOX_HANDLER) {step();}
+// Call the textbox handler's step event, which handles it player input functionality. Also update the screen
+// fade graphical effect if it currently exists.
+with(TEXTBOX_HANDLER)	{step();}
+with(SCREEN_FADE)		{step();}
 
 // Loop through all of the currently existing menus and execute their step events, which handle player input,
 // animations, and menu cursor movement logic.

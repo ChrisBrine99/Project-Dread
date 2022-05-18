@@ -72,6 +72,10 @@ spriteLength = 0;
 loopOffset = 0;
 loopLength = 0;
 
+// A flag that allows entities to have their rendering toggled on and off at any given moment. Useful for objects
+// that are classified as entities, but shouldn't be rendered for the player to see. (Ex. Door warp objects)
+displaySprite = true;
+
 // Variables for the fake 3D that the game contains. In short, it allows entities to be above and below each
 // other relative to their "Z Height", which is how tall their collision box is on this fake Z-axis.
 z = 0;
@@ -116,22 +120,29 @@ vspdFraction = 0;
 hitpoints = 0;
 maxHitpoints = 0;
 maxHitpointModifier = 0;
+maxHitpointFactor = 1;
+
+// 
+invulnerableTimer = 0;
 
 // Some flags that are states an entity can be in that aren't normal "states" in terms of a state machine.
 // Instead, they are general flags that can allows the states themselves to function differently based on what
 // their values are set to. The first determines if the entity in "on the ground" AKA they are colliding in
-// the z-axis with some object below them, and the other two determine if the entity is destroyed OR if the
-// entity can be deleted to begin with.
+// the z-axis with some object below them, and the next two determine if the entity is destroyed OR if the
+// entity can be deleted to begin with. Finally, the last flag determines if the entity is currently in their
+// invulnerable state or not after they take damage.
 isGrounded = true;
 isDestroyed = false;
 isInvincible = false;
+isHit = false;
 
-// Variables for the entity shadow system. These "shadows" are just circles displayed on the floor beneath
-// the entity's feet if the flag for doing so is set within the entity. The radius variable stores the radius
-// for the width of the shadow; that value being halved for the height of the shadow to make it match the
-// perspective that the game is going for.
-displayShadow = false;
+// 
+shadowOffsetX = 0;
+shadowOffsetY = 0;
 shadowRadius = 0;
+
+// 
+displayShadow = false;
 
 // Three variables that handle how an entity's footsteps will sound relative to the material that exists
 // below them at that given moment. (This is any tile found on the tilemap/layer stored within the first 
@@ -164,9 +175,44 @@ depth_sorter_add_entity();
 /// @description Getters for some of the "maximum" values contained within an entity object that can have
 /// their actual max values changed by a respective modifier/factor variable. Below are the getters for the
 /// entity's current maximum hitpoints, as well as their maximum horizontal and vertical movement speeds.
-get_max_hitpoints = function()	{return max(1, maxHitpoints + maxHitpointModifier);}
+get_max_hitpoints = function()	{return max(1, floor((maxHitpoints + maxHitpointModifier) * maxHitpointFactor));}
 get_max_hspd = function()		{return max(0, maxHspd * maxHspdFactor);}
 get_max_vspd = function()		{return max(0, maxVspd * maxVspdFactor);}
+
+/// @description A simple function that sets the current value of the entity's hitpoints relative to the
+/// value that is supplied to the function's "_valueToAdd" argument. If their hitpoints after the value is
+/// added to the function is less than zero, a non invincible entity will be flagged to be destroyed.
+/// Otherwise, it is capped at whatever the current hitpoint maximum currently is.
+/// @param valueToAdd
+set_hitpoints = function(_valueToAdd){
+	hitpoints += _valueToAdd;
+	if (hitpoints < 0 && !isInvincible)			{isDestroyed = true;} 
+	else if (hitpoints > get_max_hitpoints())	{hitpoints = get_max_hitpoints();}
+}
+
+/// @description A simple function that adjusts the value of the variable that stores the additive bonuses to
+/// a given entity's maximum hitpoint value. Optionally, the same additive value can be added or subtracted
+/// to the current hitpoint value to keep the gap between them consistent.
+/// @param valueToAdd
+/// @param updateHitpointValue
+set_max_hitpoint_modifier = function(_valueToAdd, _updateHitpointValue){
+	maxHitpointModifier += _valueToAdd;
+	if (_updateHitpointValue)	{set_hitpoints(_valueToAdd);}
+	else						{set_hitpoints(0);} // This line prevents hitpoints from going above their new maximum.
+}
+
+/// @description A simple function that allows the adjustment of an entity's maximum hitpoint factor, which is
+/// a value that is multiplied against the base max hitpoints and whatever the current modifier value is in
+/// order to scale the maximum by a percentage relative to the sum other two values. Optionally, this function
+/// can adjust the current hitpoints by the same factor that the max hitpoint value was changed by.
+/// @param valueToAdd
+/// @param updateHitpointValue
+set_max_hitpoint_factor = function(_valueToAdd, _updateHitpointValue){
+	var _prevMaxHitpoints = get_max_hitpoints();
+	maxHitpointFactor = max(0, maxHitpointFactor + _valueToAdd);
+	if (_updateHitpointValue)	{set_hitpoints(get_max_hitpoints() - _prevMaxHitpoints);}
+	else						{set_hitpoints(0);} // This line prevents hitpoints from going above their new maximum.
+}
 
 /// @description A function that updates an entity's position using pixel-perfect movement; storing any
 /// fractional values until a whole value can be parsed out of them. Preventing sub-pixel movement is 
@@ -253,6 +299,40 @@ set_sprite = function(_spriteIndex, _animationSpeed){
 	// The animation speed variable, which allows the sprite's animation to be sped up and slowed down 
 	// relative to the sprite resource's base animation speed, is updated every time this function is called.
 	animSpeed = _animationSpeed;
+}
+
+/// @description 
+/// @param damage
+/// @param invulnerablyTime
+damage_entity = function(_damage, _invulnerableTime){
+	// 
+	if (isHit) {return;}
+	set_hitpoints(-_damage);
+	
+	//
+	if (_invulnerableTime > 0){
+		object_set_next_state(state_stun_locked);
+		invulnerableTimer = _invulnerableTime;
+		isHit = true;
+	}
+}
+
+#endregion
+
+#region States for use in all children objects of par_dynamic_entity
+
+/// @description
+state_stun_locked = function(){
+	// 
+	invulnerableTimer -= global.deltaTime;
+	if (invulnerableTimer <= 0){
+		object_set_next_state(lastState);
+		invulnerableTimer = 0;
+		isHit = false;
+	}
+	
+	// 
+	set_sprite(sprite_index, 0);
 }
 
 #endregion

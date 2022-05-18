@@ -8,6 +8,7 @@ with(CUTSCENE_MANAGER)	{}				delete CUTSCENE_MANAGER;
 with(TEXTBOX_HANDLER)	{cleanup();}	delete TEXTBOX_HANDLER;
 with(DEPTH_SORTER)		{cleanup();}	delete DEPTH_SORTER;
 with(CONTROL_INFO)		{cleanup();}	delete CONTROL_INFO;
+with(SCREEN_FADE)		{}				delete SCREEN_FADE;
 with(PLAYER)			{instance_destroy(self);}	// No "delete" needed
 with(DEBUGGER)			{cleanup();}	delete DEBUGGER;
 
@@ -21,7 +22,8 @@ for (var i = 0; i < _length; i++){
 ds_list_destroy(global.menuInstances);
 
 // After cleaning up all the singletones and their allocated memory, clean up all of the global data structures
-// and allocated memory before telling Game Maker to end the game's execution.
+// and allocated memory before telling Game Maker to end the game's execution. The general order of this
+// clean up doesn't really matter so long as they are all freed from memory here.
 ds_map_destroy(global.sInstances);
 ds_map_destroy(global.fontTextures);
 ds_list_destroy(global.interactables);
@@ -29,8 +31,9 @@ delete global.shaderOutline;
 delete global.shaderFeathering;
 delete global.audioListener;
 delete global.gameState;
+delete global.events;
 delete global.gameplay;
-delete global.itemData;
+delete global.itemData;	// This single "delete" statement will automatically clear all contained data structures from memory.
 delete global.settings;
 delete global.gamepad;
 
@@ -44,6 +47,15 @@ for (var i = 0; i < _length; i++){
 	}
 }
 ds_list_destroy(global.notes);
+
+// 
+var _key = ds_map_find_first(global.worldItemData);
+while(!is_undefined(_key)){
+	ds_list_destroy(global.worldItemData[? _key]);
+	_key = ds_map_find_next(global.worldItemData, _key);
+}
+ds_map_destroy(global.worldItemData);
+ds_list_destroy(global.collectedItems);
 
 // Finally, signal to Game Maker to terminate the program's execution; only after everything has been cleaned up.
 game_end();

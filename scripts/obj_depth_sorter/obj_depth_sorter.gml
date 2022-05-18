@@ -32,10 +32,11 @@ function obj_depth_sorter() constructor{
 	wallTiles =	-1;
 	auxWallTiles =	-1;
 	
-	// A variable that stores the index value for the surface that all the entity shadows are rendered onto.
-	// Then it is rendered to the screen using a blendmode that causes the circles to fade out smoothly 
-	// instead of having rough edges.
-	surfShadow = -1;
+	// Some variables that store debug information that can be displayed by the debugging object; allowing
+	// for instantly knowing how many entities and entity drop shadows are currently being drawn by the 
+	// depth sorting's draw event.
+	entitiesDrawn = 0;
+	shadowsDrawn = 0;
 	
 	/// @description Code that should be placed into the "room start" event of whatever object is controlling
 	/// obj_depth_sorter. In short, 
@@ -98,11 +99,12 @@ function obj_depth_sorter() constructor{
 			_cameraX = x;
 			_cameraY = y;
 		}
-		_cameraWidth = CAM_WIDTH;	// The width and height are found within a struct that is separate from the camera.
-		_cameraHeight = CAM_HEIGHT;
+		_cameraWidth = _cameraX + CAM_WIDTH;	// The width and height are found within a struct that is separate from the camera.
+		_cameraHeight = _cameraY + CAM_HEIGHT;
 		
 		// Call the function that renders the shadows ovals of varying/unique sizes onto the floors of the
 		// current room, but below the wall tilemaps. (Those are rendered manually directly below this line)
+		shadowsDrawn = 0; // Reset the debug counter before shadows are drawn again.
 		draw_entity_shadows(_cameraX, _cameraY, _cameraWidth, _cameraHeight);
 		
 		// Draw the room's walls and wall details AFTER rendering shadows, which should only have their 
@@ -111,65 +113,64 @@ function obj_depth_sorter() constructor{
 		draw_tilemap(auxWallTiles, 0, 0);
 		
 		// Loops through all of the entities and render them in the order they were sorted in above.
+		entitiesDrawn = 0; // Reset the debug counter before entities are drawn again.
+		var _entitiesDrawn = 0;
 		for (var i = 0; i < totalEntities; i++){
 			with(global.entities[# 0, i]){
-				// Display every entity that is VISIBLE ON SCREEN. Otherwise, the view bounds check will be
-				// false and no draw event will be called for the entity; saving resources.
-				if (x + sprite_width >= _cameraX && y + sprite_height >= _cameraY && x - sprite_width <= _cameraX + _cameraWidth && y - sprite_height <= _cameraY + _cameraHeight){
+				// Display every entity that is VISIBLE ON SCREEN and has their flag for rendering themselves
+				// currently set to "true". Otherwise, the view bounds check will be false OR no sprite should
+				// render--meaning no draw event will be called for the entity; saving resources.
+				if (displaySprite && x + sprite_width >= _cameraX && y + sprite_height >= _cameraY && x - sprite_width <= _cameraWidth && y - sprite_height <= _cameraHeight){
 					event_perform(ev_draw, 0);
+					_entitiesDrawn++;
 				}
 			}
 		}
+		entitiesDrawn = _entitiesDrawn;
 	}
 	
 	/// @description Cleans up any systems and variables that could potentially cause memory leaks if left
 	/// unhandled while the game is still running. (Game Maker cleans it all up at the end of runtime by
 	/// default, so it doesn't matter as much in that case)
 	cleanup = function(){
-		if (surface_exists(surfShadow)) {surface_free(surfShadow);}
 		ds_grid_destroy(global.entities);
 	}
 	
 	/// @description The function that is responsible for rendering shadows on the game's floor beneath each
-	/// currently existing entity in the room. 
+	/// currently existing entity in the room. It loop through all of the entities that exist within the 
+	/// current room, rendering their shadows if they have been flagged to do so; the size of the shadow 
+	/// being depending on how high up the entity is from the floor. (AKA its current Z value)
 	/// @param cameraX
 	/// @param cameraY
 	/// @param cameraWidth
 	/// @param cameraHeight
 	draw_entity_shadows = function(_cameraX, _cameraY, _cameraWidth, _cameraHeight){
-		// Before anything is done, the surface needs to be checked to see if it still exists, since they are
-		// volitile and will be flushed out of the GPU unpredictably. This line makes sure that there is a
-		// proper surface to reference in case that ever happens.
-		if (!surface_exists(surfShadow)){
-			surfShadow = surface_create(_cameraWidth, _cameraHeight);
-		}
-		
-		// Switch over to the shadow that is responsible for holding all of the shadow sprites onto it, which
-		// are then drawn at the end of this function with a unique blendmode setting.
-		surface_set_target(surfShadow);
-		draw_clear_alpha(c_black, 0); // Completely clear out the surface
-		
-		// Loop through all of the entities that exist within the current room, rendering their shadows if
-		// they have been flagged to do so; the size of the shadow being depending on how high up the entity
-		// is from the floor. (AKA its current Z value)
-		var _shadowRadius, _halfRadius;
+		shader_set(shd_shadow);
+		var _shadowsDrawn, _shadowRadius, _halfRadius, _shadowX, _shadowY;
+		_shadowsDrawn = 0;
 		for (var i = 0; i < totalEntities; i++){
 			with(global.entities[# 0, i]){
-				_shadowRadius = shadowRadius / max(1, (z * 0.15)); // As the entity's height increases, their shadow shrinks.
-				if (displayShadow && _shadowRadius > 0){
+				if (displayShadow){
+					// As the entity's z value increases, their shadow will slowly shrink in size until it is
+					// no longer visible. Also, the veritcal size of the shadow is half that of the horizontal
+					// size; to mimic the fake 2.5D depth of the game's artsyle.
+					_shadowRadius = shadowRadius / max(1, (z * 0.15));
 					_halfRadius = _shadowRadius * 0.5;
-					draw_ellipse_color(x - _shadowRadius - _cameraX, y - _halfRadius - _cameraY, x + _shadowRadius - _cameraX, y + _halfRadius - _cameraY, c_black, c_white, false);
+					
+					// 
+					_shadowX = x + shadowOffsetX;
+					_shadowY = y + shadowOffsetY;
+					
+					// Determine if the entity's shadows should be drawn by checking if it's actually visible on the
+					// screen. Otherwise, rendering will be a waste of time and resources, so it will be skipped.
+					if (_shadowX + _shadowRadius < _cameraX || _shadowY + _halfRadius < _cameraY || _shadowX - _shadowRadius > _cameraWidth || _shadowY - _shadowRadius > _cameraHeight) {continue;}
+					draw_ellipse_color(_shadowX - _shadowRadius, _shadowY - _halfRadius, _shadowX + _shadowRadius, _shadowY + _halfRadius, c_white, c_black, false);
+					_shadowsDrawn++;
 				}
 			}
 		}
-		surface_reset_target();
-		
-		// Display the surface to the game window, but set the blendmode in such a way that treats pure white
-		// as a completely empty pixel (R: 0, G: 0, B: 0, A: 0) so that the shadows smoothly fade out from the
-		// center of the oval.
-		gpu_set_blendmode_ext(bm_add, bm_subtract);
-		draw_surface(surfShadow, _cameraX, _cameraY);
-		gpu_set_blendmode(bm_normal);
+		shadowsDrawn = _shadowsDrawn;
+		shader_reset();
 	}
 }
 

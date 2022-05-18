@@ -2,6 +2,8 @@
 // the currently executing state function, and other general non-state related code.
 event_inherited();
 
-// Update the value for the player's accuracy penalty here since it doesn't rely on whatever state the
-// player object is currently assigned to. So, it will be reduced here by calling the function.
-update_accuracy_penalty();
+// 
+if (GAME_STATE_CURRENT != GameState.Paused){
+	update_accuracy_penalty();
+	update_player_ailments();
+}

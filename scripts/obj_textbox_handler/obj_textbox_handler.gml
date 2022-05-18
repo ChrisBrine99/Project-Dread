@@ -201,6 +201,12 @@ function obj_textbox_handler() constructor{
 			actorSwap = false;
 		}
 		
+		// In order to prevent the player from animating in place if they were moving when a textbox opens,
+		// their sprite needs to be set to the standing sprite in whatever direction they were facing.
+		if (isTextboxActive){
+			with(PLAYER) {set_sprite(spr_player_unarmed_stand0, 0);}
+		}
+		
 		// Don't allow any input to be processed by the textbox if it currently isn't actively displaying
 		// text to the player OR while it's animation. Failing to check if there is a state will result
 		// in the game crashing, and the pause for animation stops it from jittering when the player mashes
@@ -828,10 +834,6 @@ function textbox_begin_execution(){
 		object_set_next_state(state_default);
 		GAME_SET_STATE(GameState.Cutscene, true);
 		isTextboxActive = true;
-		
-		// In order to prevent the player from animating in place if they were moving when a textbox opens,
-		// their sprite needs to be set to the standing sprite in whatever direction they were facing.
-		with(PLAYER) {set_sprite(spr_player_unarmed_stand0, 0);}
 		
 		// Loop through all of the dynamic entities that exist within the current room; storing their three
 		// state variables before clearing out those states to prevent dynamic entities from functioning.

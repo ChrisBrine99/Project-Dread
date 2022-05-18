@@ -16,4 +16,8 @@ _pitch = 1 + random_range(-0.075, 0.075);
 audio_play_sound_at_ext(x, y - 16, painSounds[painSoundIndex], 0, _volume, _pitch, 75, 225, 1, false);
 
 //
-camera_set_shake(8, 15);*/
+camera_set_shake(8, 15);
+damage_entity(-1, 30);
+
+//room_restart();
+//show_debug_message("ROOM RESET");

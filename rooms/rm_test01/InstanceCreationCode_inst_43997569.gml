@@ -1,0 +1,1 @@
+set_item_data(HANDGUN_AMMO, 35, 0, 0);

@@ -61,9 +61,56 @@ global.audioListener = {
 	}
 }
 
-// 
+// Since these only need to be during the initialization phase of the game, they are set here right after
+// the audio listener's code has been read by the compiler and initialized. They determine how sounds will
+// fall off in volume relative to the position of the sound against the listener's position, and the
+// orientation for the listener is set up to properly mimic a stereo effect for all sound effects.
 audio_falloff_set_model(audio_falloff_linear_distance);
 audio_listener_orientation(0, 0, 1, 0, -1, 0);
+
+#endregion
+
+#region Event flag struct
+
+// The struct that is responsible for managing all of the event flags within the game. These flags are
+// responsible for spawning in new objects, triggering cutscenes, making certain sounds/music play at specific
+// points, and any other number of possibilities that can be thought up.
+global.events = {
+	// The data map that contains all of the flags for given "events" in the game, which can be anything as
+	// simple as unlocking a door/solving a puzzle to completely changing the layout of a given room, for
+	// example.
+	flags : ds_map_create(),
+	
+	/// @description Creates a new entry into the event flag data map with the given ID value and starting
+	/// state value. However, no event flag is created if there is already an event flag that exists at the
+	/// given ID value.
+	/// @param flagID
+	/// @param startState
+	create_flag : function(_flagID, _startState = false){
+		if (!is_undefined(flags[? _flagID])) {return flags[? _flagID];}
+		ds_map_add(flags, _flagID, _startState);
+		return flags[? _flagID];
+	},
+	
+	/// @description A function that sets a given flag's value to the state that was provided to the function's
+	/// given argument parameter. If there is no valid event flag at that ID, the function will simply do
+	/// nothing with any flag data.
+	/// @param flagID
+	/// @param flagState
+	set_flag : function(_flagID, _flagState){
+		if (is_undefined(flags[? _flagID])) {return;}
+		flags[? _flagID] = _flagState;
+	},
+	
+	/// @description A function that simply returns the current state of the flag in question. However, if
+	/// a flagID was provided to the function that doesn't currently exist within the map, the value -300
+	/// will be returned as a general error value.
+	/// @papram flagID
+	get_flag : function(_flagID){
+		if (is_undefined(flags[? _flagID])) {return EVENT_FLAG_INVALID;}
+		return flags[? _flagID];
+	}
+}
 
 #endregion
 
@@ -368,12 +415,6 @@ global.gameplay = {
 		// that consume no ammunition.
 		pStartingPistol =		true;
 		pRegenHitpoints =		true;
-		
-		// Loads in the world data that is specific to "Foprgiving" difficulty. However, it only provides the 
-		// general data and things like puzzle/important items and their locations can be further changed
-		// based on the set puzzle difficulty--these changes being done in Game Maker's room editor instead
-		// of this general purpose data file.
-		global.worldItemData = encrypted_json_load("world_data_forgiving.json", "");
 	},
 	
 	/// @description Initializes the gameplay struct to not affect that gameplay at all. (Aside from how
@@ -399,12 +440,6 @@ global.gameplay = {
 		eDamageModifier =		1.0;
 		
 		// NOTE -- No gameplay modification flags are set on this difficulty.
-		
-		// Loads in the world data that is specific to "Standard" difficulty. However, it only provides the 
-		// general data and things like puzzle/important items and their locations can be further changed
-		// based on the set puzzle difficulty--these changes being done in Game Maker's room editor instead
-		// of this general purpose data file.
-		//global.worldItemData = encrypted_json_load("world_data_standard.json", "");
 	},
 	
 	/// @description 
@@ -429,12 +464,6 @@ global.gameplay = {
 		// add a little bit more of a challenge to the standard gameplay without being as punishing as limited
 		// save, which is a mechanic saved for "Nightmare" difficulty.
 		pItemRepairs =			true;
-		
-		// Loads in the world data that is specific to "Punishing" difficulty. However, it only provides the 
-		// general data and things like puzzle/important items and their locations can be further changed
-		// based on the set puzzle difficulty--these changes being done in Game Maker's room editor instead
-		// of this general purpose data file.
-		global.worldItemData = encrypted_json_load("world_data_punishing.json", "");
 	},
 	
 	/// @description 
@@ -456,12 +485,6 @@ global.gameplay = {
 		// 
 		pItemRepairs =			true;
 		pLimitedSaving =		true;
-		
-		// Loads in the world data that is specific to "Nightmare" difficulty. However, it only provides the 
-		// general data and things like puzzle/important items and their locations can be further changed
-		// based on the set puzzle difficulty--these changes being done in Game Maker's room editor instead
-		// of this general purpose data file.
-		global.worldItemData = encrypted_json_load("world_data_nightmare.json", "");
 	},
 	
 	/// @description
@@ -490,12 +513,6 @@ global.gameplay = {
 		// is disabled, the flag for limiting saves is pointless and not set on this difficulty.
 		pItemRepairs =			true;
 		pOneLifeMode =			true;
-		
-		// Loads in the world data that is specific to "One Life Mode" difficulty. However, it only provides
-		// the general data and things like puzzle/important items and their locations can be further changed
-		// based on the set puzzle difficulty--these changes being done in Game Maker's room editor instead
-		// of this general purpose data file.
-		global.worldItemData = encrypted_json_load("world_data_one_life_mode.json", "");
 	}
 }
 
@@ -561,11 +578,5 @@ global.shaderFeathering = {
 // room. This allows all of them to easily be iterated through and processed for when there is an interact
 // check performed by the player object.
 global.interactables = ds_list_create();
-
-// The data structure that is responsible for storing all the data for items that can be picked up within
-// the game world. Each element stores the name of the item, room its found in, quantity, and durability.
-// Each difficulty will have a unique file for their world item data, since item locations and certain items
-// in general are different on a per-difficulty basis.
-global.worldItemData = -1;
 
 #endregion
