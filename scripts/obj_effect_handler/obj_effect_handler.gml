@@ -21,6 +21,10 @@ function obj_effect_handler() constructor{
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_effect_handler;
 	
+	// 
+	windowTexelWidth =	1 / CAM_WIDTH;
+	windowTexelHeight = 1 / CAM_HEIGHT;
+	
 	// Stores the surface that has each light source rendered onto it before being blended back onto the
 	// application surface to result in a natural-looking lighting system.
 	surfLight = noone;
@@ -40,6 +44,23 @@ function obj_effect_handler() constructor{
 	ambientStrength =	0.95;
 	
 	// 
+	surfBlurBuffer = noone;
+	
+	// 
+	sBlurRadius =		shader_get_uniform(shd_screen_blur, "blurRadius");
+	sBlurIntensity =	shader_get_uniform(shd_screen_blur, "blurIntensity");
+	sBlurTexelSize =	shader_get_uniform(shd_screen_blur, "blurTexelSize");
+	sBlurDirection =	shader_get_uniform(shd_screen_blur, "blurDirection");
+	
+	// 
+	blurRadius =		5;
+	blurIntensity =		0.25;
+	
+	// 
+	intensityTarget =	0;
+	intensityModifier = 0.001;
+	
+	// 
 	fgSize = sprite_get_width(spr_film_grain);
 	fgOffsetX = 0;
 	fgOffsetY = 0;
@@ -47,9 +68,11 @@ function obj_effect_handler() constructor{
 	// 
 	sScanlineOpacity =	shader_get_uniform(shd_scanlines, "opacity");
 	
-	/// @description 
+	/// @description Code that should be placed into the "Step" event of whatever object is controlling
+	/// obj_effect_handler. In short, it will update any variables/effects that need to be altered on a
+	/// frame-by-frame basis. (Ex. Smoothly fading blur effect in and out)
 	step = function(){
-		
+		blurIntensity = value_set_linear(blurIntensity, intensityTarget, intensityModifier);
 	}
 	
 	/// @description Code that should be placed into the "Draw End" event of whatever object is controlling 
@@ -58,6 +81,11 @@ function obj_effect_handler() constructor{
 	draw_end = function(){
 		var _camera = CAMERA.cameraID;
 		render_lights(camera_get_view_x(_camera), camera_get_view_y(_camera));
+	}
+	
+	/// @description 
+	draw_gui_begin = function(){
+		render_screen_blur();
 	}
 	
 	/// @description Code that should be placed into the "Draw GUI End" event of whatever object is controlling
@@ -75,6 +103,7 @@ function obj_effect_handler() constructor{
 	cleanup = function(){
 		// 
 		if (surface_exists(surfLight)) {surface_free(surfLight);}
+		if (surface_exists(surfBlurBuffer)) {surface_free(surfBlurBuffer);}
 		
 		// 
 		var _length = ds_list_size(global.lightSources);
@@ -137,6 +166,7 @@ function obj_effect_handler() constructor{
 				shader_set_uniform_f(_sLightStrength, strength);
 				shader_set_uniform_f(_sLightSize, radius);
 				shader_set_uniform_f(_sLightFov, fov);
+				
 				// After apply all the characteristics to their respective uniforms, draw the light by simply
 				// drawing the application surface in this additive blending mode, which results in a proper
 				// light source being drawn to the light surface.
@@ -159,6 +189,35 @@ function obj_effect_handler() constructor{
 		draw_surface(surfLight, _cameraX, _cameraY);
 		gpu_set_blendmode(bm_normal);
 	}
+	
+	/// @description 
+	render_screen_blur = function(){
+		// 
+		if (blurRadius == 0 || blurIntensity == 0) {return;}
+		
+		// 
+		if (!surface_exists(surfBlurBuffer)) {surfBlurBuffer = surface_create(CAM_WIDTH, CAM_HEIGHT);}
+		
+		// 
+		shader_set(shd_screen_blur);
+		shader_set_uniform_f(sBlurRadius, blurRadius);
+		shader_set_uniform_f(sBlurTexelSize, windowTexelWidth, windowTexelHeight);
+		shader_set_uniform_f(sBlurIntensity, blurIntensity);
+		
+		// 
+		shader_set_uniform_f(sBlurDirection, 1, 0);
+		surface_set_target(surfBlurBuffer);
+		draw_surface(application_surface, 0, 0);
+		surface_reset_target();
+		
+		// 
+		shader_set_uniform_f(sBlurDirection, 0, 1);
+		draw_surface(surfBlurBuffer, 0, 0);
+		
+		// 
+		shader_reset();
+	}
+	
 	
 	/// @description A simple function that simulates a film grain effect on top of the game's image. It will
 	/// do so by picking a new randomized coordinate to offset itself by and then it will used that offset to

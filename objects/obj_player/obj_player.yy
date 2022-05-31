@@ -2,6 +2,7 @@
   "spriteId": null,
   "solid": false,
   "visible": false,
+  "managed": true,
   "spriteMaskId": {
     "name": "spr_player_unarmed_stand0",
     "path": "sprites/spr_player_unarmed_stand0/spr_player_unarmed_stand0.yy",

@@ -680,10 +680,10 @@ function par_menu() constructor{
 		draw_reset_text_align();
 	}
 	
-	/// @description
-	/// @param alphaTarget A simple animation function that fades the menu's alpha level towards a given level
-	/// that is provided in the first argument space. The second argument's value simply determines the speed that
-	/// the alpha level will reach the supplied target value in increments of 1/60th of a second.
+	/// @description alphaTarget A simple animation function that fades the menu's alpha level towards a 
+	/// given level that is provided in the first argument space. The second argument's value simply 
+	/// determines the speed that the alpha level will reach the supplied target value in increments of 
+	/// 1/60th of a second.
 	/// @param alphaSpeed
 	static menu_animation_alpha = function(_alphaTarget, _alphaSpeed){
 		if (alpha == _alphaTarget){ // Reset the animation state variables once the animation condition has been met.

@@ -3,6 +3,5 @@
 // and render them in the resulting list order. Entities that are off-screen will be skipped over.
 with(DEPTH_SORTER) {draw();}
 
-
 // FOR DEBUGGING
 with(DEBUGGER) {draw();}

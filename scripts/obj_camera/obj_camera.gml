@@ -471,6 +471,12 @@ function camera_set_aspect_ratio(_aspectRatio){
 		window_update_dimensions(curWidth * scale, curHeight * scale);
 	}
 	
+	// 
+	with(EFFECT_HANDLER){
+		windowTexelWidth = 1 / CAM_WIDTH;
+		windowTexelHeight = 1 / CAM_HEIGHT;
+	}
+	
 	// Update the position of the textbox on the screen so that it remains centered. Otherwise, it'd be offset
 	// to the right side of the screen if the aspect ratio went from 16:9 or 16:10 to 21:9, or be offset to
 	// the left side of the screen if the change was the other way around.
@@ -481,7 +487,7 @@ function camera_set_aspect_ratio(_aspectRatio){
 	
 	// Re-calculate the position of the right-aligned control information, since it will not be anchored to
 	// that edge of the screen if the aspect ratio goes from 16x9 to 21x9, or vice versa.
-	with(CONTROL_INFO) {calculate_display_positions(ALIGNMENT_RIGHT);}
+	with(CONTROL_INFO) {calculate_control_display_positions(ALIGNMENT_RIGHT);}
 }
 
 /// @description A simple function that will instantly snap the camera to a new position; based on a few

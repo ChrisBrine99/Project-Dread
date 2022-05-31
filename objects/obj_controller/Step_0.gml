@@ -2,8 +2,8 @@
 // between the currently connected controller and the keyboard depending on the most recent input(s) from both.
 with(global.gamepad)	{step();}
 
-// Call the textbox handler's step event, which handles it player input functionality. Also update the screen
-// fade graphical effect if it currently exists.
+// Updating all of the singleton structs that contain a step function within their code.
+with(EFFECT_HANDLER)	{step();}
 with(TEXTBOX_HANDLER)	{step();}
 with(SCREEN_FADE)		{step();}
 

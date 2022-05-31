@@ -1,4 +1,5 @@
-/// @description Insert summary of this file here.
+/// @description
+
 #region Initializing any macros that are useful/related to obj_main_menu
 #endregion
 

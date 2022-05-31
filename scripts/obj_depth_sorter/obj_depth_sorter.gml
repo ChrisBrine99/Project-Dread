@@ -157,7 +157,8 @@ function obj_depth_sorter() constructor{
 					_shadowRadius = shadowRadius / max(1, (z * 0.15));
 					_halfRadius = _shadowRadius * 0.5;
 					
-					// 
+					// Stores the coordinates for the current entity's drop shadow; making the overall code
+					// below that actually draws the shadow easier to read while containing less repeating math.
 					_shadowX = x + shadowOffsetX;
 					_shadowY = y + shadowOffsetY;
 					

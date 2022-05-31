@@ -1,12 +1,18 @@
 #region Player macro initialization
 
-//
+// The time is takes for stamina to begin regenerating after the player has stopped running; whether that
+// be them releasing the run input OR not moving despite holding the input down still. It's equal to 2.5
+// seconds of real-world time. (60 = 1 second of real-world time)
 #macro	STAMINA_REGEN_PAUSE_TIME		150
 
-// 
+// The time it takes for an ailment (Bleeding or Poisoned) to deal damage to the player whenever said
+// character is already inflicted with either or both of the ailments. It's equal to 2.5 seconds of
+// real-world time. (60 = 1 second of real-world time)
 #macro	AILMENT_EFFECT_TIME				150
 
-// 
+// Macros for the damage dealt by the poison and bleeding ailments, respectively. In the case of poison,
+// the macro only references the BASE damage of it; not the current damage it could potentially deal 
+// during an ailment check, since poison will double in damage each time it deals out said damage.
 #macro	BASE_POISON_DAMAGE				0.01
 #macro	BLEED_DAMAGE					0.05
 
@@ -121,18 +127,26 @@ isRunning = false;
 // presses the flashlight input.
 isFlashlightOn = false;
 
-// 
+// The timer that counts down from 150 units (60 units being equal to 1 second of real-world time) whenever
+// there is an active ailment on the player; be it poison or bleeding.
 ailmentTimer = 0;
 
-// 
+// A simple flag that lets the player object know if they are currently poisoned or not. If they are
+// bleeding, they will lost 5% of their maximum hitpoints every 2.5 seconds after the get inflicted with
+// said ailment.
 isBleeding = false;
 
-// 
+// The variables that manage the "poison" status ailment. The first variable tracking if the player has
+// said ailment or not, the second being a flag that flips for each ailment check so that poison only
+// applies its damage every 5 seconds instead of every 2.5 seconds like bleeding, and the last variable
+// stores how much damage the poison will deal out; doubling after it does so.
 isPoisoned = false;
 dealPoisonDamage = false;
 curPoisonDamage = BASE_POISON_DAMAGE;
 
-//
+// The flag that is triggered whenever the player is inflicted with "crippled". This status is unique
+// in that is will reduce the required stats and keep those stats lowered until the flag is flipped back
+// to false again; meaning they are no longer crippled.
 isCrippled = false;
 
 // A struct that contains a value to let the game know if there is an item currently equipped within
@@ -284,7 +298,7 @@ get_input = function(){
 		if (!global.settings.isAimToggle) {inputReadyWeapon = keyboard_check(global.settings.keyReadyWeapon);}
 		else {inputReadyWeapon = keyboard_check_pressed(global.settings.keyReadyWeapon);}	
 	} else{ // Getting input from the currently active gamepad.
-		var _gamepad = global.gamepad.ID;
+		var _gamepad = global.gamepad.deviceID;
 		
 		inputRight =		gamepad_button_check(_gamepad, global.settings.gpadGameRight);
 		inputLeft =			gamepad_button_check(_gamepad, global.settings.gpadGameLeft);
