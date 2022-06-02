@@ -40,28 +40,7 @@ function interact_item_collect_default(){
 	if (_leftover == _itemQuantity){ // Item couldn't be picked up; let the user know this was the case.
 		textbox_add_text_data("Your item inventory has no free space...");
 	} else if (_leftover > 0){ // Only a portion of the item's sum could be picked up.
-		// First, convert both the number that was picked up and the total amount of the item that is currently
-		// combined within this singular stack into strings for use in the textbox and later on for the color
-		// data for that said textbox. Display a message showing how many of the full quantity was picked up.
-		var _numPickedUp, _strItemQuantity;
-		_numPickedUp = string(_itemQuantity - _leftover);
-		_strItemQuantity = string(_itemQuantity);
-		textbox_add_text_data("Only " + _numPickedUp + " of the " + _strItemQuantity + " " + _itemName + " could be picked up and added to the inventory. The rest just couldn't fit...");
-		
-		// In order to place the color data for the two number values and the item's name at the proper
-		// positions within the string, the length's of each given string value needs to be incorporated on
-		// top of the constant values for the general position of the color relative to the general string
-		// values in between each variable value.
-		var _startChar, _endChar;
-		_startChar = 5; // Start by offseting to the 5th character; skipping over the "Only " string.
-		_endChar = 5 + string_length(_numPickedUp);
-		textbox_add_color_data(HEX_RED, RGB_DARK_RED, _startChar, _endChar);
-		_startChar = _endChar + 8; // Offset by 8 relative to the last end character's position for the " of the " string.
-		_endChar = _startChar + string_length(_strItemQuantity);
-		textbox_add_color_data(HEX_RED, RGB_DARK_RED, _startChar, _endChar);
-		_startChar = _endChar + 1; // Finally, offset by 1 for the " " string between the two last variable string values.
-		_endChar = _startChar + string_length(_itemName);
-		textbox_add_color_data(HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, _startChar, _endChar);
+		textbox_add_text_data("Only *" + RED + "*" + string(_itemQuantity - _leftover) + "# of the *" + RED + "*" + string(_itemQuantity) + "# *" + YELLOW + "*" + _itemName + "# could be picked up and added to the inventory. The rest just couldn't fit...");
 	} else{ // The complete quantity of the item was picked up, 
 		// Depending on the type of item that was collected--and how much of an item can fit within a single
 		// inventory slot--a different textbox message will appear when the item is collected. In short, the
@@ -69,17 +48,9 @@ function interact_item_collect_default(){
 		// slot. Otherwise, only the item's name is shown.
 		var _itemData = global.itemData[? KEY_ITEM_LIST][? _itemName];
 		if (_itemData[? ITEM_QUANTITY] == 1 || _itemData[? ITEM_TYPE] == TYPE_WEAPON){ // A single item was picked up; don't display quantity.
-			textbox_add_text_data("Picked up " + _itemName + ".");
-			textbox_add_color_data(HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, 10, 10 + string_length(_itemName));
+			textbox_add_text_data("Picked up *" + YELLOW + "*" + _itemName + "#.");
 		} else{ // An item that can hold multiple in a single slot was picked up; display the quantity alongside the item.
-			var _strItemQuantity = string(_itemQuantity); // Convert and store the string value for later use in the color data.
-			textbox_add_text_data("Picked up " + _strItemQuantity + " " + _itemName + ".");
-			
-			// Add color data for both the quantity that was picked up, and the item's name; just like how
-			// it's done in the code above for when only a portion of the totally item quantity was collected.
-			var _endChar = 10 + string_length(_strItemQuantity);
-			textbox_add_color_data(HEX_RED, RGB_DARK_RED, 10, _endChar);
-			textbox_add_color_data(HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, _endChar + 1, _endChar + 1 + string_length(_itemName));
+			textbox_add_text_data("Picked up *" + RED + "*" + string(_itemQuantity) + "# *" + YELLOW + "*" + _itemName + "#.");
 		}
 	}
 	
@@ -98,9 +69,7 @@ function interact_item_collect_pouch(){
 	if (global.curItemInvSize < global.gameplay.maximumItemInvSize) {global.curItemInvSize += 2;}
 	
 	// Set up a single textbox that informs the player that they've collected an item inventory expansion.
-	textbox_add_text_data("Item Pouch acquired! The amount of space to carry items has been permanently increased by two slots!");
-	textbox_add_color_data(HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, 1, 10); // Hightlights the "Item Pouch" portion.
-	textbox_add_color_data(HEX_RED, RGB_DARK_RED, 91, 93); // Highlights the "two" portion.
+	textbox_add_text_data("*" + YELLOW + "*Item Pouch# acquired! The amount of space to carry items has been permanently increased by *" + RED + "*two# slots!");
 	textbox_begin_execution();
 	
 	// Finally, destroy the instance of the world itme object that the player interacted with, and remove
@@ -169,9 +138,8 @@ function interact_door_locked(){
 				// Add text data that tells the player they've automatically used the key stored within their
 				// inventory by interacting with the locked door. The item's name will be colored yellow to
 				// make it stick out against the rest of the text.
-				textbox_add_text_data("Used the " + _keyData[DOOR_KEY_NAME] + ".");
-				textbox_add_color_data(HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, 10, 10 + string_length(_keyData[DOOR_KEY_NAME]));
-			
+				textbox_add_text_data("Used the *" + YELLOW + "*" + _keyData[DOOR_KEY_NAME] + "#.");
+
 				// Increment the number of keys used since a key was used successfully by the player.
 				_keysUsed++;
 			}
@@ -192,18 +160,6 @@ function interact_door_locked(){
 		// to the player so they know the door is currently locked. This message can be unique to each door
 		// instance in the game; telling the number of keys needed, and so on.
 		textbox_add_text_data(textboxMessage);
-		
-		// Loop through the color data that was set for this textbox message alongside the message variable
-		// within the door warp instance's room creation code. It just transfers that stored information over
-		// to the textbox for use in rendering the locked door message properly.
-		if (is_array(textboxColorData)){
-			var _colorData;
-			_length = array_length(textboxColorData);
-			for (var j = 0; j < _length; j++){
-				_colorData = textboxColorData[j];
-				textbox_add_color_data(_colorData[2], _colorData[3], _colorData[0], _colorData[1]);
-			}
-		}
 		
 		// Finally, begin the textbox's execution once the message and its reqpective color data have been
 		// added into the textbox's text data for rendering.

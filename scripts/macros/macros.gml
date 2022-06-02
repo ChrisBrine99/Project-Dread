@@ -256,8 +256,9 @@
 #macro	WEAPON_FULL_RELOAD_RATE	"Full Reload"
 #macro	WEAPON_BULLET_COUNT		"Bullet Count"
 #macro	WEAPON_BULLET_SPACING	"Spacing"			// Value > 0 means bullets show out sequentially; == 0 means all bullets spawn at once
-#macro	WEAPON_AMMO_TYPES		"Ammo Types"
 #macro	WEAPON_HIT_FRAME		"Hit Frame"			// Stat is exclusive to melee weaponry
+#macro	WEAPON_AMMO_TYPES		"Ammo Types"
+#macro	WEAPON_BARREL_POSITION	"Barrel Pos"
 #macro	WEAPON_USE_SPRITE		"Use Sprite"
 #macro	WEAPON_AIMING_SPRITE	"Aiming Sprite"
 #macro	WEAPON_RELOAD_SPRITE	"Reload Sprite"

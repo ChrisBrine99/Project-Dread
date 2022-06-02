@@ -3,6 +3,7 @@
 with(global.gamepad)	{step();}
 
 // Updating all of the singleton structs that contain a step function within their code.
+with(CUTSCENE_MANAGER)	{step();}
 with(EFFECT_HANDLER)	{step();}
 with(TEXTBOX_HANDLER)	{step();}
 with(SCREEN_FADE)		{step();}

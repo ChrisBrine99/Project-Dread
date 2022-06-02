@@ -7,6 +7,14 @@
 #macro	TEXTBOX_TARGET_Y			(CAM_HEIGHT - 58)
 #macro	TEXTBOX_START_Y				(CAM_HEIGHT + 60)
 
+// Macros for the color names that can be embedded into a given textbox's text data inside of a pair of
+// asterisks "*" that will alter the text to a pair of colors (both inner and outline, respectively) 
+// matching that given color's name.
+#macro	BLUE						"blue"
+#macro	GREEN						"green"
+#macro	RED							"red"
+#macro	YELLOW						"yellow"
+
 #endregion
 
 #region	Initializing any enumerators that are useful/related to obj_textbox_handler
@@ -37,7 +45,11 @@ function obj_textbox_handler() constructor{
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_textbox_handler;
 	
-	// 
+	// A map that will store the current states for all entities that currently exist whenever the textbox
+	// is called to run and process all of its stored text data. It will clear all those state variables
+	// to "NO_STATE" for all entities, and then return these state values back to them once the textbox
+	// had finished its execution. HOWEVER, this doesn't happen when a cutscene is currently executing
+	// since the cutscene manager will be handling entity states.
 	entityStates = ds_map_create();
 	
 	// A simple flag that can easily be referenced in code to see if the textbox is currently in its
@@ -141,11 +153,19 @@ function obj_textbox_handler() constructor{
 	// centered within it.
 	actorNameWidth = 0;
 	
-	// Two important index variables for the textbox. The first stores whatever index in the data list the
-	// textbox is currently retrieving its text/actor/color data from. The second index is what the next
-	// character range of color data will be used from the textbox's array of color data.
+	// Stores the current index out of the group of textboxes that is currently being rendering onto the
+	// screen for the player to view. This value usually increments up by one whenever a previous textbox
+	// is closed, but it can be manipulated to jump around to various indexes for things like branching
+	// decisions or early exits from execution.
 	curTextboxIndex = 0;
-	nextColorIndex = 0;
+	
+	// Stores the current colors for a group of given characters that are currently being rendered onto the
+	// textbox. These can be swapped and edited during the rendering process in order to swap colors around
+	// for different words or word groups. The asterisk "*" is used to denote that a color swap is occurring,
+	// and the logic for parsing out the color's name is found below in the actual rendering logic for the
+	// text characters.
+	textColor = HEX_WHITE;
+	textOutlineColor = RGB_GRAY;
 	
 	// The current offset position on the textbox's text rendering surface that the next character should be
 	// placed; relative to the text's starting point. It's reset whenever the text is cleared to make room
@@ -184,6 +204,9 @@ function obj_textbox_handler() constructor{
 	// intensity of the dialogue within said textbox. 
 	shakeCurStrength = 0;
 	shakeDuration = 0;
+	
+	// 
+	cutsceneTargetIndex = -1;
 	
 	/// @description Code that should be placed into the "Step event of whatever object is controlling
 	/// obj_textbox_handler. In short, it checks for input from the game's currently active input device
@@ -360,31 +383,94 @@ function obj_textbox_handler() constructor{
 		if (nextCharacter < finalCharacter + 1){
 			nextCharacter += textSpeed * global.deltaTime;
 			
-			// Initialize a bunch of local variables that will be used throughout the loop; instantly setting
-			// the first two to whatever the starting character to be rendered should be and to the pointer
-			// referencing the current textbox's data.
-			var _nextChar, _data, _curChar, _xScale, _yScale, _curCharExt, _nextWordWidth;
-			_nextChar = floor(nextCharacter);
-			_data = textboxData[| curTextboxIndex];
-			_xScale = _data.textXScale;
-			_yScale = _data.textYScale;
+			// If there isn't a possibility to render a new character onto the text surface, don't bother
+			// with any setting of shaders and surface rendering targets since they won't be utilized.
+			// Instead, just render the currently visible text to the screen and exit the drawing function.
+			if (curCharacter >= floor(nextCharacter)){
+				draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, alpha);
+				draw_control_info_background(CAM_WIDTH, CAM_HEIGHT, alpha * 0.75);
+				return; // "Return" can be used here since this are the last things to need rendering.
+			}
 			
-			// Next, set up the outline shader to what the textbox needs for its text; the font and the outline
-			// color for the text. Also, make sure that the text surface is being rendered to by actually
-			// setting Game Maker's render target to said surface. These two function calls are outside of
-			// the loop since they only need to be called once.
-			shader_set_outline(RGB_GRAY, font_gui_small);
+			// Before rendering new characters to the textbox's text surface, data from the current textbox
+			// struct is pulled and stored into local variables for easier access while looping to render
+			// all those needed characters. Specifically, it takes the text scaling attributes and the
+			// full string from that textbox struct.
+			var _xScale, _yScale, _fullText;
+			with(textboxData[| curTextboxIndex]){
+				_xScale = textXScale;
+				_yScale = textYScale;
+				_fullText = fullText;
+			}
+			
+			// Once the necessary data has been grabbed from the current textbox struct, the outline shader
+			// will begin its execution in order to render what would normally be standard text with a one
+			// pixel wide outline of a given color around itself. Also, the rendering target is set to
+			// the text surface since it is what is used to display the text for a given textbox.
+			shader_set_outline(textOutlineColor, font_gui_small);
 			surface_set_target(surfText);
-			while(curCharacter < _nextChar){
-				_curChar = string_char_at(_data.fullText, curCharacter);
+			
+			// Being looping for however many iterations are needed relative to the difference between the
+			// values of "curCharacter" and the interger representation of "nextCharacter"; parsing any
+			// necessary color data from the string and pulling out the necessary amount of characters
+			// for rendering.
+			var _curChar, _curCharExt, _nextWordWidth;
+			while(curCharacter < floor(nextCharacter)){
+				_curChar = string_char_at(_fullText, curCharacter);
 				
+				// An asterisk "*" was found, this means that a color code needs to be parsed in order to
+				// set the next chunk of text to the desired colors. It does this by looping again until
+				// a second asterisk character is hit, which ends the parsing process for the required
+				// color.
+				if (_curChar == "*"){
+					// Before starting the color name parsing, some temporary variables must be initialized
+					// to assist with that process. Namely, the string of parsed color name and also a
+					// temporary offset starting from the NEXT possible character after the first asterisk,
+					// since the symbol itself does nothing other than trigger this process.
+					var _colorName, _offset;
+					_colorName = "";
+					_offset = curCharacter + 1;
+					while(_offset <= finalCharacter){
+						_curChar = string_char_at(_fullText, _offset);
+						
+						// That second required asterisk was hit, so the color name will have assumed to
+						// be successfully parsed from the text data. It will then take this parsed string
+						// to attempt to retrieve the matching colors for the next region of text before
+						// exiting this data parsing loop.
+						if (_curChar == "*"){
+							var _colorData = get_text_color_data(_colorName);
+							textColor =			_colorData[0];
+							textOutlineColor =	_colorData[1];
+							curCharacter =		_offset + 1;
+							nextCharacter =		curCharacter;
+							break;
+						}
+						
+						// Keep adding characters and increasing the offset until that next required
+						// asterisk character it hit in order to end the color code parsing.
+						_colorName += _curChar;
+						_offset++;
+					}
+					continue;
+				}
+				// The hashtag "#" characer signifies the end of a region of text that is colored whatever
+				// had been set previously by an asterisk pair plus inner color name. It simply resets
+				// the previous color with the text's default colors of white and gray for the inner and
+				// outline, respectively.
+				else if (_curChar = "#"){
+					textColor =			HEX_WHITE;
+					textOutlineColor =	RGB_GRAY;
+					curCharacter++;
+					nextCharacter++;
+					continue;
+				}
 				// Much like the logic that is used for formatting strings within the custom "string_format_width"
 				// function, this code checks for any spaces or hyphens in the text in order to see if the 
 				// maximum string width will be exceeded by adding the next word to the current line.
-				if (_curChar == " " || _curChar == "-"){
+				else if (_curChar == " " || _curChar == "-"){
 					_nextWordWidth = 0;
 					for (var i = curCharacter + 1; i <= finalCharacter; i++){
-						_curCharExt = string_char_at(_data.fullText, i);
+						_curCharExt = string_char_at(_fullText, i);
 						// If the string has hit it's last character OR a space/hypen is the current character,
 						// perform the check to see if the current word should be placed on the current line
 						// or if it should be put on a new line instead.
@@ -397,7 +483,7 @@ function obj_textbox_handler() constructor{
 								curCharacter++;
 								characterX = 0;
 								characterY += string_height("M") * _yScale;
-								_curChar = string_char_at(_data.fullText, curCharacter);
+								_curChar = string_char_at(_fullText, curCharacter);
 							}
 							break; // Exits out of the current for loop; regardless of it's completed or not.
 						}
@@ -408,17 +494,9 @@ function obj_textbox_handler() constructor{
 					}
 				}
 				
-				// This small chunk of the code is what actually renders the text onto the surface using
-				// the textbox's unique function for rendering characters. If the text should be colored,
-				// if will enter the first branch and use that color data on each character until it no
-				// longer needs to use said colors. Otherwise, the character will simply render with the
-				// default text and outline color. (White and Gray)
-				if (nextColorIndex < array_length(_data.colorData) && curCharacter >= _data.colorData[nextColorIndex][2] && curCharacter <= _data.colorData[nextColorIndex][3]){
-					draw_character(_curChar, _data.colorData[nextColorIndex][0], _data.colorData[nextColorIndex][1], _xScale, _yScale);
-					if (curCharacter == _data.colorData[nextColorIndex][3]) {nextColorIndex++;}
-				} else{
-					draw_character(_curChar, HEX_WHITE, RGB_GRAY, _xScale, _yScale);
-				}
+				// Display the current character with the currently set colors onto the surface of the
+				// textbox's text surface; scaling relative to what is needed from the textbox itself.
+				draw_character(_curChar, textColor, textOutlineColor, _xScale, _yScale);
 				
 				// Make sure to store the current state of the surface into its buffer; preserving it in case
 				// the surface is randomly flushed out of the GPU's memory.
@@ -431,6 +509,10 @@ function obj_textbox_handler() constructor{
 				characterX += string_width(_curChar) * _xScale;
 				curCharacter++;
 			}
+			
+			// After looping through and adding all of the necessary characters to the surface that will
+			// then be placed onto the textbox itself, reset the rendering target and stop using the 
+			// outline shader while rendering.
 			surface_reset_target();
 			shader_reset();
 		}
@@ -438,6 +520,10 @@ function obj_textbox_handler() constructor{
 		// Display whatever text is currently on the surface at the end of each draw_gui call for the textbox.
 		// This ensures that it will always be placed above the textbox's background elements.
 		draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, alpha);
+		
+		// Draw the final element (the background that the input control information goes on) of the textbox
+		// af an feathered rectangle that is placed along the bottom of the screen behind said information.
+		draw_control_info_background(CAM_WIDTH, CAM_HEIGHT, alpha * 0.75);
 	}
 	
 	/// @description Code that should be placed into the "Cleanup" event of whatever object is controlling
@@ -568,11 +654,15 @@ function obj_textbox_handler() constructor{
 				// functionality; changing the "curState" value instantly to avoid weird issues.
 				object_set_next_state(state_default);
 				curState = state_default; // Prevents accidental overwriting if the next textbox has a shake applied to it
+				// Assign the target index that the cutscene's current instruction index will be assigned
+				// to once said textbox has finished its execution. If this is any value other than -1
+				// it will manipulate that scene instruction value. Otherwise, nothing will happen.
+				var _data = textboxData[? curTextboxIndex];
+				if (CUTSCENE_MANAGER.isCutsceneActive) {cutsceneTargetIndex = _data[decisionIndex][2];}
 				// Move onto whatever textbox the stored index within the decision data contains. This allows
 				// for branching dialogue and different outcomes based on decisions chosen.
-				curTextboxIndex = textboxData[| curTextboxIndex].decisionData[decisionIndex][1];
+				curTextboxIndex = _data.decisionData[decisionIndex][1];
 				open_next_textbox();
-				// TODO -- Add event flag stuff here
 				// Reset the control information to remove the "Up" and "Down" inputs from it and reset the
 				// right-aligned input to show the advancement input for the textbox.
 				control_info_remove_displayed_icon(1); // Deletes the "Menu Up" display data
@@ -623,6 +713,22 @@ function obj_textbox_handler() constructor{
 		draw_text_outline((2 * _xScale) + characterX + textOffsetX, 1 + characterY, _character, _color, _outlineColor, 1, _xScale, _yScale);
 	}
 	
+	/// @description Another realtively simple drawing function that will render a background for the
+	/// current control information to be placed upon; that background being a black rectangle that is
+	/// feathered on the left, top, and right sides.
+	/// @param camWidth
+	/// @param camHeight
+	/// @param alpha
+	draw_control_info_background = function(_camWidth, _camHeight, _alpha){
+		shader_set(shd_feathering);
+		with(global.shaderFeathering){
+			shader_set_uniform_f(sFadeStart, 60, _camHeight - 5, _camWidth - 60, _camHeight);
+			shader_set_uniform_f(sFadeEnd, -30, _camHeight - 20, _camWidth + 30, _camHeight);
+			draw_sprite_ext(spr_rectangle, 0, 0, _camHeight - 20, _camWidth, 20, 0, HEX_BLACK, _alpha);
+		}
+		shader_reset();
+	}
+	
 	/// @description A simple fucntion that returns a struct containing data unique to each of the game's
 	/// actors. An actor is simply an enumerator value that relates to a character or type of textbox for
 	/// actors that aren't tied to actual game characters. The structs contain the following:
@@ -639,13 +745,27 @@ function obj_textbox_handler() constructor{
 					actorName : "",
 					portraitSprite : -1,
 					textboxColor : HEX_BLUE,
-				}
+				};
 			case Actor.Test01:
 				return {
 					actorName : "Claire",
 					portraitSprite : spr_claire_portraits,
 					textboxColor : make_color_rgb(68, 0, 188),
-				}
+				};
+		}
+	}
+	
+	/// @description Retrieves a pre-set pair of colors for text within the textbox given the color code
+	/// that was provided to the function. If no valid color is found with the argument, the default
+	/// colors of white and gray will be set, instead.
+	/// @param colorName
+	get_text_color_data = function(_colorName){
+		switch(_colorName){
+			case RED:			return [HEX_RED, RGB_DARK_RED];
+			case GREEN:			return [HEX_GREEN, RGB_DARK_GREEN];
+			case BLUE:			return [HEX_LIGHT_BLUE, RGB_DARK_BLUE];
+			case YELLOW:		return [HEX_LIGHT_YELLOW, RGB_DARK_YELLOW];
+			default:			return [HEX_WHITE, RGB_GRAY];
 		}
 	}
 	
@@ -665,6 +785,12 @@ function obj_textbox_handler() constructor{
 		nextCharacter = 1;
 		finalCharacter = string_length(textboxData[| curTextboxIndex].fullText);
 		nextColorIndex = 0;
+		
+		// Just in case the previous textbox closes and the colors haven't been reset; they will be set
+		// to the default of white and gray before the next available textbox is opened and it starts
+		// rendering.
+		textColor = HEX_WHITE;
+		textOutlineColor = RGB_GRAY;
 		
 		// Retrieve and store the flag for if the textbox needs to close at this index or not.
 		closeTextbox = textboxData[| curTextboxIndex].closeTextbox;
@@ -751,18 +877,27 @@ function obj_textbox_handler() constructor{
 		var _states = noone;
 		
 		// Loop through all of the stores entity state data and bring the states back to each of the entities
-		// that still exist within the current room; clearing that entire list out after the fact.
-		_key = ds_map_find_first(entityStates);
-		while(!is_undefined(_key)){
-			_states = entityStates[? _key];
-			with(_key){ // Jumps into the entity instance to restore its state variables.
-				curState =		_states[0];
-				nextState =		_states[1];
-				lastState =		_states[2];
+		// that still exist within the current room; clearing that entire list out after the fact. However,
+		// this will only occur when a textbox has been created outside of a cutscene.
+		if (!CUTSCENE_MANAGER.isCutsceneActive){
+			_key = ds_map_find_first(entityStates);
+			while(!is_undefined(_key)){
+				_states = entityStates[? _key];
+				with(_key){ // Jumps into the entity instance to restore its state variables.
+					curState =		_states[0];
+					nextState =		_states[1];
+					lastState =		_states[2];
+				}
+				_key = ds_map_find_next(entityStates, _key);
 			}
-			_key = ds_map_find_next(entityStates, _key);
+			ds_map_clear(entityStates);
+			
+			// The game state will also only be reset if the game isn't already within a cutscene when the
+			// textbox has completed its execution. Otherwise, it will restore the previous game state on
+			// its own since it also sets it to the "cutscene" state upon its execution starting when
+			// there is no cutscene playing.
+			GAME_SET_STATE(GAME_STATE_PREVIOUS, true);
 		}
-		ds_map_clear(entityStates);
 	
 		// Run through the list and delete all the structs found within it. After that, clear out the list
 		// so it becomes completely empty of data; ready for new textbox data to be added in.
@@ -782,10 +917,9 @@ function obj_textbox_handler() constructor{
 		}
 	
 		// Finally, set the textbox's state to NO_STATE, set its activity flag to false to halt its 
-		// updating and rendering logic, and set the game state back to what it was previously as well.
+		// updating and rendering logic.
 		object_set_next_state(NO_STATE);
 		isTextboxActive = false;
-		GAME_SET_STATE(GAME_STATE_PREVIOUS, true);
 	}
 }
 
@@ -822,29 +956,44 @@ function textbox_begin_execution(){
 		finalCharacter = string_length(textboxData[| 0].fullText);
 		textSpeed = global.settings.textSpeed;
 		
+		// Reset the color data to the standard of white and gray in case it wasn't reset by the closing
+		// of the previous textbox. (Meaning a "#" wasn't found in the last textbox's text data)
+		textColor = HEX_WHITE;
+		textOutlineColor = RGB_GRAY;
+		
 		// After all the text variables have been set to their desired values, set the textbox's animation
 		// variables by placing the textbox temporarily off screen and setting its alpha target to full
 		// opacity.
 		y = TEXTBOX_START_Y;
 		alphaTarget = 1;
 		
-		// Finally, set the textbox to its default input state and signal to the textbox that it should 
-		// activate its input and render logic by setting its active flag to true; also telling the game 
-		// to set its state to a cutscene, which will pause all entities unless inside of a cutscene.
+		// Assign the textbox's state to its default and flip the "active" flag to true to signify to
+		// other objects that the textbox is currently moving through the data that has been loaded into
+		// the text data structure.
 		object_set_next_state(state_default);
-		GAME_SET_STATE(GameState.Cutscene, true);
 		isTextboxActive = true;
 		
-		// Loop through all of the dynamic entities that exist within the current room; storing their three
-		// state variables before clearing out those states to prevent dynamic entities from functioning.
-		var _entityStates = entityStates;
-		with(par_dynamic_entity){
-			ds_map_add(_entityStates, id, [curState, nextState, lastState]);
-			// After adding the state values to the storage map, set all the state variables to NO_STATE to
-			// halt any execution of current states for the duration of the textbox's execution.
-			curState = NO_STATE;
-			nextState = NO_STATE;
-			lastState = NO_STATE;
+		// When the game isn't currently within a cutscene already, the states of all of the entities will
+		// be stored while they are cleared out from the entity objects themselves; restoring those states
+		// after the textbox has finished its execution. HOWEVER, this doesn't need to occur when a true
+		// cutscene is being executed since the cutscene handler will perform all this on its own.
+		if (!CUTSCENE_MANAGER.isCutsceneActive){
+			// Loop through every currently existing entity and add their three state variables to an
+			// array that is then stored within the textbox's entity state storage map.
+			var _entityStates = entityStates;
+			with(par_dynamic_entity){
+				ds_map_add(_entityStates, id, [curState, nextState, lastState]);
+				// After adding the state values to the storage map, set all the state variables to NO_STATE to
+				// halt any execution of current states for the duration of the textbox's execution.
+				curState = NO_STATE;
+				nextState = NO_STATE;
+				lastState = NO_STATE;
+			}
+			
+			// Since a textbox existing alone technically works much like how a cutscene would within the
+			// game world, the state of the game will be set to Cutscene to apply all those same effects
+			// for the textbox's execution duration.
+			GAME_SET_STATE(GameState.Cutscene);
 		}
 		
 		// Display the textbox's controls at the bottom of the screen; right below the actual textbox. If the
@@ -880,7 +1029,6 @@ function textbox_add_text_data(_text, _actor = Actor.NoActor, _portraitIndex = -
 			fullText :				_text,
 			textXScale :			_textXScale,
 			textYScale :			_textYScale,
-			colorData :				array_create(0, 0),
 			decisionData :			array_create(0, 0),
 			shakeData :				array_create(2, 0),
 			actorID :				_actor,
@@ -895,46 +1043,21 @@ function textbox_add_text_data(_text, _actor = Actor.NoActor, _portraitIndex = -
 	}
 }
 
-/// @description A simple function that adds color data to the latest textbox that has been added to the
-/// list of textbox data. Each of the color data arrays is a length of 4 and contains the following data:
-///		Index		Data
-///			0	=		Text color
-///			1	=		Outline color
-///			2	=		starting character index
-///			3	=		final character index
-///	The last two indexes store the range that the color change will be applied for on the text. After the
-/// final character's index has been passed, the color will return to its default or move onto the next index
-/// for color data if its starting character index is reached.	
-/// @param color
-/// @param outlineColor
-/// @param startChar
-/// @param endChar
-function textbox_add_color_data(_color, _outlineColor, _startChar, _endChar){
-	with(TEXTBOX_HANDLER){
-		with(textboxData[| totalTextboxes - 1]){
-			colorData[array_length(colorData)] = [
-				_color,
-				_outlineColor,
-				_startChar,
-				_endChar
-			];
-		}
-	}
-}
-
 /// @description A simple function that adds a option to the decision data found within the most recently
 /// created textbox. Each index of the decision data array contains another array that has two values:
 ///		Index		Data
 ///			0	=		Decision's Descriptor
 ///			1	=		Outcome Textbox Index
+///			2	=		Target Instruction Index (ONLY FOR CUTSCENES)
 /// @param optionText
 /// @param outcomeIndex
-function textbox_add_decision_data(_optionText, _outcomeIndex){
+function textbox_add_decision_data(_optionText, _outcomeIndex, _cutsceneOutcomeIndex = -1){
 	with(TEXTBOX_HANDLER){
 		with(textboxData[| totalTextboxes - 1]){
 			decisionData[array_length(decisionData)] = [
 				_optionText,
 				_outcomeIndex,
+				_cutsceneOutcomeIndex
 			];
 		}
 	}

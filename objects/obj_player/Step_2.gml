@@ -3,7 +3,11 @@
 event_inherited();
 
 // 
-if (GAME_STATE_CURRENT != GameState.Paused){
-	update_accuracy_penalty();
+var _gameState = GAME_STATE_CURRENT; // Store locally for quicker reference
+if (_gameState != GameState.Paused) {update_accuracy_penalty();}
+
+// 
+if (_gameState < GameState.Cutscene){
+	check_collision_cutscene_trigger();
 	update_player_ailments();
 }

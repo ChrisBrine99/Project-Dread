@@ -1,17 +1,14 @@
 {
   "spriteId": {
-    "name": "spr_warp_door",
-    "path": "sprites/spr_warp_door/spr_warp_door.yy",
+    "name": "spr_cutscene_trigger",
+    "path": "sprites/spr_cutscene_trigger/spr_cutscene_trigger.yy",
   },
   "solid": false,
   "visible": false,
   "managed": true,
   "spriteMaskId": null,
   "persistent": false,
-  "parentObjectId": {
-    "name": "par_static_entity",
-    "path": "objects/par_static_entity/par_static_entity.yy",
-  },
+  "parentObjectId": null,
   "physicsObject": false,
   "physicsSensor": false,
   "physicsShape": 1,
@@ -26,18 +23,17 @@
   "physicsShapePoints": [],
   "eventList": [
     {"isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
-    {"isDnD":false,"eventNum":4,"eventType":7,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
     {"isDnD":false,"eventNum":0,"eventType":12,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
-    {"isDnD":false,"eventNum":2,"eventType":3,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
+    {"isDnD":false,"eventNum":4,"eventType":7,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
   ],
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "Interactables",
-    "path": "folders/Resources/Core/Entities/Static/Interactables.yy",
+    "name": "Other",
+    "path": "folders/Resources/Core/Entities/Other.yy",
   },
   "resourceVersion": "1.0",
-  "name": "obj_warp_door",
+  "name": "obj_cutscene_trigger",
   "tags": [],
   "resourceType": "GMObject",
 }

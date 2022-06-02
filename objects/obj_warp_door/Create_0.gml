@@ -67,11 +67,8 @@ closingSound =	NO_SOUND;
 lockedSound =	NO_SOUND;
 unlockSound =	NO_SOUND;
 
-// This variable pair stores the message that will be displayed whenever the player interacts with a given
-// door instance that is locked AND unable to currently be opened by the player since they don't currently
-// have the proper items within their inventory.
+// 
 textboxMessage = "The door is locked.";
-textboxColorData = 0;
 
 // The variable that is responsible for storing the index value of a given list of required keys in the form
 // of the name of the item and the unique event flag that stores whether or not that lock has been "opened"

@@ -1030,6 +1030,16 @@
         "Handgun Ammo (-)",
         "Handgun Ammo (+)"
       ],
+      "Barrel Pos": [
+        6,
+        -14,
+        3,
+        -18,
+        -6,
+        -14,
+        -3,
+        6
+      ],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1050,6 +1060,16 @@
         "Shotgun Shells",
         "Shotgun Shells (-)",
         "Shotgun Shells (+)"
+      ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "Use Sprite": "",
       "Aiming Sprite": "",
@@ -1072,6 +1092,16 @@
         "Rifle Rounds (-)",
         "Rifle Rounds (+)"
       ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1092,6 +1122,16 @@
         "Handgun Ammo",
         "Handgun Ammo (-)",
         "Handgun Ammo (+)"
+      ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "Use Sprite": "",
       "Aiming Sprite": "",
@@ -1114,6 +1154,16 @@
         "Shotgun Shells (-)",
         "Shotgun Shells (+)"
       ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1134,6 +1184,16 @@
         "Rifle Rounds",
         "Rifle Rounds (-)",
         "Rifle Rounds (+)"
+      ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "Use Sprite": "",
       "Aiming Sprite": "",
@@ -1156,6 +1216,16 @@
         "Handgun Ammo (-)",
         "Handgun Ammo (+)"
       ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1176,6 +1246,16 @@
         "Magnum Ammo",
         "Magnum Ammo (-)",
         "Magnum Rounds (+)"
+      ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "Use Sprite": "",
       "Aiming Sprite": "",
@@ -1200,6 +1280,16 @@
         "Napalm Rounds",
         "Frost Rounds"
       ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1219,6 +1309,7 @@
       "Ammo Types": [
         "No Ammo"
       ],
+      "Barrel Pos": [],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1238,6 +1329,7 @@
       "Ammo Types": [
         "No Ammo"
       ],
+      "Barrel Pos": [],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1257,6 +1349,7 @@
       "Ammo Types": [
         "No Ammo"
       ],
+      "Barrel Pos": [],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1276,6 +1369,7 @@
       "Ammo Types": [
         "No Ammo"
       ],
+      "Barrel Pos": [],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1295,6 +1389,7 @@
       "Ammo Types": [
         "No Ammo"
       ],
+      "Barrel Pos": [],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1313,6 +1408,16 @@
       "Hit Frame": 0,
       "Ammo Types": [
         "No Ammo"
+      ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "Use Sprite": "",
       "Aiming Sprite": "",
@@ -1333,6 +1438,16 @@
       "Ammo Types": [
         "No Ammo"
       ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
       "Use Sprite": "",
       "Aiming Sprite": "",
       "Reload Sprite": ""
@@ -1351,6 +1466,16 @@
       "Hit Frame": 0,
       "Ammo Types": [
         "No Ammo"
+      ],
+      "Barrel Pos": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "Use Sprite": "",
       "Aiming Sprite": "",
@@ -1656,695 +1781,695 @@
     }
   },
   "Crafting Data" : [
-	  {
-		"First Item": "Impure Sulfur",
-		"First Cost": 1,
-		"Second Item": "Impure Charcoal",
-		"Second Cost": 1,
-		"Result Item": "Dirty Gunpowder",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Impure Sulfur",
-		"First Cost": 1,
-		"Second Item": "Pure Charcoal",
-		"Second Cost": 1,
-		"Result Item": "Gunpowder",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Pure Sulfur",
-		"First Cost": 1,
-		"Second Item": "Impure Charcoal",
-		"Second Cost": 1,
-		"Result Item": "Gunpowder",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Pure Sulfur",
-		"First Cost": 1,
-		"Second Item": "Pure Charcoal",
-		"Second Cost": 1,
-		"Result Item": "Purified Gunpowder",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Water",
-		"First Cost": 1,
-		"Second Item": "Hydroxide",
-		"Second Cost": 2,
-		"Result Item": "Exothermic Compound",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Water",
-		"First Cost": 1,
-		"Second Item": "Hydroxide",
-		"Second Cost": 1,
-		"Result Item": "Exothermic Compound",
-		"Min Amount": 1,
-		"Max Amount": 2,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Water",
-		"First Cost": 1,
-		"Second Item": "Chloride",
-		"Second Cost": 2,
-		"Result Item": "Endothermic Compound",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Water",
-		"First Cost": 1,
-		"Second Item": "Chloride",
-		"Second Cost": 1,
-		"Result Item": "Endothermic Compound",
-		"Min Amount": 1,
-		"Max Amount": 2,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Impure Charcoal",
-		"First Cost": 2,
-		"Second Item": "Fuel",
-		"Second Cost": 5,
-		"Result Item": "Explosive Compound",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Pure Charcoal",
-		"First Cost": 1,
-		"Second Item": "Fuel",
-		"Second Cost": 5,
-		"Result Item": "Explosive Compound",
-		"Min Amount": 1,
-		"Max Amount": 2,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Gunpowder",
-		"First Cost": 1,
-		"Second Item": "9mm Casings",
-		"Second Cost": 10,
-		"Result Item": "Handgun Ammo (-)",
-		"Min Amount": 5,
-		"Max Amount": 10,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Gunpowder",
-		"First Cost": 1,
-		"Second Item": "9mm Casings",
-		"Second Cost": 10,
-		"Result Item": "Handgun Ammo",
-		"Min Amount": 4,
-		"Max Amount": 10,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Gunpowder",
-		"First Cost": 1,
-		"Second Item": "9mm Casings",
-		"Second Cost": 10,
-		"Result Item": "Handgun Ammo (+)",
-		"Min Amount": 2,
-		"Max Amount": 10,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Gunpowder",
-		"First Cost": 1,
-		"Second Item": "12 Gauge Casings",
-		"Second Cost": 5,
-		"Result Item": "Shotgun Shells (-)",
-		"Min Amount": 3,
-		"Max Amount": 5,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Gunpowder",
-		"First Cost": 1,
-		"Second Item": "12 Gauge Casings",
-		"Second Cost": 5,
-		"Result Item": "Shotgun Shells",
-		"Min Amount": 3,
-		"Max Amount": 5,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Gunpowder",
-		"First Cost": 1,
-		"Second Item": "12 Gauge Casings",
-		"Second Cost": 5,
-		"Result Item": "Shotgun Shells (+)",
-		"Min Amount": 2,
-		"Max Amount": 5,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Gunpowder",
-		"First Cost": 1,
-		"Second Item": "7.62mm Casings",
-		"Second Cost": 4,
-		"Result Item": "Rifle Rounds (-)",
-		"Min Amount": 2,
-		"Max Amount": 4,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Gunpowder",
-		"First Cost": 1,
-		"Second Item": "7.62mm Casings",
-		"Second Cost": 4,
-		"Result Item": "Rifle Rounds",
-		"Min Amount": 2,
-		"Max Amount": 4,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Gunpowder",
-		"First Cost": 1,
-		"Second Item": "7.62mm Casings",
-		"Second Cost": 4,
-		"Result Item": "Rifle Rounds (+)",
-		"Min Amount": 1,
-		"Max Amount": 4,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Gunpowder",
-		"First Cost": 1,
-		"Second Item": ".50 Casings",
-		"Second Cost": 5,
-		"Result Item": "Magnum Ammo (-)",
-		"Min Amount": 3,
-		"Max Amount": 5,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Gunpowder",
-		"First Cost": 1,
-		"Second Item": ".50 Casings",
-		"Second Cost": 5,
-		"Result Item": "Magnum Ammo",
-		"Min Amount": 2,
-		"Max Amount": 5,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Gunpowder",
-		"First Cost": 1,
-		"Second Item": ".50 Casings",
-		"Second Cost": 5,
-		"Result Item": "Magnum Rounds (+)",
-		"Min Amount": 1,
-		"Max Amount": 5,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Explosive Compound",
-		"First Cost": 1,
-		"Second Item": "Aluminum Can",
-		"Second Cost": 1,
-		"Result Item": "Explosive Shells (-)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Explosive Compound",
-		"First Cost": 1,
-		"Second Item": "40mm Shells",
-		"Second Cost": 1,
-		"Result Item": "Explosive Shells",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Explosive Shells",
-		"First Cost": 1,
-		"Second Item": "Aluminum Can",
-		"Second Cost": 1,
-		"Result Item": "Fragment Shells",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Explosive Shells",
-		"First Cost": 1,
-		"Second Item": "Glass Bottle",
-		"Second Cost": 1,
-		"Result Item": "Fragment Shells",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Explosive Shells",
-		"First Cost": 1,
-		"Second Item": "Exothermic Compound",
-		"Second Cost": 1,
-		"Result Item": "Napalm Rounds",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Explosive Shells",
-		"First Cost": 1,
-		"Second Item": "Endothermic Compound",
-		"Second Cost": 1,
-		"Result Item": "Frost Rounds",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Aluminum Can",
-		"First Cost": 1,
-		"Second Item": "Explosive Compound",
-		"Second Cost": 1,
-		"Result Item": "Makeshift Grenade",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Glass Bottle",
-		"First Cost": 1,
-		"Second Item": "Exothermic Compound",
-		"Second Cost": 1,
-		"Result Item": "Molotov Cocktail",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Water",
-		"First Cost": 1,
-		"Second Item": "Goldenrod",
-		"Second Cost": 1,
-		"Result Item": "Weak Painkiller",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Water",
-		"First Cost": 1,
-		"Second Item": "Goldenrod",
-		"Second Cost": 1,
-		"Result Item": "Potent Painkiller",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Hydroxide",
-		"First Cost": 1,
-		"Second Item": "Ginger Root",
-		"Second Cost": 1,
-		"Result Item": "Calming Compound",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Chloride",
-		"First Cost": 1,
-		"Second Item": "Ginger Root",
-		"Second Cost": 1,
-		"Result Item": "Detoxing Compound",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Dirty Water",
-		"First Cost": 1,
-		"Second Item": "Dandelion",
-		"Second Cost": 1,
-		"Result Item": "Weak Medicine",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Purified Water",
-		"First Cost": 1,
-		"Second Item": "Dandelion",
-		"Second Cost": 1,
-		"Result Item": "Potent Medicine",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Medicine",
-		"First Cost": 1,
-		"Second Item": "Potent Medicine",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WM+PM)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Medicine",
-		"First Cost": 1,
-		"Second Item": "Weak Painkiller",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WM+WP)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Medicine",
-		"First Cost": 1,
-		"Second Item": "Potent Painkiller",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WM+PP)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Medicine",
-		"First Cost": 1,
-		"Second Item": "Calming Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WM+CC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Medicine",
-		"First Cost": 1,
-		"Second Item": "Detoxing Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WM+DC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Potent Medicine",
-		"First Cost": 1,
-		"Second Item": "Weak Painkiller",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (PM+WP)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Potent Medicine",
-		"First Cost": 1,
-		"Second Item": "Potent Painkiller",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (PM+PP)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Potent Medicine",
-		"First Cost": 1,
-		"Second Item": "Calming Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (PM+CC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Potent Medicine",
-		"First Cost": 1,
-		"Second Item": "Detoxing Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (PM+DC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Painkiller",
-		"First Cost": 1,
-		"Second Item": "Calming Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WP+CC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Weak Painkiller",
-		"First Cost": 1,
-		"Second Item": "Detoxing Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (WP+DC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Potent Painkiller",
-		"First Cost": 1,
-		"Second Item": "Calming Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (PP+CC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "Potent Painkiller",
-		"First Cost": 1,
-		"Second Item": "Detoxing Compound",
-		"Second Cost": 1,
-		"Result Item": "Chemical Mix (PP+DC)",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_craft_default"
-	  },
-	  {
-		"First Item": "9mm Handgun",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "9mm Handgun",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Pump Shotgun",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Pump Shotgun",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Bolt-Action Rifle",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Bolt-Action Rifle",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Triple-Burst Handgun",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Triple-Burst Handgun",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Full-Auto Shotgun",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Full-Auto Shotgun",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Semi-Auto Rifle",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Semi-Auto Rifle",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Submachine Gun",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Submachine Gun",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Hand Cannon",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Hand Cannon",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Grenade Launcher",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Grenade Launcher",
-		"Min Amount": 10,
-		"Max Amount": 30,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Ballistic Vest",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Ballistic Vest",
-		"Min Amount": 15,
-		"Max Amount": 50,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Kevlar Vest",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Kevlar Vest",
-		"Min Amount": 15,
-		"Max Amount": 50,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Chemical Purifier",
-		"First Cost": 1,
-		"Second Item": "Fuel",
-		"Second Cost": 1,
-		"Result Item": "Chemical Purifier",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_load_purifier"
-	  },
-	  {
-		"First Item": "Pocket Knife",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Pocket Knife",
-		"Min Amount": 30,
-		"Max Amount": 75,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Metal Pipe",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Metal Pipe",
-		"Min Amount": 30,
-		"Max Amount": 75,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Hatchet",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Hatchet",
-		"Min Amount": 30,
-		"Max Amount": 75,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Machete",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Machete",
-		"Min Amount": 30,
-		"Max Amount": 75,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Fire Axe",
-		"First Cost": 1,
-		"Second Item": "Repair Parts",
-		"Second Cost": 1,
-		"Result Item": "Fire Axe",
-		"Min Amount": 30,
-		"Max Amount": 75,
-		"Crafting Function": "inventory_item_repair"
-	  },
-	  {
-		"First Item": "Dirty Water",
-		"First Cost": 1,
-		"Second Item": "Chemical Purifier",
-		"Second Cost": 10,
-		"Result Item": "Purified Water",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_use_purifier"
-	  },
-	  {
-		"First Item": "Impure Sulfur",
-		"First Cost": 1,
-		"Second Item": "Chemical Purifier",
-		"Second Cost": 4,
-		"Result Item": "Pure Sulfur",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_use_purifier"
-	  },
-	  {
-		"First Item": "Impure Charcoal",
-		"First Cost": 1,
-		"Second Item": "Chemical Purifier",
-		"Second Cost": 4,
-		"Result Item": "Pure Charcoal",
-		"Min Amount": 1,
-		"Max Amount": 1,
-		"Crafting Function": "inventory_item_use_purifier"
-	  }
-	]
+  {
+    "First Item": "Impure Sulfur",
+    "First Cost": 1,
+    "Second Item": "Impure Charcoal",
+    "Second Cost": 1,
+    "Result Item": "Dirty Gunpowder",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Impure Sulfur",
+    "First Cost": 1,
+    "Second Item": "Pure Charcoal",
+    "Second Cost": 1,
+    "Result Item": "Gunpowder",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Pure Sulfur",
+    "First Cost": 1,
+    "Second Item": "Impure Charcoal",
+    "Second Cost": 1,
+    "Result Item": "Gunpowder",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Pure Sulfur",
+    "First Cost": 1,
+    "Second Item": "Pure Charcoal",
+    "Second Cost": 1,
+    "Result Item": "Purified Gunpowder",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Water",
+    "First Cost": 1,
+    "Second Item": "Hydroxide",
+    "Second Cost": 2,
+    "Result Item": "Exothermic Compound",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Water",
+    "First Cost": 1,
+    "Second Item": "Hydroxide",
+    "Second Cost": 1,
+    "Result Item": "Exothermic Compound",
+    "Min Amount": 1,
+    "Max Amount": 2,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Water",
+    "First Cost": 1,
+    "Second Item": "Chloride",
+    "Second Cost": 2,
+    "Result Item": "Endothermic Compound",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Water",
+    "First Cost": 1,
+    "Second Item": "Chloride",
+    "Second Cost": 1,
+    "Result Item": "Endothermic Compound",
+    "Min Amount": 1,
+    "Max Amount": 2,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Impure Charcoal",
+    "First Cost": 2,
+    "Second Item": "Fuel",
+    "Second Cost": 5,
+    "Result Item": "Explosive Compound",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Pure Charcoal",
+    "First Cost": 1,
+    "Second Item": "Fuel",
+    "Second Cost": 5,
+    "Result Item": "Explosive Compound",
+    "Min Amount": 1,
+    "Max Amount": 2,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Gunpowder",
+    "First Cost": 1,
+    "Second Item": "9mm Casings",
+    "Second Cost": 10,
+    "Result Item": "Handgun Ammo (-)",
+    "Min Amount": 5,
+    "Max Amount": 10,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Gunpowder",
+    "First Cost": 1,
+    "Second Item": "9mm Casings",
+    "Second Cost": 10,
+    "Result Item": "Handgun Ammo",
+    "Min Amount": 4,
+    "Max Amount": 10,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Gunpowder",
+    "First Cost": 1,
+    "Second Item": "9mm Casings",
+    "Second Cost": 10,
+    "Result Item": "Handgun Ammo (+)",
+    "Min Amount": 2,
+    "Max Amount": 10,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Gunpowder",
+    "First Cost": 1,
+    "Second Item": "12 Gauge Casings",
+    "Second Cost": 5,
+    "Result Item": "Shotgun Shells (-)",
+    "Min Amount": 3,
+    "Max Amount": 5,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Gunpowder",
+    "First Cost": 1,
+    "Second Item": "12 Gauge Casings",
+    "Second Cost": 5,
+    "Result Item": "Shotgun Shells",
+    "Min Amount": 3,
+    "Max Amount": 5,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Gunpowder",
+    "First Cost": 1,
+    "Second Item": "12 Gauge Casings",
+    "Second Cost": 5,
+    "Result Item": "Shotgun Shells (+)",
+    "Min Amount": 2,
+    "Max Amount": 5,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Gunpowder",
+    "First Cost": 1,
+    "Second Item": "7.62mm Casings",
+    "Second Cost": 4,
+    "Result Item": "Rifle Rounds (-)",
+    "Min Amount": 2,
+    "Max Amount": 4,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Gunpowder",
+    "First Cost": 1,
+    "Second Item": "7.62mm Casings",
+    "Second Cost": 4,
+    "Result Item": "Rifle Rounds",
+    "Min Amount": 2,
+    "Max Amount": 4,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Gunpowder",
+    "First Cost": 1,
+    "Second Item": "7.62mm Casings",
+    "Second Cost": 4,
+    "Result Item": "Rifle Rounds (+)",
+    "Min Amount": 1,
+    "Max Amount": 4,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Gunpowder",
+    "First Cost": 1,
+    "Second Item": ".50 Casings",
+    "Second Cost": 5,
+    "Result Item": "Magnum Ammo (-)",
+    "Min Amount": 3,
+    "Max Amount": 5,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Gunpowder",
+    "First Cost": 1,
+    "Second Item": ".50 Casings",
+    "Second Cost": 5,
+    "Result Item": "Magnum Ammo",
+    "Min Amount": 2,
+    "Max Amount": 5,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Gunpowder",
+    "First Cost": 1,
+    "Second Item": ".50 Casings",
+    "Second Cost": 5,
+    "Result Item": "Magnum Rounds (+)",
+    "Min Amount": 1,
+    "Max Amount": 5,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Explosive Compound",
+    "First Cost": 1,
+    "Second Item": "Aluminum Can",
+    "Second Cost": 1,
+    "Result Item": "Explosive Shells (-)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Explosive Compound",
+    "First Cost": 1,
+    "Second Item": "40mm Shells",
+    "Second Cost": 1,
+    "Result Item": "Explosive Shells",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Explosive Shells",
+    "First Cost": 1,
+    "Second Item": "Aluminum Can",
+    "Second Cost": 1,
+    "Result Item": "Fragment Shells",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Explosive Shells",
+    "First Cost": 1,
+    "Second Item": "Glass Bottle",
+    "Second Cost": 1,
+    "Result Item": "Fragment Shells",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Explosive Shells",
+    "First Cost": 1,
+    "Second Item": "Exothermic Compound",
+    "Second Cost": 1,
+    "Result Item": "Napalm Rounds",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Explosive Shells",
+    "First Cost": 1,
+    "Second Item": "Endothermic Compound",
+    "Second Cost": 1,
+    "Result Item": "Frost Rounds",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Aluminum Can",
+    "First Cost": 1,
+    "Second Item": "Explosive Compound",
+    "Second Cost": 1,
+    "Result Item": "Makeshift Grenade",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Glass Bottle",
+    "First Cost": 1,
+    "Second Item": "Exothermic Compound",
+    "Second Cost": 1,
+    "Result Item": "Molotov Cocktail",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Water",
+    "First Cost": 1,
+    "Second Item": "Goldenrod",
+    "Second Cost": 1,
+    "Result Item": "Weak Painkiller",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Water",
+    "First Cost": 1,
+    "Second Item": "Goldenrod",
+    "Second Cost": 1,
+    "Result Item": "Potent Painkiller",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Hydroxide",
+    "First Cost": 1,
+    "Second Item": "Ginger Root",
+    "Second Cost": 1,
+    "Result Item": "Calming Compound",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Chloride",
+    "First Cost": 1,
+    "Second Item": "Ginger Root",
+    "Second Cost": 1,
+    "Result Item": "Detoxing Compound",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Dirty Water",
+    "First Cost": 1,
+    "Second Item": "Dandelion",
+    "Second Cost": 1,
+    "Result Item": "Weak Medicine",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Purified Water",
+    "First Cost": 1,
+    "Second Item": "Dandelion",
+    "Second Cost": 1,
+    "Result Item": "Potent Medicine",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Medicine",
+    "First Cost": 1,
+    "Second Item": "Potent Medicine",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WM+PM)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Medicine",
+    "First Cost": 1,
+    "Second Item": "Weak Painkiller",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WM+WP)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Medicine",
+    "First Cost": 1,
+    "Second Item": "Potent Painkiller",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WM+PP)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Medicine",
+    "First Cost": 1,
+    "Second Item": "Calming Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WM+CC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Medicine",
+    "First Cost": 1,
+    "Second Item": "Detoxing Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WM+DC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Potent Medicine",
+    "First Cost": 1,
+    "Second Item": "Weak Painkiller",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (PM+WP)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Potent Medicine",
+    "First Cost": 1,
+    "Second Item": "Potent Painkiller",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (PM+PP)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Potent Medicine",
+    "First Cost": 1,
+    "Second Item": "Calming Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (PM+CC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Potent Medicine",
+    "First Cost": 1,
+    "Second Item": "Detoxing Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (PM+DC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Painkiller",
+    "First Cost": 1,
+    "Second Item": "Calming Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WP+CC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Weak Painkiller",
+    "First Cost": 1,
+    "Second Item": "Detoxing Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (WP+DC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Potent Painkiller",
+    "First Cost": 1,
+    "Second Item": "Calming Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (PP+CC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "Potent Painkiller",
+    "First Cost": 1,
+    "Second Item": "Detoxing Compound",
+    "Second Cost": 1,
+    "Result Item": "Chemical Mix (PP+DC)",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_craft_default"
+  },
+  {
+    "First Item": "9mm Handgun",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "9mm Handgun",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Pump Shotgun",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Pump Shotgun",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Bolt-Action Rifle",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Bolt-Action Rifle",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Triple-Burst Handgun",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Triple-Burst Handgun",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Full-Auto Shotgun",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Full-Auto Shotgun",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Semi-Auto Rifle",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Semi-Auto Rifle",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Submachine Gun",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Submachine Gun",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Hand Cannon",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Hand Cannon",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Grenade Launcher",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Grenade Launcher",
+    "Min Amount": 10,
+    "Max Amount": 30,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Ballistic Vest",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Ballistic Vest",
+    "Min Amount": 15,
+    "Max Amount": 50,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Kevlar Vest",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Kevlar Vest",
+    "Min Amount": 15,
+    "Max Amount": 50,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Chemical Purifier",
+    "First Cost": 1,
+    "Second Item": "Fuel",
+    "Second Cost": 1,
+    "Result Item": "Chemical Purifier",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_load_purifier"
+  },
+  {
+    "First Item": "Pocket Knife",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Pocket Knife",
+    "Min Amount": 30,
+    "Max Amount": 75,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Metal Pipe",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Metal Pipe",
+    "Min Amount": 30,
+    "Max Amount": 75,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Hatchet",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Hatchet",
+    "Min Amount": 30,
+    "Max Amount": 75,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Machete",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Machete",
+    "Min Amount": 30,
+    "Max Amount": 75,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Fire Axe",
+    "First Cost": 1,
+    "Second Item": "Repair Parts",
+    "Second Cost": 1,
+    "Result Item": "Fire Axe",
+    "Min Amount": 30,
+    "Max Amount": 75,
+    "Crafting Function": "inventory_item_repair"
+  },
+  {
+    "First Item": "Dirty Water",
+    "First Cost": 1,
+    "Second Item": "Chemical Purifier",
+    "Second Cost": 10,
+    "Result Item": "Purified Water",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_use_purifier"
+  },
+  {
+    "First Item": "Impure Sulfur",
+    "First Cost": 1,
+    "Second Item": "Chemical Purifier",
+    "Second Cost": 4,
+    "Result Item": "Pure Sulfur",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_use_purifier"
+  },
+  {
+    "First Item": "Impure Charcoal",
+    "First Cost": 1,
+    "Second Item": "Chemical Purifier",
+    "Second Cost": 4,
+    "Result Item": "Pure Charcoal",
+    "Min Amount": 1,
+    "Max Amount": 1,
+    "Crafting Function": "inventory_item_use_purifier"
+  }
+]
 }

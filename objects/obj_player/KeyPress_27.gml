@@ -3,6 +3,6 @@
 
 //effect_create_screen_fade(c_black, 0.1, 35);
 
-set_crippled(!isCrippled);
-DEBUG_ADD_MESSAGE(id,	"Hitpoints: " + string(hitpoints) + "/" + string(get_max_hitpoints()) + "\n" +
-						"Stamina: " + string(stamina) + "/" + string(get_max_stamina()));
+//set_crippled(!isCrippled);
+//DEBUG_ADD_MESSAGE(id,	"Hitpoints: " + string(hitpoints) + "/" + string(get_max_hitpoints()) + "\n" +
+//						"Stamina: " + string(stamina) + "/" + string(get_max_stamina()));

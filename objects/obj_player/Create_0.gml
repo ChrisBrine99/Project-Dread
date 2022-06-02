@@ -518,6 +518,7 @@ equip_weapon = function(_slot){
 		bulletCount =		_itemData[? WEAPON_BULLET_COUNT];
 		bulletSpacing =		_itemData[? WEAPON_BULLET_SPACING];
 		ammoTypes =			_itemData[? WEAPON_AMMO_TYPES];
+		barrelPosition =	_itemData[? WEAPON_BARREL_POSITION];
 		
 		// Finding out how much ammunition is currently available for the weapon in the inventory.
 		var _ammoInUse = global.items[_slot].currentAmmo;
@@ -542,6 +543,7 @@ equip_weapon = function(_slot){
 	}
 	
 	// 
+	//useSprite =			_itemData[? WEAPON_USE_SPRITE];
 	//aimingSprite =		_itemData[? WEAPON_AIMING_SPRITE];
 	//reloadSprite =		_itemData[? WEAPON_RELOAD_SPRITE];
 	
@@ -584,6 +586,7 @@ unequip_weapon = function(){
 		bulletCount =		0;
 		bulletSpacing =		0;
 		ammoTypes =			0;
+		barrelPosition =	noone;
 		
 		// Resetting the calculated value for the weapon's surplus ammunition that exists within
 		// the player's item inventory.
@@ -699,14 +702,20 @@ use_weapon_projectile = function(){
 /// an object is hit that ends the check altogether, which means the bullet collided with something
 /// it couldn't pass through. (Ex. Almost all walls and hostile entities will stop bullets)
 use_weapon_hitscan = function(){
-	// First, the starting position for the raycast needs to be calculated. To do that we need to
-	// clamp the player's direction value to one of four possible values. After that, the starting
-	// position will be based on the origin of the player offset by some amount based on the 
-	// clamped direction value.
-	var _direction, _startX, _startY;
-	_direction = round(direction / 90) * 90; // Makes only 0, 90, 180, and 270 possible values for the direction.
-	_startX = x + lengthdir_x(6, _direction);
-	_startY = y - 10 + lengthdir_y(6, _direction);
+	// Calculate the start position of the raycast based on the player's current direction and the direction
+	// they are currently facing; north, east, south, or west. In order to reference the correct indexes
+	// for the barrel position at that direction, the current direction is divided by 90 and then multiplied
+	// by 2 since each "index" contains an x and y position, respectively. Then, those found values are
+	// added to the player's coordinates to get the correct position of the gun's barrel.
+	var _index, _barrelPosition, _startX, _startY;
+	_index = round(direction / 90) * 2;
+	_barrelPosition = weaponData.barrelPosition; // Store the reference to the list for faster execution.
+	_startX = x + _barrelPosition[| _index];
+	_startY = y + _barrelPosition[| _index + 1];
+	
+	// In order to get the direction of the player, but clamps to one of the four valid aiming directions,
+	// the index value that was calculated is multiplied by 45 to achieve said values.
+	var _direction = _index * 45; // Multiply the index by 45 to get the values 0, 90, 180, and 270 for valid aiming directions.
 	
 	// Next, the max possible directional offset for the raycast (AKA the accuracy that makes the 
 	// bullet spray randomly around a given offset) needs to be calculated relative to the current
@@ -743,7 +752,7 @@ use_weapon_hitscan = function(){
 		// ray; ordering the list of collided objects from closest to the starting coordinates
 		// to the ending coordinates.
 		collision_line_list(_startX, _startY, _endX, _endY, all, false, true, _collisionList, true);
-	
+		
 		// Now, the collisions need to be processed, which involves looping through the list
 		// of collided objects and resolving their collisions based on matching object index
 		// values. (Child actors will use their parent's object index unless specified otherwise)
@@ -977,6 +986,15 @@ update_movement = function(){
 	hspd = lengthdir_x(inputMagnitude * get_max_hspd() * _runningModifier, inputDirection);
 	vspd = lengthdir_y(inputMagnitude * get_max_vspd() * _runningModifier, inputDirection);
 	update_position(false);
+}
+
+/// @description 
+check_collision_cutscene_trigger = function(){
+	var _trigger = instance_place(x, y, obj_cutscene_trigger);
+	with(_trigger){
+		cutscene_begin_execution(sceneInstructions, startingIndex);
+		if (eventFlagID != noone) {EVENT_SET_FLAG(eventFlagID, eventTargetState);}
+	}
 }
 
 /// @description The function that is responsible for checking if the player has clicked the input

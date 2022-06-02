@@ -4,12 +4,11 @@
 with(CAMERA)			{cleanup();}	delete CAMERA;
 with(MUSIC_HANDLER)		{cleanup();}	delete MUSIC_HANDLER;
 with(EFFECT_HANDLER)	{cleanup();}	delete EFFECT_HANDLER;
-with(CUTSCENE_MANAGER)	{}				delete CUTSCENE_MANAGER;
+with(CUTSCENE_MANAGER)	{cleanup();}	delete CUTSCENE_MANAGER;
 with(TEXTBOX_HANDLER)	{cleanup();}	delete TEXTBOX_HANDLER;
 with(DEPTH_SORTER)		{cleanup();}	delete DEPTH_SORTER;
 with(CONTROL_INFO)		{cleanup();}	delete CONTROL_INFO;
 with(SCREEN_FADE)		{}				delete SCREEN_FADE;
-with(PLAYER)			{instance_destroy(self);}	// No "delete" needed
 with(DEBUGGER)			{cleanup();}	delete DEBUGGER;
 
 // Destroy all existing menus and clean up their structs by calling each of their "menu_cleanup" functions.

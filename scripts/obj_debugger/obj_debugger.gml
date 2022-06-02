@@ -183,6 +183,8 @@ function obj_debugger() constructor{
 		draw_set_halign(fa_right);
 		draw_text_outline(CAM_WIDTH - 5, 5, "Drawn Entities: " + string(DEPTH_SORTER.entitiesDrawn) + "\nDrawn Shadows: " + string(DEPTH_SORTER.shadowsDrawn), HEX_WHITE, RGB_GRAY, 1);
 		
+		draw_text_outline(CAM_WIDTH - 5, 35, "waitTimer: " + string(CUTSCENE_MANAGER.waitTimer) + "\nFunction Index: " + string(CUTSCENE_MANAGER.instructionFunction), HEX_WHITE, RGB_GRAY, 1);
+		
 		// Loop through all of the currently available debug messages and display them to the screen in the
 		// order of their creation, which is the newest (index 0) to the oldest message. (index "n")
 		draw_set_valign(fa_bottom);

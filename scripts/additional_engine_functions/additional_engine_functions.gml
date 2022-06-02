@@ -272,14 +272,19 @@ function is_special_character(_char){
 function value_set_linear(_value, _target, _modifier){
 	if (_value == _target) {return _value;} // The value is already at the target number; simply return that number.
 	
-	// First, the delta modifier for the current frame must be calculated. This prevents the frame rate's
-	// flucuations from affecting how fast the calculation is performed. After that, add or subtract that
-	// modifier from the current value depending on what the target value is, and set the value to the
-	// target if it is within the range. ("Range" is _target - _deltaModifier to _target + _deltaModifier)
-	var _deltaModifier = _modifier * global.deltaTime;
-	if (_value < _target - _deltaModifier)		{return _value + _deltaModifier;}
-	else if (_value > _target + _deltaModifier)	{return _value - _deltaModifier;}
-	else										{return _target;}
+	// Since this is a linear calculation, there needs to be one calculation for an increasing value to a
+	// target and one for a decreasing value to said target. Both will perform checks that prevent the
+	// value from being greater than the target or less than the target depending on if the modifier was
+	// added or subtracted from the current _value variable's value, respectively.
+	if (_value < _target){ // Increasing the value towards the target at the speed set by _modifier.
+		var _targetValue = _value + (_modifier * global.deltaTime);
+		if (_targetValue >= _target)	{return _target;}
+		else							{return _targetValue;}
+	} else{ // Decreasing the value towards the target at the speed set by _modifier.
+		var _targetValue = _value - (_modifier * global.deltaTime);
+		if (_targetValue <= _target)	{return _target;}
+		else							{return _targetValue;}
+	}
 }
 
 /// @description A simple function that adds or subtracts a number from a given value towards its target
@@ -296,9 +301,12 @@ function value_set_relative(_value, _target, _speed){
 	// value is equal to that target value.
 	if (round(_value) == _target) {return _target;}
 	
-	// Since there needs to be no check IF the value is being bypassed due to the nature of the calculation,
-	// all that needs to be done is to simply return the new value until the target has been hit.
-	return _value + ((_target - _value) * _speed * global.deltaTime);
+	// Calcuate the value that SHOULD be returned by the function in order to perform an important check on
+	// said value. In short, if the value surpasses the target in the event of delta time being an absurdly
+	// high value, it will clip that value at the target instead of letting it surpass that bound.
+	var _targetValue = _value + ((_target - _value) * _speed * global.deltaTime);
+	if ((_targetValue >= _target && _value < _target) || (_targetValue <= _target && _value > _target)) {return _target;}
+	return _targetValue; // If the target value doesn't go out of intended bounds, simply return the target.
 }
 
 #endregion

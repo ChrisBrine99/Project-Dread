@@ -335,4 +335,9 @@ state_stun_locked = function(){
 	set_sprite(sprite_index, 0);
 }
 
+/// @description 
+state_cutscene_move = function(){
+	
+}
+
 #endregion
