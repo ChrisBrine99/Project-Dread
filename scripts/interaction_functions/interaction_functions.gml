@@ -101,107 +101,78 @@ function interact_door_unlocked(){
 	}
 }
 
-/// @description The function that is called whenever the player interacts with a warp object that is a door
-/// AND is also locked with a variable number of keys needed to open it. It will check through the list of
-/// those keys to see if the event flags for them have been toggled "true" or if the player has the key within
-/// their item inventory, which will set the paired flag's value to "true". If all the required flags are
-/// true, the door will be changed to an open door. Otherwise, the door's given message for its locked state
-/// is shown to the player and the door will remain locked.
+/// @description 
 function interact_door_locked(){
+	var _doorUnlocked = false;
 	with(parentID){
-		// First, the required keys list will be looped through; checking if the player has already used the
-		// keys on the door or if they have the keys they haven't used within their item inventory at the
-		// time the interaction occurred.
-		var _keysUsed, _length, _keyData;
-		_keysUsed = 0;
+		// 
+		var _length, _key;
 		_length = ds_list_size(requiredKeys);
-		for (var i = 0; i < _length; i++){
-			_keyData = requiredKeys[| i];
-			// If the door is still locked, but one of the keys was already used by the player to unlock that
-			// given lock for the door, it will be checked for here and simply skip the item removal and flag
-			// setting code; incrementing the number of keys used by one and moving onto the next required key.
-			if (EVENT_GET_FLAG(_keyData[DOOR_EVENT_ID])){
-				_keysUsed++;
-				continue;
+		repeat(_length){
+			_key = requiredKeys[| 0];
+			if (inventory_item_count(_key[0]) >= 1){
+				textbox_add_text_data("You used the *" + YELLOW + "*" + _key[0] + "#.");
+				ds_list_delete(requiredKeys, 0);
+				EVENT_SET_FLAG(_key[1], true);
 			}
-			
-			// Check through the inventory to see if the player has at least one of the item that is required
-			// to open the current lock for the door. Otherwise, the door will remain locked until they have
-			// said key item.
-			if (inventory_item_count(_keyData[DOOR_KEY_NAME]) >= 1){
-				// Sicne the current key was found within the inventory, it will be used and removed from the
-				// item inventory; setting its paired flag's value to true to signify this door now no longer
-				// needs this key in order to be unlocked.
-				EVENT_SET_FLAG(_keyData[DOOR_EVENT_ID], true);
-				inventory_item_remove_amount(_keyData[DOOR_KEY_NAME], 1);
-				
-				// Add text data that tells the player they've automatically used the key stored within their
-				// inventory by interacting with the locked door. The item's name will be colored yellow to
-				// make it stick out against the rest of the text.
-				textbox_add_text_data("Used the *" + YELLOW + "*" + _keyData[DOOR_KEY_NAME] + "#.");
+		}
+		
+		// 
+		_length = ds_list_size(requiredKeys);
+		if (_length == 0){
+			textbox_add_text_data("The door is now unlocked.");
+			audio_play_sound_ext(unlockSound, 0, SOUND_VOLUME, 1, false);
+			doorState = DOOR_UNLOCKED;
+			_doorUnlocked = true;
+		}
+		// 
+		else{
+			textbox_add_text_data(doorInfoMessage);
+			audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
+		}
+		
+		// 
+		textbox_begin_execution();
+	}
+	
+	// 
+	if (_doorUnlocked) {interactFunction = interact_door_unlocked;}
+}
 
-				// Increment the number of keys used since a key was used successfully by the player.
-				_keysUsed++;
-			}
-		}
-		
-		// If the amount of keys used for the door is equal to the length of required keys for said door, the
-		// door will switch over to being unlocked. This requires starting the textbox's execution since the
-		// function exits early and also swapping the warp object's interactFunction variable to point to the
-		// unlocked variant of the interaction, which will warp the player to the room and the positions set
-		// for the warp object's warp data.
-		if (_keysUsed == _length){
-			textbox_begin_execution();
-			other.interactFunction = interact_door_unlocked;
-			return; // Exit the script before the warp's general "locked" text can be added to the textbox queue.
-		}
-		
-		// The door is still locked after the check, so the general textbox message for this door is shown
-		// to the player so they know the door is currently locked. This message can be unique to each door
-		// instance in the game; telling the number of keys needed, and so on.
-		textbox_add_text_data(textboxMessage);
-		
-		// Finally, begin the textbox's execution once the message and its reqpective color data have been
-		// added into the textbox's text data for rendering.
+/// @description 
+function interact_door_locked_other_side(){
+	with(parentID){
+		audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
+		textbox_add_text_data("The door is locked from the other side.");
 		textbox_begin_execution();
 	}
 }
 
-/// @description A variation on the standard locked and unlocked door interaction functions that is unique 
-/// to the "one-way locked door". This is a door that can only be opened from one side, and that side is
-/// determined by the key's name; "oSide" for if the lock is on the other side, and "canOpen" for the side
-/// that will unlock the door upon interaction. These strings are stored as constants for ease of use.
-function interact_door_locked_other_side(){
+/// @description 
+function interact_door_locked_can_open(){
 	with(parentID){
-		var _keyData = requiredKeys[| 0];
-		// The door is locked, but the method of unlocking the door is on the OTHER SIDE of said doorway.
-		// So, a textbox will pop up letting the player know that information, and the door's locked sound
-		// will play; the door remaining locked afterward.
-		if (_keyData[DOOR_KEY_NAME] == DOOR_LOCK_OTHER_SIDE){
-			textbox_add_text_data("The door is locked from the other side.");
-			audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
-		}
-		// The door is locked, and the way to unlock it is on the side the player is currently on. So, the
-		// door's unlock sound will play, the event for the door lock being "open" is set to true, and the
-		// interaction component's function will be set to the proper function for door warping to occur.
-		else if (_keyData[DOOR_KEY_NAME] == DOOR_LOCK_CAN_OPEN){
-			textbox_add_text_data("You unlocked the door.");
-			audio_play_sound_ext(unlockSound, 0, SOUND_VOLUME, 1, false);
-			EVENT_SET_FLAG(_keyData[DOOR_EVENT_ID], true);
-			other.interactFunction = interact_door_unlocked;
-		}
+		// 
+		doorState = DOOR_UNLOCKED;
 		
-		// Since both outcomes will create a textbox of some kind, place the begin execution function at the
-		// end of this interaction function to save on overall code.
+		// 
+		EVENT_SET_FLAG(requiredKeys[| 0][1], true);
+		ds_list_delete(requiredKeys, 0);
+		
+		// 
+		audio_play_sound_ext(unlockSound, 0, SOUND_VOLUME, 1, false);
+		textbox_add_text_data("The door is now unlocked.");
 		textbox_begin_execution();
 	}
+	
+	// 
+	interactFunction = interact_door_unlocked;
 }
 
 /// @description 
 function interact_door_broken(){
 	with(parentID){
 		audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
-		textbox_add_text_data(textboxMessage);
+		textbox_add_text_data(doorInfoMessage);
 		textbox_begin_execution();
 	}
 }

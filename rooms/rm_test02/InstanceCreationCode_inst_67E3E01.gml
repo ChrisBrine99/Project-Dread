@@ -1,2 +1,1 @@
-set_base_door_data(DOOR_UNLOCKED, DOOR_DIR_NORTH, NO_SOUND, NO_SOUND);
-set_warp_data(104, 120, rm_test01);
+initialize_door_data(rm_test01, 104, 120, NO_SOUND, NO_SOUND, DOOR_UNLOCKED, DOOR_DIR_NORTH);

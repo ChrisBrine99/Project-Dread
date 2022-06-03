@@ -662,20 +662,33 @@ function object_set_next_state(_nextState){
 	lastState = curState;
 }
 
-/// @description 
+/// @description A function that performs a room switch with the warp instance that was provided within 
+/// the "warpID" argument parameter. It will take the target room index as well as the target coordinates
+/// for the player in order to properly move into said room.
 /// @param warpID
 function object_perform_room_warp(_warpID){
 	with(_warpID){
-		// 
+		// First things first, Game Maker will be told to perform its room swapping logic; moving into
+		// the room index that was set for the current warp that is handling the room transition.
 		room_goto(targetRoom);
 		
-		// 
+		// Next, the player's position will be snapped to the target position set by the warp object. The
+		// values are floored in order to prevent placing the player at a non-integer position. Doing so 
+		// could cause issues with the player's world collision logic and sprite rendering.
 		var _targetX, _targetY;
-		_targetX = targetX;
-		_targetY = targetY;
+		_targetX = floor(targetX);
+		_targetY = floor(targetY);
 		with(PLAYER){
-			x = floor(_targetX);
-			y = floor(_targetY);
+			x = _targetX;
+			y = _targetY;
+		}
+		
+		// Since the player's position is suddenly snapping to a new point within the room, the camera
+		// should also be snapped to that position; preventing any odd issues where the camera remains at
+		// its previous position despite the new position for the player and has to "catch up" to them.
+		with(CAMERA){
+			x = _targetX - CAM_HALF_WIDTH;
+			y = _targetY - CAM_HALF_HEIGHT;
 		}
 	}
 }

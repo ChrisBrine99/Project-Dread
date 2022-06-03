@@ -414,7 +414,7 @@ function obj_textbox_handler() constructor{
 			// values of "curCharacter" and the interger representation of "nextCharacter"; parsing any
 			// necessary color data from the string and pulling out the necessary amount of characters
 			// for rendering.
-			var _curChar, _curCharExt, _nextWordWidth;
+			var _curChar = "";
 			while(curCharacter < floor(nextCharacter)){
 				_curChar = string_char_at(_fullText, curCharacter);
 				
@@ -468,29 +468,42 @@ function obj_textbox_handler() constructor{
 				// function, this code checks for any spaces or hyphens in the text in order to see if the 
 				// maximum string width will be exceeded by adding the next word to the current line.
 				else if (_curChar == " " || _curChar == "-"){
+					var _nextWordWidth, _skipCharacter, _curCharExt;
 					_nextWordWidth = 0;
+					_skipCharacter = false;
 					for (var i = curCharacter + 1; i <= finalCharacter; i++){
+						// Grab the next available character after the space of the hyphen, but if it is
+						// found to be the initializer character for reading a color code; don't bother
+						// with this loop and simply exit before doing anything.
 						_curCharExt = string_char_at(_fullText, i);
-						// If the string has hit it's last character OR a space/hypen is the current character,
-						// perform the check to see if the current word should be placed on the current line
-						// or if it should be put on a new line instead.
+						if (_curCharExt == "*") {break;}
+						
+						// If the string has hit it's last character OR a space/hypen is the current 
+						// character, perform the check to see if the current word should be placed on 
+						// the current line or if it should be put on a new line instead. If it moves onto
+						// a new line, the character that started this wrapping check will be placed at
+						// the current target position for the character if it was a hyphen and not a
+						// space character.
 						if (i == finalCharacter || _curCharExt == " " || _curCharExt == "-"){
-							// The width of the current line exceeds the limit for a single line's width on
-							// the textbox; move it to the next line by adding to the character's y offset.
-							// Then, store the new curCharacter into the local variable in order to not
-							// render the ignored space at the start of the line.
 							if (characterX + _nextWordWidth >= maxLineWidth){
-								curCharacter++;
+								if (_curChar == "-") {draw_character(_curChar, textColor, textOutlineColor, _xScale, _yScale);}
 								characterX = 0;
 								characterY += string_height("M") * _yScale;
-								_curChar = string_char_at(_fullText, curCharacter);
+								_skipCharacter = true;
 							}
 							break; // Exits out of the current for loop; regardless of it's completed or not.
 						}
+						
 						// Keep adding the "next" character's width to the word's full width until a space,
 						// hyphen OR the end of the string has been reached, which will then use this value
 						// to determine where that word ends up on a line-to-line basis.
 						_nextWordWidth += string_width(_curCharExt) * _xScale;
+					}
+					
+					// 
+					if (_skipCharacter){
+						curCharacter++;
+						continue;
 					}
 				}
 				
