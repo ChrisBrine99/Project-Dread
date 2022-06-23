@@ -7,4 +7,4 @@ if (itemName == ITEM_POUCH) {_function = interact_item_collect_pouch;}
 // After determining the interaction function to use with the component, initialize it to be located at the
 // origin point of the entity (This is at the exact center of the sprite in this case) and set its radius to
 // be half of the sprite's width/height.
-object_add_interact_component(x, y, 8, _function);
+object_add_interact_component(x, y, 8, _function, "Pick Up Item");

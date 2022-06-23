@@ -154,7 +154,7 @@ function obj_camera() constructor{
 		// starting strength and the duration of the shake in real seconds. (1 = second = 60 in the code)
 		// The duration determines how fast the strength of the shake will decrease.
 		if (shakeCurStrength > 0){
-			shakeCurStrength -= shakeSetStrength / shakeDuration * global.deltaTime;
+			shakeCurStrength -= shakeSetStrength / shakeDuration * DELTA_TIME;
 			camera_set_view_pos(cameraID, shakeOriginX + irandom_range(-shakeCurStrength, shakeCurStrength), shakeOriginY + irandom_range(-shakeCurStrength, shakeCurStrength));
 		}
 	}
@@ -191,8 +191,8 @@ function obj_camera() constructor{
 	update_position = function(_hspd, _vspd){
 		// First things first, the delta movement amount for the frame must be calculated.
 		var _hspdDelta, _vspdDelta;
-		_hspdDelta = _hspd * global.deltaTime;
-		_vspdDelta = _vspd * global.deltaTime;
+		_hspdDelta = _hspd * DELTA_TIME;
+		_vspdDelta = _vspd * DELTA_TIME;
 		
 		// After that, the previous fraction values need to be added back into the movement values.
 		_hspdDelta += hspdFraction;

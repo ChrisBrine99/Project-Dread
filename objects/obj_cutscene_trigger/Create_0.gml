@@ -6,9 +6,9 @@ startingIndex = 0;
 
 // 
 requiredFlags = ds_list_create();
-eventFlagID = noone;
 
 // 
+eventFlagID = noone;
 eventTargetState = true;
 
 #endregion
@@ -19,7 +19,7 @@ eventTargetState = true;
 /// @param flagID
 /// @param targetState
 assign_event_flag = function(_flagID, _targetState){
-	EVENT_CREATE_FLAG(eventFlagID, !_targetState);
+	EVENT_CREATE_FLAG(_flagID, !_targetState);
 	eventFlagID = _flagID;
 	eventTargetState = _targetState;
 }

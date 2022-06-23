@@ -10,12 +10,14 @@ interactComponent = noone;
 z = 0;
 zHeight = 0;
 
-//
+// Determines the characteristics of the entity's optional shadow. The first two variables determine the position
+// of the center of the shadow relative to the entity's actual position, (The origin of the sprite, basically)
+// and the final variable is the radius for the shadow, since it's a simple circular drop shadow.
 shadowOffsetX = 0;
 shadowOffsetY = 0;
 shadowRadius = 0;
 
-//
+// The flag that actually determines if the entity will render its shadow onto the floor or not.
 displayShadow = false;
 
 // A flag that allows entities to have their rendering toggled on and off at any given moment. Useful for objects

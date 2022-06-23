@@ -1,12 +1,16 @@
-// 
+// Grab the player's current coordinates within the room AND the camera's coordinates for use in drawing
+// certain HUD elements. (The door indicator requires all four values, for example) They are grabbed here
+// for faster overall performance of this event.
 var _playerX, _playerY, _cameraX, _cameraY;
 _playerX = PLAYER.x;
 _playerY = PLAYER.y;
 _cameraX = CAMERA.x;
 _cameraY = CAMERA.y;
 
-// 
+// Draw all of the elements of the HUD; including the door indicator, interaction prompt describing what
+// can be done when the player presses the interact input on said interactable object.
 draw_door_indicator(_playerX, _playerY, _cameraX, _cameraY);
+draw_interact_prompt();
 
 // Render all currently existing menu instances here; looping through them in the order that they were created
 // and added into said instance list. This means that the earliest created menu will be rendered below the next

@@ -17,8 +17,9 @@
 /// @param y
 /// @param radius
 /// @param interactFunction
+/// @param interactPrompt
 /// @param id
-function obj_interact_component(_x, _y, _radius, _interactFunction, _id) constructor{
+function obj_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt, _id) constructor{
 	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_interact_component;
@@ -29,12 +30,14 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _id) constru
 	x = _x;
 	y = _y;
 	
-	// Two important variables for this component; the first determining how large of an area from the position
+	// Three important variables for this component; the first determining how large of an area from the position
 	// of the component's origin the player's interact point can be considered "interacting" with the parent
 	// object of this component. The second variable stores the index to the function that is called when
-	// an interaction actually occurs.
+	// an interaction actually occurs. Finally, the third variable stores the string that is shown on the
+	// HUD when the player is able to interact with this component.
 	radius = _radius;
 	interactFunction = _interactFunction;
+	interactPrompt = _interactPrompt;
 	
 	// Stores the unique ID value for the instance that this interact component is attached to. This allows
 	// the component to always know exactly which instance is linked to their respective interaction function
@@ -87,9 +90,9 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _id) constru
 /// @param y
 /// @param radius
 /// @param interactFunction
-function object_add_interact_component(_x, _y, _radius, _interactFunction){
+function object_add_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt){
 	if (interactComponent == noone){
-		interactComponent = new obj_interact_component(_x, _y, _radius, _interactFunction, id);
+		interactComponent = new obj_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt, id);
 		interactComponent.can_player_interact(); // Performs the check for if this can be interacted with by the player.
 		ds_list_add(global.interactables, interactComponent); // Add to the list of interactables.
 	}

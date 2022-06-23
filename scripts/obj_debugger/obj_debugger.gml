@@ -178,12 +178,13 @@ function obj_debugger() constructor{
 		// one pixel outline of a given color for style purposes.
 		shader_set_outline(RGB_GRAY, font_gui_small);
 		
+		// Display the current game state and playtime data in the top-left corner of the screen.
+		draw_text_outline(5, 5, "Game State: " + game_state_get_name(GAME_STATE_CURRENT) + " (Previously: " + game_state_get_name(GAME_STATE_PREVIOUS) + ")\nIn-Game Time: " + GET_IN_GAME_TIME(), HEX_WHITE, RGB_GRAY, 1);
+		
 		// Always display entity rendering information on the screen; how many entities have been drawn
 		// for the current room view and how many drop shadows have been drawn as well.
 		draw_set_halign(fa_right);
-		draw_text_outline(CAM_WIDTH - 5, 5, "Drawn Entities: " + string(DEPTH_SORTER.entitiesDrawn) + "\nDrawn Shadows: " + string(DEPTH_SORTER.shadowsDrawn), HEX_WHITE, RGB_GRAY, 1);
-		
-		draw_text_outline(CAM_WIDTH - 5, 35, "waitTimer: " + string(CUTSCENE_MANAGER.waitTimer) + "\nFunction Index: " + string(CUTSCENE_MANAGER.instructionFunction), HEX_WHITE, RGB_GRAY, 1);
+		draw_text_outline(CAM_WIDTH - 5, 5, "Drawn Entities: " + string(DEPTH_SORTER.entitiesDrawn) + "\nDrawn Shadows: " + string(DEPTH_SORTER.shadowsDrawn) + "\n\nAmmoRemaining: " + string(PLAYER.weaponData.ammoRemaining), HEX_WHITE, RGB_GRAY, 1);
 		
 		// Loop through all of the currently available debug messages and display them to the screen in the
 		// order of their creation, which is the newest (index 0) to the oldest message. (index "n")

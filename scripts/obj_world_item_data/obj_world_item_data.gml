@@ -62,7 +62,7 @@ function object_create_world_item(_x, _y, _itemName, _quantity, _durability){
 		// Make sure that the interact component it added to the instance. This is necessary because the
 		// interact component for this object is only ever set in the "Room Start" event, and these instances
 		// are created after that event has been executed.
-		object_add_interact_component(x, y, 8, interact_item_collect_default);
+		object_add_interact_component(x, y, 8, interact_item_collect_default, "Pick Up Item");
 	}
 	
 	// After creating and setting up the world item object, make sure its data is added to the global data

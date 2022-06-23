@@ -62,6 +62,64 @@
 
 #endregion
 
+#region Macros for the game's available gamepad and keyboard input bindings.
+
+// Macro values for all of the KEYBOARD input bindings.
+#macro	KEY_GAME_RIGHT			global.settings.keyGameRight		// Movement inputs
+#macro	KEY_GAME_LEFT			global.settings.keyGameLeft
+#macro	KEY_GAME_UP				global.settings.keyGameUp
+#macro	KEY_GAME_DOWN			global.settings.keyGameDown
+#macro	KEY_RUN					global.settings.keyRun
+#macro	KEY_INTERACT			global.settings.keyInteract			// Interaction input
+#macro	KEY_READY_WEAPON		global.settings.keyReadyWeapon		// Weapon inputs
+#macro	KEY_USE_WEAPON			global.settings.keyUseWeapon
+#macro	KEY_AMMO_SWAP			global.settings.keyAmmoSwap
+#macro	KEY_RELOAD_GUN			global.settings.keyReloadGun
+#macro	KEY_FLASHLIGHT			global.settings.keyFlashlight		// Flashlight inputs
+#macro	KEY_LIGHT_SWAP			global.settings.keyLightSwap
+#macro	KEY_PAUSE				global.settings.keyPause			// Menu opening inputs
+#macro	KEY_ITEMS				global.settings.keyItems
+#macro	KEY_NOTES				global.settings.keyNotes
+#macro	KEY_MAPS				global.settings.keyMaps
+#macro	KEY_MENU_RIGHT			global.settings.keyMenuRight		// Menu cursor inputs
+#macro	KEY_MENU_LEFT			global.settings.keyMenuLeft
+#macro	KEY_MENU_UP				global.settings.keyMenuUp
+#macro	KEY_MENU_DOWN			global.settings.keyMenuDown
+#macro	KEY_AUX_MENU_RIGHT		global.settings.keyAuxMenuRight
+#macro	KEY_AUX_MENU_LEFT		global.settings.keyAuxMenuLeft
+#macro	KEY_SELECT				global.settings.keySelect			// Menu interaction inputs
+#macro	KEY_RETURN				global.settings.keyReturn
+#macro	KEY_FILE_DELETE			global.settings.keyFileDelete
+
+// Macro values for all of the GAMEPAD input bindings
+#macro	PAD_GAME_RIGHT			global.settings.gpadGameRight		// Movement inputs
+#macro	PAD_GAME_LEFT			global.settings.gpadGameLeft
+#macro	PAD_GAME_UP				global.settings.gpadGameUp
+#macro	PAD_GAME_DOWN			global.settings.gpadGameDown
+#macro	PAD_RUN					global.settings.gpadRun
+#macro	PAD_INTERACT			global.settings.gpadInteract		// Interaction input
+#macro	PAD_READY_WEAPON		global.settings.gpadReadyWeapon		// Weapon inputs
+#macro	PAD_USE_WEAPON			global.settings.gpadUseWeapon
+#macro	PAD_AMMO_SWAP			global.settings.gpadAmmoSwap
+#macro	PAD_RELOAD_GUN			global.settings.gpadReloadGun
+#macro	PAD_FLASHLIGHT			global.settings.gpadFlashlight		// Flashlight inputs
+#macro	PAD_LIGHT_SWAP			global.settings.gpadLightSwap
+#macro	PAD_PAUSE				global.settings.gpadPause			// Menu opening inputs
+#macro	PAD_ITEMS				global.settings.gpadItems
+#macro	PAD_NOTES				global.settings.gpadNotes
+#macro	PAD_MAPS				global.settings.gpadMaps
+#macro	PAD_MENU_RIGHT			global.settings.gpadMenuRight		// Menu cursor inputs
+#macro	PAD_MENU_LEFT			global.settings.gpadMenuLeft
+#macro	PAD_MENU_UP				global.settings.gpadMenuUp
+#macro	PAD_MENU_DOWN			global.settings.gpadMenuDown
+#macro	PAD_AUX_MENU_RIGHT		global.settings.gpadAuxMenuRight
+#macro	PAD_AUX_MENU_LEFT		global.settings.gpadAuxMenuLeft
+#macro	PAD_SELECT				global.settings.gpadSelect			// Menu interaction inputs
+#macro	PAD_RETURN				global.settings.gpadReturn
+#macro	PAD_FILE_DELETE			global.settings.gpadFileDelete
+
+#endregion
+
 #region Global object macros
 
 // Constants that represent their respective default or "zero" values--representing the value that any 
@@ -162,12 +220,20 @@
 #macro	GAME_STATE_PREVIOUS		global.gameState.lastState
 #macro	GAME_SET_STATE			global.gameState.set_state
 
+// 
+#macro	DELTA_TIME				global.gameTime.deltaTime
+#macro	GET_IN_GAME_TIME		global.gameTime.get_current_in_game_time
+
 // Macros that replace the long-winded typing required in order to access the game's current volumes for the
 // in-game music, sound effects, and menu/ui sounds, respectively. These values are all adjusted to match 
 // the master volume automatically.
 #macro	MUSIC_VOLUME			global.settings.trueMusicVolume
 #macro	SOUND_VOLUME			global.settings.trueSoundVolume
 #macro	GUI_VOLUME				global.settings.trueGuiVolume
+
+// 
+#macro	IS_RUN_TOGGLE			global.settings.isRunToggle
+#macro	IS_AIM_TOGGLE			global.settings.isAimToggle
 
 // 
 #macro	GAME_DIFFICULTY			global.gameplay.combatDifficulty

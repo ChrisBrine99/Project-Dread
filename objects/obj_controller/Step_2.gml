@@ -1,6 +1,3 @@
-// Increment the in-game play time only if the timer isn't currently frozen.
-if (!global.freezeInGameTime) {global.inGameTime += global.deltaTime / 60;}
-
 // Update the position of the audio listener relative to its currently linked object. (If there is one)
 with(global.audioListener)	{end_step();}
 

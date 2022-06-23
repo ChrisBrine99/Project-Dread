@@ -31,6 +31,7 @@ delete global.shaderFeathering;
 delete global.audioListener;
 delete global.gameState;
 delete global.events;
+delete global.gameTime;
 delete global.gameplay;
 delete global.itemData;	// This single "delete" statement will automatically clear all contained data structures from memory.
 delete global.settings;

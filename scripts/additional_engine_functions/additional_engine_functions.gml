@@ -277,11 +277,11 @@ function value_set_linear(_value, _target, _modifier){
 	// value from being greater than the target or less than the target depending on if the modifier was
 	// added or subtracted from the current _value variable's value, respectively.
 	if (_value < _target){ // Increasing the value towards the target at the speed set by _modifier.
-		var _targetValue = _value + (_modifier * global.deltaTime);
+		var _targetValue = _value + (_modifier * DELTA_TIME);
 		if (_targetValue >= _target)	{return _target;}
 		else							{return _targetValue;}
 	} else{ // Decreasing the value towards the target at the speed set by _modifier.
-		var _targetValue = _value - (_modifier * global.deltaTime);
+		var _targetValue = _value - (_modifier * DELTA_TIME);
 		if (_targetValue <= _target)	{return _target;}
 		else							{return _targetValue;}
 	}
@@ -304,7 +304,7 @@ function value_set_relative(_value, _target, _speed){
 	// Calcuate the value that SHOULD be returned by the function in order to perform an important check on
 	// said value. In short, if the value surpasses the target in the event of delta time being an absurdly
 	// high value, it will clip that value at the target instead of letting it surpass that bound.
-	var _targetValue = _value + ((_target - _value) * _speed * global.deltaTime);
+	var _targetValue = _value + ((_target - _value) * _speed * DELTA_TIME);
 	if ((_targetValue >= _target && _value < _target) || (_targetValue <= _target && _value > _target)) {return _target;}
 	return _targetValue; // If the target value doesn't go out of intended bounds, simply return the target.
 }
@@ -412,7 +412,10 @@ function inventory_item_add(_itemName, _quantity, _durability, _createItem = fal
 		}
 	}
 	
-	// 
+	// If there isn't enough space within the inventory to add the entire quantity to the it BUT the item
+	// didn't previously exist within the world to begin with, (Ex. crafting items, combining items, etc.)
+	// A new world item will be spawned containing the data for the remainder of the quantity that couldn't
+	// fit into the item inventory.
 	if (_quantity > 0 && _createItem) {object_create_world_item(PLAYER.x, PLAYER.y, _itemName, _quantity, _durability);}
 	
 	// If the loop completed its execution before the entire quantity of the desired item could be added into
@@ -466,19 +469,21 @@ function inventory_item_remove_amount(_itemName, _quantity){
 /// @param slotIndex
 /// @param createItem
 function inventory_item_remove_slot(_slotIndex, _createItem = false){
-	// 
+	// Don't bother attempting to remove an item from a slot where no item struct actually exists; it's
+	// just a waste of processing time.
 	if (global.items[_slotIndex] == noone) {return;}
 	
 	// If the flag to create a physical game object was toggled from the function's call, it will be created
 	// BEFORE the item's data is cleared from the inventory slot. Otherwise, the item's data will be lost with
 	// the struct deletion and it won't be able to be referenced for the item object's variables to use.
 	if (_createItem){
-		with(global.items[_slotIndex]){ // 
+		with(global.items[_slotIndex]){ // Jump into scope of the item struct to access its data.
 			object_create_world_item(PLAYER.x, PLAYER.y, itemName, quantity, durability);
 		}
 	}
 	
-	// 
+	// Finally, clear out the struct from memory and reset the value stored within that slot to the default
+	// value for an empty slot: "noone". (Constant that is equal to -4)
 	delete global.items[_slotIndex];
 	global.items[_slotIndex] = noone;
 }
@@ -681,6 +686,7 @@ function object_perform_room_warp(_warpID){
 		with(PLAYER){
 			x = _targetX;
 			y = _targetY;
+			interactableID = noone; // Set to "noone" so the on-screen prompt fades out during warp process instead of after.
 		}
 		
 		// Since the player's position is suddenly snapping to a new point within the room, the camera

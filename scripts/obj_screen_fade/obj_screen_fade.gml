@@ -46,7 +46,7 @@ function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
 	step = function(){
 		alpha = value_set_linear(alpha, alphaTarget, fadeSpeed);
 		if (fadeDuration != FADE_PAUSE_FOR_TOGGLE && alpha == 1 && alphaTarget == 1){ // Count down the duration until the fade out can begin.
-			fadeDuration -= global.deltaTime;
+			fadeDuration -= DELTA_TIME;
 			if (fadeDuration <= 0) {alphaTarget = 0;}
 		} else if (alpha == 0 && alphaTarget == 0){ // The fade has completed; clear its pointer from the singleton map.
 			GAME_SET_STATE(GAME_STATE_PREVIOUS, true);

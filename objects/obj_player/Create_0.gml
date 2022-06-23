@@ -248,6 +248,9 @@ flashlightData = {
 }
 
 // 
+interactableID = noone;
+
+// 
 painSounds = [
 	snd_player_hurt0,
 	snd_player_hurt1,
@@ -264,69 +267,92 @@ painSoundIndex = noone;
 /// @description 
 get_max_stamina = function() {return max(1, floor(maxStamina * maxStaminaFactor));}
 
-/// @description Retrieves the input from each of the player object's controls; placing them in
-/// variables that will be either "true" or "false" based on what the keyboard check returns for
-/// said input. If a gamepad is active, the function will use the gamepad functions in place of
-/// those keyboard functions.
-get_input = function(){
-	if (!global.gamepad.isActive){ // Getting input from the default device; the keyboard.
-		inputRight =		keyboard_check(global.settings.keyGameRight);
-		inputLeft =			keyboard_check(global.settings.keyGameLeft);
-		inputUp =			keyboard_check(global.settings.keyGameUp);
-		inputDown =			keyboard_check(global.settings.keyGameDown);
-		
-		inputInteract =		keyboard_check_pressed(global.settings.keyInteract);				
-		
-		inputUseWeapon =	keyboard_check(global.settings.keyUseWeapon);
-		inputSwapAmmo =		keyboard_check_pressed(global.settings.keyAmmoSwap);
-		inputReload =		keyboard_check_pressed(global.settings.keyReloadGun);
-		
-		inputFlashlight =	keyboard_check_pressed(global.settings.keyFlashlight);
-		inputChangeLight =	keyboard_check_pressed(global.settings.keyLightSwap);
-		
-		inputPause =		keyboard_check_pressed(global.settings.keyPause);
-		inputItems =		keyboard_check_pressed(global.settings.keyItems);
-		inputNotes =		keyboard_check_pressed(global.settings.keyNotes);
-		inputMaps =			keyboard_check_pressed(global.settings.keyMaps);
-		
-		// Accessibility options will allow the user to switch the inputs for running and aiming 
-		// their weapon to be a toggled input instead of a hold. In those cases, the keyboard input
-		// check function used will be swapped to a key pressed check.
-		if (!global.settings.isRunToggle) {inputRun = keyboard_check(global.settings.keyRun);}
-		else {inputRun = keyboard_check_pressed(global.settings.keyRun);}
-		
-		if (!global.settings.isAimToggle) {inputReadyWeapon = keyboard_check(global.settings.keyReadyWeapon);}
-		else {inputReadyWeapon = keyboard_check_pressed(global.settings.keyReadyWeapon);}	
-	} else{ // Getting input from the currently active gamepad.
-		var _gamepad = global.gamepad.deviceID;
-		
-		inputRight =		gamepad_button_check(_gamepad, global.settings.gpadGameRight);
-		inputLeft =			gamepad_button_check(_gamepad, global.settings.gpadGameLeft);
-		inputUp =			gamepad_button_check(_gamepad, global.settings.gpadGameUp);
-		inputDown =			gamepad_button_check(_gamepad, global.settings.gpadGameDown);
-		
-		inputInteract =		gamepad_button_check_pressed(_gamepad, global.settings.gpadInteract);
-		
-		inputUseWeapon =	gamepad_button_check(_gamepad, global.settings.gpadUseWeapon);
-		inputSwapAmmo =		gamepad_button_check_pressed(_gamepad, global.settings.gpadAmmoSwap);
-		inputReload =		gamepad_button_check_pressed(_gamepad, global.settings.gpadReloadGun);
-		
-		inputFlashlight =	gamepad_button_check_pressed(_gamepad, global.settings.gpadFlashlight);
-		inputChangeLight =	gamepad_button_check_pressed(_gamepad, global.settings.gpadLightSwap);
-		
-		inputPause =		gamepad_button_check_pressed(_gamepad, global.settings.gpadPause);
-		inputItems =		gamepad_button_check_pressed(_gamepad, global.settings.gpadItems);
-		inputNotes =		gamepad_button_check_pressed(_gamepad, global.settings.gpadNotes);
-		inputMaps =			gamepad_button_check_pressed(_gamepad, global.settings.gpadMaps);
-		
-		// Much like with the keyboard input above, the accessibility settings will allow the user
-		// to change both the run and aiming inputs to toggles instead of button holds.
-		if (!global.settings.isRunToggle) {inputRun = gamepad_button_check(_gamepad, global.settings.gpadRun);}
-		else {inputRun = gamepad_button_check_pressed(_gamepad, global.settings.gpadRun);}
-		
-		if (!global.settings.isAimToggle) {inputReadyWeapon = gamepad_button_check(_gamepad, global.settings.gpadReadyWeapon);}
-		else {inputReadyWeapon = gamepad_button_check_pressed(_gamepad, global.settings.gpadReadyWeapon);}
-	}
+/// @description 
+check_player_input = function(){
+	// 
+	if (!global.gamepad.isActive)	{get_input_keyboard();}
+	else							{get_input_gamepad();}
+	
+	// 
+	inputMagnitude = (inputRight - inputLeft != 0) || (inputDown - inputUp != 0);
+}
+
+/// @description 
+get_input_keyboard = function(){
+	// 
+	inputRight =		keyboard_check(KEY_GAME_RIGHT);
+	inputLeft =			keyboard_check(KEY_GAME_LEFT);
+	inputUp =			keyboard_check(KEY_GAME_UP);
+	inputDown =			keyboard_check(KEY_GAME_DOWN);
+	
+	inputInteract =		keyboard_check_pressed(KEY_INTERACT);	
+	
+	inputUseWeapon =	keyboard_check(KEY_USE_WEAPON);
+	inputSwapAmmo =		keyboard_check_pressed(KEY_AMMO_SWAP);
+	inputReload =		keyboard_check_pressed(KEY_RELOAD_GUN);
+	
+	inputFlashlight =	keyboard_check_pressed(KEY_FLASHLIGHT);
+	inputChangeLight =	keyboard_check_pressed(KEY_LIGHT_SWAP);
+	
+	inputPause =		keyboard_check_pressed(KEY_PAUSE);
+	inputItems =		keyboard_check_pressed(KEY_ITEMS);
+	inputNotes =		keyboard_check_pressed(KEY_NOTES);
+	inputMaps =			keyboard_check_pressed(KEY_MAPS);
+	
+	// 
+	if (!IS_RUN_TOGGLE)	{inputRun = keyboard_check(KEY_RUN);}
+	else				{inputRun = keyboard_check_pressed(KEY_RUN);}
+	
+	if (!IS_AIM_TOGGLE)	{inputReadyWeapon = keyboard_check(KEY_READY_WEAPON);}
+	else				{inputReadyWeapon = keyboard_check_pressed(KEY_READY_WEAPON);}
+	
+	// 
+	inputDirection = point_direction(0, 0, inputRight - inputLeft, inputDown - inputUp);
+}
+
+/// @description 
+get_input_gamepad = function(){
+	// 
+	var _gamepad, _deadzone;
+	_gamepad = global.gamepad.deviceID;
+	_deadzone = gamepad_get_axis_deadzone(_gamepad);
+	
+	// 
+	var _stickH, _stickV, _stickInUse;
+	_stickH = gamepad_axis_value(_gamepad, gp_axislh);
+	_stickV = gamepad_axis_value(_gamepad, gp_axislv);
+	_stickInUse = (abs(_stickH) >= _deadzone && abs(_stickV) >= _deadzone);
+	
+	// 
+	inputRight =		(gamepad_button_check(_gamepad, PAD_GAME_RIGHT) || _stickH >= _deadzone);
+	inputLeft =			(gamepad_button_check(_gamepad, PAD_GAME_LEFT)	|| _stickH <= -_deadzone);
+	inputUp =			(gamepad_button_check(_gamepad, PAD_GAME_UP)	|| _stickV <= -_deadzone);
+	inputDown =			(gamepad_button_check(_gamepad, PAD_GAME_DOWN)	|| _stickV >= _deadzone);
+	
+	inputInteract =		gamepad_button_check_pressed(_gamepad, PAD_INTERACT);
+	
+	inputUseWeapon =	gamepad_button_check(_gamepad, PAD_USE_WEAPON);
+	inputSwapAmmo =		gamepad_button_check_pressed(_gamepad, PAD_AMMO_SWAP);
+	inputReload =		gamepad_button_check_pressed(_gamepad, PAD_RELOAD_GUN);
+	
+	inputFlashlight =	gamepad_button_check_pressed(_gamepad, PAD_FLASHLIGHT);
+	inputChangeLight =	gamepad_button_check_pressed(_gamepad, PAD_LIGHT_SWAP);
+	
+	inputPause =		gamepad_button_check_pressed(_gamepad, PAD_PAUSE);
+	inputItems =		gamepad_button_check_pressed(_gamepad, PAD_ITEMS);
+	inputNotes =		gamepad_button_check_pressed(_gamepad, PAD_NOTES);
+	inputMaps =			gamepad_button_check_pressed(_gamepad, PAD_MAPS);
+	
+	// 
+	if (!IS_RUN_TOGGLE)	{inputRun = gamepad_button_check(_gamepad, PAD_RUN);}
+	else				{inputRun = gamepad_button_check_pressed(_gamepad, PAD_RUN);}
+	
+	if (!IS_AIM_TOGGLE)	{inputReadyWeapon = gamepad_button_check(_gamepad, PAD_READY_WEAPON);}
+	else				{inputReadyWeapon = gamepad_button_check_pressed(_gamepad, PAD_READY_WEAPON);}
+	
+	// 
+	if (_stickInUse)	{inputDirection = point_direction(0, 0, _stickH, _stickV);}
+	else				{inputDirection = point_direction(0, 0, inputRight - inputLeft, inputDown - inputUp);}
 }
 
 /// @description A simple function that will equip and unequip the given item onto the player; using
@@ -803,9 +829,9 @@ update_accuracy_penalty = function(){
 	// beginning its reduction process immediately after a shot was fired and the player stopped
 	// firing said weapon. (AKA the input was released) After the timer reaches 0, the accuracy
 	// penalty will begin to be reduced back down to 0.
-	penaltyReductionTimer -= global.deltaTime;
+	penaltyReductionTimer -= DELTA_TIME;
 	if (penaltyReductionTimer <= 0){
-		accuracyPenalty -= global.deltaTime * 0.75; // Takes a little under half a second to fully reduce the accuracy penalty when it's at its max value.
+		accuracyPenalty -= DELTA_TIME * 0.75; // Takes a little under half a second to fully reduce the accuracy penalty when it's at its max value.
 		if (accuracyPenalty < 0) {accuracyPenalty = 0;}
 	}
 }
@@ -945,7 +971,6 @@ update_movement = function(){
 	// player are currently pressing. No movement is processed for a given axis if opposite keys
 	// for the same axis are pressed simultaneously.
 	inputMagnitude = ((inputRight - inputLeft) != 0) || ((inputDown - inputUp) != 0);
-	inputDirection = point_direction(0, 0, (inputRight - inputLeft), (inputDown - inputUp));
 
 	// Determining if the player is running based on the default value or simply holding the button
 	// down for the entire time they wish to run, or by pressing it once to toggle the running and
@@ -959,16 +984,16 @@ update_movement = function(){
 	var _runningModifier = 1;
 	if (isRunning * inputMagnitude != 0){ // Increase the player's speed if they still have stamina.
 		if (stamina > 0){
-			stamina -= (global.deltaTime + (staminaDepletionModifier * global.deltaTime));
+			stamina -= (DELTA_TIME + (staminaDepletionModifier * DELTA_TIME));
 			if (!isCrippled) {_runningModifier = 2.35;}	// 135% boost to movement speed when not cippled;
 			else			 {_runningModifier = 1.75;} // only a 75% boost otherwise.
 		} else if (!isCrippled){ // The "out of stamina" speed isn't possible while crippled.
 			_runningModifier = 1.65; // Only a 65% boost when out of initial stamina.
 		}
 	} else if (stamina < get_max_stamina()){ // Prevent running and slowly recharge the player's stamina over time.
-		staminaRegenTimer += global.deltaTime;
+		staminaRegenTimer += DELTA_TIME;
 		if (staminaRegenTimer >= STAMINA_REGEN_PAUSE_TIME){ // Pause for 2.5 seconds before refilling the stamina variable.
-			stamina += 0.5 * global.deltaTime * staminaRegenSpeed;
+			stamina += 0.5 * DELTA_TIME * staminaRegenSpeed;
 			if (stamina >= get_max_stamina()){ // Max out the stamina and stop the recharging code from running.
 				stamina = get_max_stamina();
 				staminaRegenTimer = 0;
@@ -988,43 +1013,50 @@ update_movement = function(){
 	update_position(false);
 }
 
-/// @description 
+/// @description A simple function that checks for a collision between the player's mask and a cutscene
+/// trigger's mask. When this occurs, the cutscene's event flag to set to the required state and the
+/// scene will begin playing out. Otherwise, the scene will be triggered every time the trigger collision
+/// occurs.
 check_collision_cutscene_trigger = function(){
 	var _trigger = instance_place(x, y, obj_cutscene_trigger);
 	with(_trigger){
-		cutscene_begin_execution(sceneInstructions, startingIndex);
+		cutscene_begin_execution(_trigger, sceneInstructions, startingIndex);
 		if (eventFlagID != noone) {EVENT_SET_FLAG(eventFlagID, eventTargetState);}
 	}
 }
 
-/// @description The function that is responsible for checking if the player has clicked the input
-/// for interaction when they are within range of actually interacting with an object in the room.
-/// It's as simple as checking the distance between the player's interaction point and the center
-/// position of the interaction component; seeing if it's smaller than the interaction's radius.
-check_interaction = function(){
-	// First, the interaction point for the player needs to be calculated. This is a point that
-	// is a distance of 8 pixels away from the player's "origin"--the origin being 12 pixels higher
-	// that the player's origin so it is closer to the sprite's eye level.
-	var _x, _y;
+/// @description Checks for collisions between the player's "interaction point", which is a point in one of
+/// the eight input directions that determines their viewpoint for interactable objects, and one of the
+/// interactable object's "interaction radius", which is the radius around their origin point that determines
+/// the area that the player's interaction point must be within in order to process an interaction.
+check_collision_interactable = function(){
+	// First, get the player's interaction point coordinates, which will be an 8x8 circle that is offset
+	// vertically by 6 pixels so it's more in line with the character's face in the artwork while also
+	// considering the whole 2.5d perspective of the game.
+	var _x, _y, _interactableID;
 	_x = x + lengthdir_x(8, direction);
 	_y = y + lengthdir_y(8, direction) - 6;
+	_interactableID = noone;
 	
-	// After calculating the current interaction point relative to the player's current facing
-	// direction, loop through all of the existing interactable components within the room; seeing
-	// which one collides with that interaction point. (It's a simple circle/point collision) If
-	// the collision was true, the interact component's interaction function will be ran.
+	// Loop through all existing interaction components and compare their area of interaction against the
+	// player's current interaction point. If they can be interacted with (The player can actually see it
+	// or they've seen it previously) AND the interaction point is within their radius of interaction, their
+	// unique pointer is returned and stored within the player's variable for tracking the current object
+	// can interact with when the user pressed the "interact" key.
 	var _length = ds_list_size(global.interactables);
 	for (var i = 0; i < _length; i++){
-		// Jump into the scope of each interact component and perform the collision check. If the
-		// distance between the points is smalling that the interaction radius, the collision was
-		// true and the interact component's paired function will be executed.
 		with(global.interactables[| i]){
-			if (point_distance(x, y, _x, _y) <= radius && canInteract){
-				script_execute(interactFunction);
-				return; // An object was interacted with; no need to check for any other instances.
+			if (canInteract && point_distance(x, y, _x, _y) <= radius){
+				_interactableID = global.interactables[| i];
+				break;
 			}
 		}
 	}
+	
+	// Set the actual player variable "interactableID" to whatever value was set within the local variable
+	// after looping through all interactable objects has been completed. If no interactable exists at the
+	// current interaction point, this value will be set to "noone".
+	interactableID = _interactableID;
 }
 
 /// @description The function that is responsible for playing the footstep sound effects for the
@@ -1100,7 +1132,7 @@ update_player_ailments = function(){
 	// performed to see if the bleeding ailment is active; dealing a set percentage of damage if it is, and
 	// another check to see if they are poisoned; dealing increasing damage over time every OTHER timer
 	// check.
-	ailmentTimer -= global.deltaTime;
+	ailmentTimer -= DELTA_TIME;
 	if (ailmentTimer <= 0){
 		ailmentTimer = AILMENT_EFFECT_TIME;
 		
@@ -1186,6 +1218,18 @@ set_crippled = function(_isCrippled){
 
 #region State functions
 
+/// @description A unique variation on the dynamic entity's default "state_cutscene_move" function, which
+/// is used to move said entity during a cutscene if they've been set to do so by the cutscene's scene
+/// instructions. The variation here will call the parent's function to handle the movement logic, but
+/// will also apply the player's curretn alking animation while also playing footstep sound effects for
+/// said animation.
+__state_cutscene_move = state_cutscene_move; // Stores the parent function before overriding it.
+state_cutscene_move = function(){
+	__state_cutscene_move();
+	set_sprite(walkSprite, 1);
+	play_footstep_sound();
+}
+
 /// @description The player's default state. In short, it allows the player to move their character
 /// around the game world, interact with the game world, toggle their flashlight, (If it's equipped)
 /// and ready their weapon. (If it's equipped)
@@ -1193,12 +1237,13 @@ state_default = function(){
 	// First, get the input from the player's current control method (Either gamepad or keyboard)
 	// and then check if the movement needs to be updates based on the character movement inputs
 	// with the "update_movement" function.
-	get_input();
+	check_player_input();
 	update_movement();
 	
-	// Checking for an object to interact with if the player presses their interaction input; calling
-	// the function for handling iteractions with nearby interactable objects.
-	if (inputInteract) {check_interaction();}
+	// When pressing the interact input, the closest available interactable object that is currently
+	// colliding with the player's interaction point (This is all done within a separate collision check
+	// function) will have its associated interaction function executed.
+	if (inputInteract) {with(interactableID) {script_execute(interactFunction);}}
 	// Toggling the player's flashlight on/off. (If one is currently equipped)
 	else if (inputFlashlight && equipSlot.flashlight != noone) {toggle_flashlight();}
 	// Finally, process the input for readying the player's equipped weapon, which will swap their
@@ -1230,7 +1275,7 @@ state_default = function(){
 state_weapon_ready = function(){
 	// First, call the state that gets the player's current input from their currently active 
 	// control method. (Can be either keyboard or a gamepad)
-	get_input();
+	check_player_input();
 	
 	// Returning the player to their default state, but only if they release the button that they
 	// must have held down in order to keep the weapon ready, (If the toggle accessibility setting 
@@ -1271,7 +1316,7 @@ state_weapon_ready = function(){
 /// timer (60 units = 1 second of real-time) has been fully depleted. After that, the player will
 /// be returned to their "weapon ready" state.
 state_weapon_recovery = function(){
-	fireRateTimer -= global.deltaTime;
+	fireRateTimer -= DELTA_TIME;
 	if (fireRateTimer <= 0) {object_set_next_state(state_weapon_ready);}
 	
 	set_sprite(useSprite, 0); // Lock animation speed to match the length of the recoil
@@ -1284,7 +1329,7 @@ state_weapon_recovery = function(){
 /// that the weapon will be reloaded be calling the function for doing so, and the player will be
 /// return to their "weapon ready" state.
 state_weapon_reload = function(){
-	reloadRateTimer -= global.deltaTime;
+	reloadRateTimer -= DELTA_TIME;
 	if (reloadRateTimer <= 0){
 		object_set_next_state(state_weapon_ready);
 		reload_weapon(equipSlot.weapon);
@@ -1314,7 +1359,7 @@ state_weapon_spaced_bullets = function(){
 	// Decrementing the timing responsible for spawning each bullet in a sequence of time instead
 	// of all at once like a shotgun would function, for example. Once the timer has gone below 0,
 	// the bullet creation logic will be processed, and the whole thing restarts if it needs to.
-	bulletSpacingTimer -= global.deltaTime;
+	bulletSpacingTimer -= DELTA_TIME;
 	if (bulletSpacingTimer <= 0){
 		// Since the switch statement doesn't sent the player object to the next state like it
 		// does within the "use_weapon" function, it will instead just call either the projectile

@@ -164,6 +164,14 @@ lastTileIndex = -1;
 // The only way it will turn true again is when the animation frame is no longer equal to a footstep frame.
 canPlayFootstep = false;
 
+// Variables that are required for the built-in "state_cutscene_move" function that all dynamic entities
+// have for use. They will track the target position that is required for that state to be considered
+// fulfilled; the move speed being a multiplier for their base maximum horizontal and vertical movement
+// speed that is exclusively used for said function.
+targetX = 0;
+targetY = 0;
+moveSpeed = 1;
+
 // Adds the entity to the depth sorter's global grid by expanding itself by one; making room for this entity's
 // information for the depth sorting logic.
 depth_sorter_add_entity();
@@ -222,8 +230,8 @@ update_position = function(_destroyOnCollide){
 	// First, the true horizontal and vertical speed need to be calculated for the current frame. This means
 	// taking whatever the hspd and vspd values are and multiplying them by the current value for delta time.
 	var _deltaHspd, _deltaVspd;
-	_deltaHspd = hspd * global.deltaTime;
-	_deltaVspd = vspd * global.deltaTime;
+	_deltaHspd = hspd * DELTA_TIME;
+	_deltaVspd = vspd * DELTA_TIME;
 	
 	// Remove any fractional value from the calculated horizontal speed for the current frame. First, the
 	// previous fraction is applied to the delta value before it's removed again; adding the new fraction
@@ -324,7 +332,7 @@ damage_entity = function(_damage, _invulnerableTime){
 /// @description
 state_stun_locked = function(){
 	// 
-	invulnerableTimer -= global.deltaTime;
+	invulnerableTimer -= DELTA_TIME;
 	if (invulnerableTimer <= 0){
 		object_set_next_state(lastState);
 		invulnerableTimer = 0;
@@ -337,7 +345,14 @@ state_stun_locked = function(){
 
 /// @description 
 state_cutscene_move = function(){
+	// 
+	var _direction = point_direction(x, y, targetX, targetY);
+	hspd = lengthdir_x(get_max_hspd() * moveSpeed, _direction);
+	vspd = lengthdir_y(get_max_vspd() * moveSpeed, _direction);
+	update_position(false);
 	
+	// 
+	if (x == targetX && y == targetY) {object_set_next_state(NO_STATE);}
 }
 
 #endregion

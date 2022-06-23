@@ -4,7 +4,10 @@ event_inherited();
 
 // 
 var _gameState = GAME_STATE_CURRENT; // Store locally for quicker reference
-if (_gameState != GameState.Paused) {update_accuracy_penalty();}
+if (_gameState != GameState.Paused){
+	check_collision_interactable();
+	update_accuracy_penalty();
+}
 
 // 
 if (_gameState < GameState.Cutscene){

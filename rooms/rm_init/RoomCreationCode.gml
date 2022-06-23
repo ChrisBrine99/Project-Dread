@@ -29,6 +29,7 @@ LISTENER_SET_OBJECT(PLAYER);
 
 inventory_item_add(BRIGHT_FLASHLIGHT, 1, 0);
 inventory_item_add(HANDGUN, 12, 40);
+inventory_item_add(HANDGUN_AMMO, 35, 0);
 with(PLAYER){
 	initialize();
 	equip_item_to_player(0);

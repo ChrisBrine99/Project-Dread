@@ -38,19 +38,6 @@
 
 #region Initializing any globals that are useful/related to obj_controller
 
-// The first variable stores the total in-game playtime that the player has currently accumulated. This value
-// is only incremented whenever the flag below it is set to false; otherwise the timer will be frozen until 
-// this condition is met once more.
-global.inGameTime = 0;
-global.freezeInGameTime = false;
-
-// Stores the time it took for the program to go from the previous tick to the current one; normalized to a
-// value between 0 and 1 whenever the game is running at or above the physics rate. The target FPS variable
-// determines the physics rate for the game--a lower value slowing down the game, and a higher value 
-// speeding the game up.
-global.deltaTime = 0;
-global.targetFPS = 60;
-
 // A map containing the instance ID values and pointers for all the global structs and objects within the 
 // game. The structs are all created right after the map is initialized, and they aren't removed from memory
 // until the game closes. In the "rm_init" function, the controller and player objects are instantiated and

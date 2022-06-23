@@ -114,6 +114,48 @@ global.events = {
 
 #endregion
 
+#region In-Game Playtime Tracker
+
+// 
+global.gameTime = {
+	// 
+	deltaTime :			0,
+	targetFPS :			60,
+	
+	// 
+	inGameTime :		0,
+	inGameTimeMillis :	0,
+	freezeTimer :		false,
+	
+	// 
+	inGameTimeString :	"00:00:00",
+	stringLastVal :		0,
+	
+	/// @description 
+	begin_step : function(){
+		// 
+		deltaTime = (delta_time / 1000000) * targetFPS;
+		
+		// 
+		inGameTimeMillis += deltaTime / 60;
+		if (inGameTimeMillis >= 1){
+			inGameTimeMillis--;
+			if (!freezeTimer) {inGameTime++;}
+		}
+	},
+	
+	/// @description 
+	get_current_in_game_time : function(){
+		if (stringLastVal != inGameTime){
+			inGameTimeString = string_number_to_time_format(inGameTime, false);
+			stringLastVal = inGameTime;
+		}
+		return inGameTimeString;
+	}
+}
+
+#endregion
+
 #region Inventory globals
 
 // 

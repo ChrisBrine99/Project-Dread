@@ -276,7 +276,7 @@ function obj_textbox_handler() constructor{
 		// 1 second of real-time) slowly depleting strength over that time. Since the textbox's state is
 		// temporarily removed during the shake effect, it is re-enabled after the effect has completed.
 		if (shakeCurStrength > 0){
-			shakeCurStrength -= 5 / shakeDuration * global.deltaTime;
+			shakeCurStrength -= 5 / shakeDuration * DELTA_TIME;
 			x = CAM_HALF_WIDTH - 140 + irandom_range(-shakeCurStrength, shakeCurStrength);
 			if (shakeCurStrength <= 0) {object_set_next_state(lastState);}
 		}
@@ -293,7 +293,7 @@ function obj_textbox_handler() constructor{
 		// the speed of the indicatorOffset's value change over time. ("Time" being 1/60th of a second)
 		var _decisionState = (curState == state_choose_decision);
 		if (curCharacter > finalCharacter && !_decisionState){
-			indicatorOffset += global.deltaTime * 0.05;
+			indicatorOffset += DELTA_TIME * 0.05;
 			if (indicatorOffset >= 2) {indicatorOffset = 0;}
 			draw_sprite_ext(spr_advance_indicator, 0, x + textboxWidth - 2, y + textboxHeight - floor(indicatorOffset), 1, 1, 0, HEX_WHITE, alpha);
 		}
@@ -381,7 +381,7 @@ function obj_textbox_handler() constructor{
 		// is simply rendering that texture, so this entire chunk will be ignored; saving processing time
 		// that would be useless otherwise.
 		if (nextCharacter < finalCharacter + 1){
-			nextCharacter += textSpeed * global.deltaTime;
+			nextCharacter += textSpeed * DELTA_TIME;
 			
 			// If there isn't a possibility to render a new character onto the text surface, don't bother
 			// with any setting of shaders and surface rendering targets since they won't be utilized.
@@ -648,7 +648,7 @@ function obj_textbox_handler() constructor{
 		// Before any input logic can be processed, the highlight timer that will flash the highlighted option
 		// at regular intervals until it is no longer being highlighted, will be decremented based on delta
 		// time until the flag needs to be flipped and the timer needs to be reset.
-		highlightTimer -= global.deltaTime;
+		highlightTimer -= DELTA_TIME;
 		if (highlightTimer <= 0){ // Flip the flag for flashing the option and reset the timer
 			highlightTimer += OPTION_FLASH_INTERVAL;
 			highlightOption = !highlightOption;
@@ -792,33 +792,20 @@ function obj_textbox_handler() constructor{
 		characterY = 0;
 		
 		// Also, reset all the typerwriter effect variables in order to begin it again with the new
-		// chunk of text to be rendered. Reset the color index as well so colored text is applied to
-		// the new text correctly.
+		// chunk of text to be rendered. Reset the text color variables back to the defaults in case they
+		// weren't reset by the end of the previous textbox's text rendering finished.
 		curCharacter = 1;
 		nextCharacter = 1;
-		finalCharacter = string_length(textboxData[| curTextboxIndex].fullText);
-		nextColorIndex = 0;
-		
-		// Just in case the previous textbox closes and the colors haven't been reset; they will be set
-		// to the default of white and gray before the next available textbox is opened and it starts
-		// rendering.
 		textColor = HEX_WHITE;
 		textOutlineColor = RGB_GRAY;
 		
-		// Retrieve and store the flag for if the textbox needs to close at this index or not.
-		closeTextbox = textboxData[| curTextboxIndex].closeTextbox;
-		
-		// In case the next textbox needs to have a shake effect for added intensity, grab those two values
-		// from the array found within each textbox data struct. If no shake should occur, these values will
-		// be set to a default of 0 and 0, respectively; preventing any shaking effect. If a shake will occur,
-		// freeze the state of the textbox until it has completed said shake.
-		shakeCurStrength = textboxData[| curTextboxIndex].shakeData[0];
-		shakeDuration = textboxData[| curTextboxIndex].shakeData[1];
-		if (shakeCurStrength != 0 && shakeDuration != 0) {object_set_next_state(NO_STATE);}
-		
-		// Next, change over the additional textbox data for the name, portrait, and color to match
-		// the new actor/textbox data.
-		update_additional_info(actorSwap);
+		// Call the functions that will apply the additional optional effects for the newly opened textbox;
+		// whether it should close out the textbox handler earlier, play a sound, apply the shaking effect,
+		// and whatever other effects are able to occur on a per-textbox basis; the other function updating
+		// the actor information used to color the textbox, show a name, and even their current portrait
+		// to show alongside the text.
+		apply_extra_textbox_effects(curTextboxIndex);
+		update_current_actor_info(actorSwap);
 		
 		// Reset the text surface by clearing out the buffer of any data and applying that cleared
 		// out data to the surface, which should set every pixel to (0, 0, 0, 0).
@@ -832,7 +819,7 @@ function obj_textbox_handler() constructor{
 	/// be used in the textbox rendering code to display all this information. Optionally, the actor data
 	/// can be skipped over so that only the portrait's image index is updated; saving on a bit of code
 	/// execution.
-	update_additional_info = function(_updateActorVariables){
+	update_current_actor_info = function(_updateActorVariables){
 		if (_updateActorVariables){
 			var _actor = actorData[? textboxData[| curTextboxIndex].actorID]; // This keeps the code looking nicer
 			actorName =				_actor.actorName;
@@ -934,6 +921,29 @@ function obj_textbox_handler() constructor{
 		object_set_next_state(NO_STATE);
 		isTextboxActive = false;
 	}
+	
+	/// @description 
+	/// @param index
+	apply_extra_textbox_effects = function(_index){
+		// 
+		var _textbox = textboxData[| _index];
+		if (is_undefined(_textbox)) {return;}
+		
+		// 
+		finalCharacter =	string_length(_textbox.fullText);
+		
+		// 
+		shakeCurStrength =	_textbox.shakeData[0];
+		shakeDuration =		_textbox.shakeData[1];
+		if (shakeCurStrength != 0 && shakeDuration != 0) {object_set_next_state(NO_STATE);}
+		
+		// 
+		var _soundEffect = _textbox.soundEffect; // Stores the array reference for a cleaner look for the function call below.
+		if (_soundEffect[0] != NO_SOUND) {audio_play_sound_ext(_soundEffect[0], 0, _soundEffect[1], _soundEffect[2], false);}
+	
+		// 
+		closeTextbox =		_textbox.closeTextbox;
+	}
 }
 
 #endregion
@@ -948,25 +958,19 @@ function textbox_begin_execution(){
 		// Don't bother reinitializing the textbox if it's currently in an active state.
 		if (isTextboxActive) {return;}
 		
-		// First, reset the textbox index and the text color data index to 0 to allow them to run through all
-		// the newly added data from the beginning like it should. 
+		// 
 		curTextboxIndex = 0;
-		nextColorIndex = 0;
 		
-		// After that, reset the character offset so it doesn't render the text starting at whatever the 
-		// offset was at the end of the previous list of textbox data.
+		// Reset the offset position values that will be used for rendering the next character onto the
+		// textbox's text surface with a smooth typewriter-like scrolling effect.
 		characterX = 0;
 		characterY = 0;
-		
-		// Get all the initial values for the portrait, name, and textbox color for the first textbox.
-		update_additional_info(true);
 		
 		// Next, reset the variables responsible for the typerwriter text scrolling effect and also set the
 		// final character's value to the length of the 0th textbox data's text data. Set the text speed
 		// variable to match the settings' "text speed" option value as well.
 		curCharacter = 1;
 		nextCharacter = 1;
-		finalCharacter = string_length(textboxData[| 0].fullText);
 		textSpeed = global.settings.textSpeed;
 		
 		// Reset the color data to the standard of white and gray in case it wasn't reset by the closing
@@ -985,6 +989,12 @@ function textbox_begin_execution(){
 		// the text data structure.
 		object_set_next_state(state_default);
 		isTextboxActive = true;
+		
+		// Call the two functions that will apply additional effects that could be contained within the
+		// textbox's struct (shaking effect, unique starting sound effect, etc.) and actor information,
+		// (textbox color, name, portrait, etc.) respectively.
+		apply_extra_textbox_effects(0);
+		update_current_actor_info(true);
 		
 		// When the game isn't currently within a cutscene already, the states of all of the entities will
 		// be stored while they are cleared out from the entity objects themselves; restoring those states
@@ -1044,6 +1054,7 @@ function textbox_add_text_data(_text, _actor = Actor.NoActor, _portraitIndex = -
 			textYScale :			_textYScale,
 			decisionData :			array_create(0, 0),
 			shakeData :				array_create(2, 0),
+			soundEffect :			[NO_SOUND, SOUND_VOLUME, 1],
 			actorID :				_actor,
 			actorPortraitIndex :	_portraitIndex,
 			closeTextbox :			false, // Can be altered when calling the function "textbox_set_to_close"
@@ -1084,6 +1095,20 @@ function textbox_add_decision_data(_optionText, _outcomeIndex, _cutsceneOutcomeI
 /// @param shakeDuration
 function textbox_add_shake_effect(_shakeStrength, _shakeDuration){
 	with(TEXTBOX_HANDLER) {textboxData[| totalTextboxes - 1].shakeData = [_shakeStrength, _shakeDuration];}
+}
+
+/// @description 
+/// @param sound
+/// @param volume
+/// @param pitch
+function textbox_add_sound_effect(_sound, _volume = SOUND_VOLUME, _pitch = 1){
+	with(TEXTBOX_HANDLER){
+		with(textboxData[| totalTextboxes - 1]){
+			array_set(soundEffect, 0, _sound);
+			array_set(soundEffect, 1, _volume);
+			array_set(soundEffect, 2, _pitch);
+		}
+	}
 }
 
 /// @description An extremely simple function that will set a textbox to signal to the textbox handler that

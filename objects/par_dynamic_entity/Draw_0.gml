@@ -13,7 +13,7 @@ if (imageIndex < loopOffset || imageIndex >= loopOffset + loopLength) {imageInde
 // that that, it simply counts up until the image index needs to be looped back around; triggering the event
 // that is normally automatically called by an animation ending when using the default image_speed variable.
 if (GAME_STATE_CURRENT != GameState.Paused){
-	imageIndex += animSpeed * (spriteAnimSpeed / ANIMATION_FPS) * global.deltaTime;
+	imageIndex += animSpeed * (spriteAnimSpeed / ANIMATION_FPS) * DELTA_TIME;
 	if (imageIndex > spriteLength || imageIndex > loopOffset + loopLength){
 		event_perform(ev_other, ev_animation_end);
 		imageIndex = loopOffset;

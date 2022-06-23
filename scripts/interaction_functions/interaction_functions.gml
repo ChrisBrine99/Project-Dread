@@ -112,6 +112,7 @@ function interact_door_locked(){
 			_key = requiredKeys[| 0];
 			if (inventory_item_count(_key[0]) >= 1){
 				textbox_add_text_data("You used the *" + YELLOW + "*" + _key[0] + "#.");
+				textbox_add_sound_effect(snd_player_flashlight);
 				ds_list_delete(requiredKeys, 0);
 				EVENT_SET_FLAG(_key[1], true);
 			}
@@ -121,14 +122,14 @@ function interact_door_locked(){
 		_length = ds_list_size(requiredKeys);
 		if (_length == 0){
 			textbox_add_text_data("The door is now unlocked.");
-			audio_play_sound_ext(unlockSound, 0, SOUND_VOLUME, 1, false);
+			textbox_add_sound_effect(unlockSound);
 			doorState = DOOR_UNLOCKED;
 			_doorUnlocked = true;
 		}
 		// 
 		else{
 			textbox_add_text_data(doorInfoMessage);
-			audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
+			textbox_add_sound_effect(lockedSound);
 		}
 		
 		// 

@@ -155,7 +155,7 @@ function par_menu() constructor{
 		// The logic that will flip the currently highlighted option's colors between the highlight colors
 		// and the option's default colors. This is based on a macro value containing the interval for the
 		// flashing frequency.
-		highlightTimer -= global.deltaTime;
+		highlightTimer -= DELTA_TIME;
 		if (highlightTimer <= 0){
 			highlightTimer = OPTION_FLASH_INTERVAL;
 			highlightOption = !highlightOption;
@@ -272,7 +272,7 @@ function par_menu() constructor{
 			// Decrement the autoscroll timer every frame until it reaches 0, which will then process cursor
 			// movement for that frame; resetting the timer to either 30 (~0.5 seconds of real-time) or 10
 			// (~0.166666....7 seconds of real-time) units depending on if autoscrolling is already happening.
-			autoScrollTimer -= global.deltaTime;
+			autoScrollTimer -= DELTA_TIME;
 			if (autoScrollTimer <= 0){
 				if (isAutoScrolling){ // Autoscrolling it already active, so they will move 3x faster than the first.
 					autoScrollTimer = 10;
