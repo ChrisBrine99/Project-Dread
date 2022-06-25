@@ -7,6 +7,7 @@ var _gameState = GAME_STATE_CURRENT; // Store locally for quicker reference
 if (_gameState != GameState.Paused){
 	check_collision_interactable();
 	update_accuracy_penalty();
+	//update_effect_timers();
 }
 
 // 

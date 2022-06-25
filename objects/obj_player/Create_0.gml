@@ -16,6 +16,16 @@
 #macro	BASE_POISON_DAMAGE				0.01
 #macro	BLEED_DAMAGE					0.05
 
+// 
+#macro	INDEFINITE_EFFECT_DURATION	   -65535
+
+// 
+#macro	EFFECT_DAMAGE_RESIST			0
+#macro	EFFECT_POISON_IMMUNITY			1
+#macro	EFFECT_BLEED_IMMUNITY			2
+#macro	EFFECT_CRIPPLE_IMMUNITY			3
+#macro	EFFECT_HITPOINT_REGEN			4
+
 // Macros that are used with the accuracy penalty system, which makes a ranged weapon more inaccurate
 // the more it is fired in quick succession. This system will reward a player that takes the time to
 // line up a shot rather than one who just squeezes the trigger and hopes for the best. The first value
@@ -143,6 +153,14 @@ isBleeding = false;
 isPoisoned = false;
 dealPoisonDamage = false;
 curPoisonDamage = BASE_POISON_DAMAGE;
+
+// A map that will contain data that provides unique buffs or debuffs to the player that aren't actually
+// a status condition or the sanity level. Things like temporary damage resistance; poison, bleed, and
+// cripple immunity; hitpoint and stamina regeneration; as well as other effects will all be stored within
+// this ds_map. The second data struction is a list holding all of the keys for the effect data that is
+// stored within the map to allow for faster access when compared to iterating through the map in order.
+additionalEffects = ds_map_create();
+effectKeys = ds_list_create();
 
 // The flag that is triggered whenever the player is inflicted with "crippled". This status is unique
 // in that is will reduce the required stats and keep those stats lowered until the flag is flipped back
@@ -756,7 +774,7 @@ use_weapon_hitscan = function(){
 	// at the same time, (AKA all shotguns in the game) the number of collision checks will be
 	// set to the total number of "bullets" that the weapon uses per trigger pull.
 	var _length = 1; // By default there should only be a single bullet fired. Hence the "= 1" piece of code.
-	if (weaponData.bulletSpacing() == 0) {_length = weaponData.get_bullet_count();}
+	if (weaponData.bulletSpacing == 0) {_length = weaponData.get_bullet_count();}
 	
 	// Now the collision check loop will begin, which will only ever run multiple times when the
 	// player is firing a shotgun, or shotgun-like weapon. In short, it will calculate the direction
@@ -924,6 +942,129 @@ equip_throwable = function(_slot){
 
 /// @description 
 unequip_throwable = function(){
+	
+}
+
+#endregion
+
+#region Functions for Status Conditions and Addition Buffs/Debuffs
+
+/// @description Updates the player's ailments and the timer that is paired with dealing out those ailment
+/// effects at regular intervals. Despite the fact that there are three main ailments: bleeding, poisoned,
+/// and crippled; only the first two have effects that trigger every few seconds, so they are updated here.
+update_player_ailments = function(){
+	// If the player isn't poisoned or bleeding, there is no reason to execute the rest of the function and
+	// it will simply be exited out of here.
+	if (!isBleeding && !isPoisoned) {return;}
+	
+	// While either (or both) of the status ailments are active, a timer will decrement from a value of 150;
+	// this value being equal to 2.5 seconds of real-world time. Once the timer hits 0, a check will be
+	// performed to see if the bleeding ailment is active; dealing a set percentage of damage if it is, and
+	// another check to see if they are poisoned; dealing increasing damage over time every OTHER timer
+	// check.
+	ailmentTimer -= DELTA_TIME;
+	if (ailmentTimer <= 0){
+		ailmentTimer = AILMENT_EFFECT_TIME;
+		
+		// Store the current maximum hitpoints for the player since it will be needed for both ailment
+		// effects as they work off a percentage relative to that maximum. If they are bleeding currently,
+		// the set 2.5% max hitpoint damage is remove from the player's current hitpoints.
+		var _maxHitpoints = get_max_hitpoints();
+		if (isBleeding) {set_hitpoints(-(_maxHitpoints * BLEED_DAMAGE));}
+		
+		// Next, check if they are poisoned. If they are and NOT set to deal poison damage on the current
+		// checking interval, the flag for dealing damage is flipped. Otherwise, the damage is dealt out
+		// and then its value is doubled; dealing increasing damage as the effect lingers.
+		if (isPoisoned){
+			if (dealPoisonDamage){
+				set_hitpoints(-(_maxHitpoints * curPoisonDamage));
+				curPoisonDamage *= 2; // Doubles the damage each time (1% health -> 2% -> 4%...)
+			}
+			// Flip the flag so that damage is dealt every OTHER ailment timer check. (5 seconds instead of
+			// the standard 2.5 seconds that bleeding will take)
+			dealPoisonDamage = !dealPoisonDamage;
+		}
+	}
+}
+
+/// @description The function that handles toggling the "bleeding" status ailment on the player, which is
+/// an extremely simple status that deals out damage every 2.5 seconds. When bleeding is set to active, the
+/// damage timer will be reset so it takes 2.5 seconds for the damage to actually occur.
+/// @param isBleeding
+set_bleeding = function(_isBleeding){
+	isBleeding = _isBleeding;
+	if (_isBleeding) {ailmentTimer = AILMENT_EFFECT_TIME;}
+}
+
+/// @description The function that handles toggling the "poisoned" status ailment to be active or not on the
+/// player. When activated, it will set the damage to take place 5 seconds AFTER initial poisoning, and when
+/// removed the damage variables are reset to their default values.
+/// @param isPoisoned
+set_poisoned = function(_isPoisoned){
+	isPoisoned = _isPoisoned;
+	if (_isPoisoned){ // When the player is first inflicted with poisoning, the ailment timer will be reset, regardless of if they are currently bleeding or not.
+		ailmentTimer = AILMENT_EFFECT_TIME;
+		return;
+	}
+	// The player is no longer poisoned, reset the variables that are responsible for allowing poison damage
+	// to be dealt out to false and a value of 0.01, (1%) respectively.
+	dealPoisonDamage = false;
+	curPoisonDamage = BASE_POISON_DAMAGE;
+}
+
+/// @description The function that handles applying the "crippled" status ailment onto the player or having
+/// them recover from it. In short, it won't deal any period damage, but it will instead alter the player's
+/// maximum hitpoints and stamina; reducing them by 25% and 50%, respectively. On top of that, the stamina
+/// depletion and regeneration speeds are also debuffed.
+/// @param isCrippled
+set_crippled = function(_isCrippled){
+	isCrippled = _isCrippled;
+	if (isCrippled){ // Active the "crippled" status; applying all its stat debuffs here.
+		// Reduces max hitpoints by 25% of the current maximum.
+		set_max_hitpoint_factor(-0.25, true);
+		
+		// Then, the stamina for the player is heavily altered to make it deplete much faster, regenerate
+		// much slower, and have half of its previous maximum available. The depletion speed is increased
+		// by 50%, specifically, and the regen speed takes stamina twice as long to fully recover.
+		staminaDepletionModifier += 0.5;
+		maxStaminaFactor -= 0.5;
+		staminaRegenSpeed -= 0.5;
+		
+		// Finally, the current stamina for the player is halved to match the fact that their maximum stamina 
+		// was also just cut in half. Removing the crippled ailment doesn't reverse this effect; that will 
+		// be done during the standard stamina regeneration instead.
+		stamina = max(0, stamina - (stamina * 0.5));
+		return;
+	}
+	// The player is no longer crippled, so reverse all of the effects that were applied to their various
+	// stats by reversing the signs of the values being added/subtracted.
+	set_max_hitpoint_factor(0.25, true);
+	staminaDepletionModifier -= 0.5;
+	maxStaminaFactor += 0.5;
+	staminaRegenSpeed += 0.5;
+}
+
+/// @description
+/// @param effectID
+/// @param duration
+/// @param startFunction
+/// @param endFunction
+add_additional_effect = function(_effectID, _duration, _startFunction, _endFunction){
+	// 
+	var _index = ds_list_find_index(effectKeys, _effectID);
+	if (_index != -1){
+		with(additionalEffects[? effectKeys[| _index]]){
+			if (_duration > timeRemaining && timeRemaining != INDEFINITE_EFFECT_DURATION) {timeRemaining = _duration;}
+		}
+		return;
+	}
+	
+	// 
+}
+
+/// @description 
+/// @param key
+remove_additional_effect = function(_key){
 	
 }
 
@@ -1117,101 +1258,6 @@ play_footstep_sound = function(){
 	// Only flip the flag back to "true" if the player's whole number image index value is no longer
 	// equal to either of the footstep frame index values. Otherwise, it will remain false until then.
 	canPlayFootstep = (_imageIndex != rightStepIndex && _imageIndex != leftStepIndex);
-}
-
-/// @description Updates the player's ailments and the timer that is paired with dealing out those ailment
-/// effects at regular intervals. Despite the fact that there are three main ailments: bleeding, poisoned,
-/// and crippled; only the first two have effects that trigger every few seconds, so they are updated here.
-update_player_ailments = function(){
-	// If the player isn't poisoned or bleeding, there is no reason to execute the rest of the function and
-	// it will simply be exited out of here.
-	if (!isBleeding && !isPoisoned) {return;}
-	
-	// While either (or both) of the status ailments are active, a timer will decrement from a value of 150;
-	// this value being equal to 2.5 seconds of real-world time. Once the timer hits 0, a check will be
-	// performed to see if the bleeding ailment is active; dealing a set percentage of damage if it is, and
-	// another check to see if they are poisoned; dealing increasing damage over time every OTHER timer
-	// check.
-	ailmentTimer -= DELTA_TIME;
-	if (ailmentTimer <= 0){
-		ailmentTimer = AILMENT_EFFECT_TIME;
-		
-		// Store the current maximum hitpoints for the player since it will be needed for both ailment
-		// effects as they work off a percentage relative to that maximum. If they are bleeding currently,
-		// the set 2.5% max hitpoint damage is remove from the player's current hitpoints.
-		var _maxHitpoints = get_max_hitpoints();
-		if (isBleeding) {set_hitpoints(-(_maxHitpoints * BLEED_DAMAGE));}
-		
-		// Next, check if they are poisoned. If they are and NOT set to deal poison damage on the current
-		// checking interval, the flag for dealing damage is flipped. Otherwise, the damage is dealt out
-		// and then its value is doubled; dealing increasing damage as the effect lingers.
-		if (isPoisoned){
-			if (dealPoisonDamage){
-				set_hitpoints(-(_maxHitpoints * curPoisonDamage));
-				curPoisonDamage *= 2; // Doubles the damage each time (1% health -> 2% -> 4%...)
-			}
-			// Flip the flag so that damage is dealt every OTHER ailment timer check. (5 seconds instead of
-			// the standard 2.5 seconds that bleeding will take)
-			dealPoisonDamage = !dealPoisonDamage;
-		}
-	}
-}
-
-/// @description The function that handles toggling the "bleeding" status ailment on the player, which is
-/// an extremely simple status that deals out damage every 2.5 seconds. When bleeding is set to active, the
-/// damage timer will be reset so it takes 2.5 seconds for the damage to actually occur.
-/// @param isBleeding
-set_bleeding = function(_isBleeding){
-	isBleeding = _isBleeding;
-	if (_isBleeding) {ailmentTimer = AILMENT_EFFECT_TIME;}
-}
-
-/// @description The function that handles toggling the "poisoned" status ailment to be active or not on the
-/// player. When activated, it will set the damage to take place 5 seconds AFTER initial poisoning, and when
-/// removed the damage variables are reset to their default values.
-/// @param isPoisoned
-set_poisoned = function(_isPoisoned){
-	isPoisoned = _isPoisoned;
-	if (_isPoisoned){ // When the player is first inflicted with poisoning, the ailment timer will be reset, regardless of if they are currently bleeding or not.
-		ailmentTimer = AILMENT_EFFECT_TIME;
-		return;
-	}
-	// The player is no longer poisoned, reset the variables that are responsible for allowing poison damage
-	// to be dealt out to false and a value of 0.01, (1%) respectively.
-	dealPoisonDamage = false;
-	curPoisonDamage = BASE_POISON_DAMAGE;
-}
-
-/// @description The function that handles applying the "crippled" status ailment onto the player or having
-/// them recover from it. In short, it won't deal any period damage, but it will instead alter the player's
-/// maximum hitpoints and stamina; reducing them by 25% and 50%, respectively. On top of that, the stamina
-/// depletion and regeneration speeds are also debuffed.
-/// @param isCrippled
-set_crippled = function(_isCrippled){
-	isCrippled = _isCrippled;
-	if (isCrippled){ // Active the "crippled" status; applying all its stat debuffs here.
-		// Reduces max hitpoints by 25% of the current maximum.
-		set_max_hitpoint_factor(-0.25, true);
-		
-		// Then, the stamina for the player is heavily altered to make it deplete much faster, regenerate
-		// much slower, and have half of its previous maximum available. The depletion speed is increased
-		// by 50%, specifically, and the regen speed takes stamina twice as long to fully recover.
-		staminaDepletionModifier += 0.5;
-		maxStaminaFactor -= 0.5;
-		staminaRegenSpeed -= 0.5;
-		
-		// Finally, the current stamina for the player is halved to match the fact that their maximum stamina 
-		// was also just cut in half. Removing the crippled ailment doesn't reverse this effect; that will 
-		// be done during the standard stamina regeneration instead.
-		stamina = max(0, stamina - (stamina * 0.5));
-		return;
-	}
-	// The player is no longer crippled, so reverse all of the effects that were applied to their various
-	// stats by reversing the signs of the values being added/subtracted.
-	set_max_hitpoint_factor(0.25, true);
-	staminaDepletionModifier -= 0.5;
-	maxStaminaFactor += 0.5;
-	staminaRegenSpeed += 0.5;
 }
 
 #endregion

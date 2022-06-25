@@ -2,11 +2,13 @@
 
 #region Initializing any macros that are useful/related to obj_debugger
 
-// 
+// Condenses the functions calls required for these debugging tools into simply and easy to use macros, as
+// opposed to constantly having to type "DEBUGGER.*" for whatever function is needed when testing.
 #macro	DEBUG_ADD_LINE				DEBUGGER.debug_add_line
 #macro	DEBUG_ADD_MESSAGE			DEBUGGER.debug_add_message
 
-//
+// The constant for the maximum number of debugging messages that can be displayed at the same time by the
+// debugger's built-in message system.
 #macro	MAX_DEBUG_MESSAGES			5
 
 #endregion
@@ -22,7 +24,8 @@ function obj_debugger() constructor{
 	// being deleted.
 	linesToDraw = ds_list_create();
 	
-	// 
+	// Much like the list for managing debug line structs, this list will be used to manage structs, but
+	// these structs will display unique messages supplied to them by their initial function call, instead.
 	debugMessages = ds_list_create();
 	
 	// Variables for displaying the player's current item inventory. The first stores the value to offset
@@ -63,7 +66,7 @@ function obj_debugger() constructor{
 		_length = ds_list_size(linesToDraw);
 		for (var i = 0; i < _length; i++){
 			with(linesToDraw[| i]){
-				curLifespan -= global.deltaTime;
+				curLifespan -= DELTA_TIME;
 				// Clears the given debug line from memory; reducing i and _length by one since an index of
 				// the list was removed. Otherwise, it will access an invalid index at the end of the list.
 				if (curLifespan <= 0){
@@ -75,16 +78,20 @@ function obj_debugger() constructor{
 			}
 		}
 		
-		// 
+		// Much like the lifespan value updating for all the existing debug line struct objects, the same
+		// needs to be done for the lifespan values of the currently existing debug messages that are being
+		// shown on the screen to the user.
 		var _debugMessages = debugMessages;
 		_length = ds_list_size(debugMessages);
 		for (var j = 0; j < _length; j++){
 			with(debugMessages[| j]){
-				// 
-				if (curLifespan <= 30) {messageAlpha -= 0.033 * global.deltaTime;}
+				// The message will slowly shift out of visibility once its lifespan value has gone below
+				// 10% of its initial value (All messages have the same 300 frame lifespan)
+				if (curLifespan <= 30) {messageAlpha -= 0.033 * DELTA_TIME;}
 				
-				// 
-				curLifespan -= global.deltaTime;
+				// Continue counting down the lifespan values of each message struct until they go below
+				// a value of 0, which will cause them to be deleted from the manager list.
+				curLifespan -= DELTA_TIME;
 				if (curLifespan <= 0){
 					delete _debugMessages[| j];
 					ds_list_delete(_debugMessages, j);
@@ -105,7 +112,7 @@ function obj_debugger() constructor{
 		with(PLAYER) {draw_sprite_ext(spr_rectangle, 0, x + lengthdir_x(8, direction), y + lengthdir_y(8, direction) - 6, 1, 1, 0, c_white, 1);}
 		
 		// Create the local variable for storing the length of a list while a loop is being executed for
-		// said loop. (Ex. drawing interactable radi and raycast lines will both use this local variable)
+		// said loop. (Ex. drawing interactable radiuses and raycast lines will both use this variable)
 		var _length;
 		
 		// If the object collision box rendering flag has been toggled to true, the debugger must go through
@@ -172,7 +179,10 @@ function obj_debugger() constructor{
 		draw_set_alpha(1);
 	}
 	
-	/// @description 
+	/// @description Code that should be placed into the "Draw GUI" event of whatever object is controlling
+	/// obj_debugger. In short, it will display text information to the user that could be useful to them
+	/// whilst they're debugging their program. Things like the Game State, entity culling performance, and
+	/// so on.
 	draw_gui = function(){
 		// Starting up the outline rendering shader, which will allow all subsequent text to be drawn with a
 		// one pixel outline of a given color for style purposes.
@@ -233,20 +243,28 @@ function obj_debugger() constructor{
 		shader_reset();
 	}
 	
-	/// @description 
+	/// @description Code that should be placed into the "Cleanup" event of whatever object is controlling
+	/// obj_debugger. In short, it remove any structs, data structures, and other datatypes that allocate 
+	/// memory that isn't automatically cleaned up by Game Maker during runtime.
 	cleanup = function(){
-		// 
+		// Delete all of the potentially existing debug line structs before destroying the list that 
+		// existed to manage said struct objects.
 		var _length = ds_list_size(linesToDraw);
 		for (var i = 0; i < _length; i++) {delete linesToDraw[| i];}
 		ds_list_destroy(linesToDraw);
 		
-		// 
+		// Much like above, the same struct deletion will be performed, but for the debug messages that may
+		// still exist upon the deletion of this debugger. The manager list is destroy after the structs
+		// have been cleared from memory.
 		_length = ds_list_size(debugMessages);
 		for (var j = 0; j < _length; j++) {delete debugMessages[| j];}
 		ds_list_destroy(debugMessages);
 	}
 	
-	/// @description 
+	/// @description Creates a line that has a set "lifespan"; that lifespan being how many frames it will
+	/// be shown to the user for before it begins fading out of visibility. This is mostly useful for
+	/// debugging collisions that use some form of hitscan style collision detection, and can also be used
+	/// to track the path of an object between two distinct points if necessary.
 	/// @param startX
 	/// @param startY
 	/// @param endX
@@ -255,34 +273,47 @@ function obj_debugger() constructor{
 	/// @param lifespan
 	debug_add_line = function(_startX, _startY, _endX, _endY, _color, _lifespan){
 		ds_list_add(linesToDraw, {
-			// 
+			// Create two variables that use the "x" and "y" syntax that Game Maker uses within its own
+			// objects. The values here will be the starting coordinates for the line.
 			x :				_startX,
 			y :				_startY,
 							
-			//				
+			// Next, these variables will store the ending cordinates for this given line.
 			endX :			_endX,
 			endY :			_endY,
 							
-			//				
+			// Each line can utilize a unique color so that it can be easily differentiated from other
+			// lines that could possibly have been created around the same timeframe; allowing easier parsing
+			// of this debugging tool by the user.
 			color :			_color,
 			
-			// 
+			// Finally, create a variable that will store the current lifespan value as well as the initial
+			// value, so that fading out can be done when the line is close to reaching the end of its
+			// lifespan.
 			curLifespan :	_lifespan,
 			setLifespan :	_lifespan,
 		});
 	}
 	
-	/// @description
+	/// @description Adds a new string that will be displayed onto the bottom-righthand corner of the screen
+	/// for debugging purposes. This message will be visible for 5 seconds until it slowly fades out of
+	/// visibility. The object that created the message will have its name and ID displayed prior to said
+	/// message so it's easier to know where the message came from whilst debugging.
 	/// @param objectID
 	/// @param message
 	debug_add_message = function(_objectID, _message){
-		// 
+		// There will only ever be five messages max that can be seen at any given time through this debug
+		// tool, so the oldest message currently is removed in order to make room for this newly created
+		// message.
 		if (ds_list_size(debugMessages) == MAX_DEBUG_MESSAGES){
 			delete debugMessages[| MAX_DEBUG_MESSAGES - 1];
 			ds_list_delete(debugMessages, MAX_DEBUG_MESSAGES - 1);
 		}
 		
-		// 
+		// Create the string that will be shown on the screen; formatting it so that it contains the name
+		// of the object that called this debug function, their unique ID value, and the message itself
+		// after all of that information. Then, create the struct that will store the message's data and
+		// add it to the map of current messages.
 		var _string = string_format_width(object_get_name(_objectID.object_index) + "(" + string(_objectID) + "): " + _message, 240, font_gui_small);
 		ds_list_insert(debugMessages, 0, {
 			debugMessage :	_string,
