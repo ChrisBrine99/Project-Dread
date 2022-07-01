@@ -106,10 +106,10 @@ function obj_textbox_handler() constructor{
 	// Flags that store the states for all necessary inputs for the textbox's functionality. The first 
 	// handles the advancing of the textbox, and the last three are used for when the player is asked to 
 	// make a decision in the dialogue/cutscene.
-	inputAdvance =	false;
-	inputUp =		false;
-	inputDown =		false;
-	inputSelect =	false;
+	inputAdvance = false;
+	inputUp = false;
+	inputDown =	false;
+	inputSelect = false;
 	
 	// Creates and stores a surface; a texture that is the exact dimensions of the textbox given its width
 	// and height variables. This surface is then used to render the text onto whenever the textbox is
@@ -120,8 +120,8 @@ function obj_textbox_handler() constructor{
 	
 	// All the variables for the textboxes themselves. The first stores a list of textbox structs that contain
 	// the data unique to each textbox: their text, scaling, par-character color data, and so on. The next
-	// variable simply stores the number of textboxes within that list for easy reference in the rest of the
-	// code.
+	// variable simply stores the number of textboxes within that list for easy reference in the rest of 
+	// the code.
 	textboxData = ds_list_create();
 	totalTextboxes = 0;
 	

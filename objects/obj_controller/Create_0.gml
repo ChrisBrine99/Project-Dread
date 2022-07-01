@@ -84,28 +84,42 @@ draw_door_indicator = function(_playerX, _playerY, _cameraX, _cameraY){
 	else if (doorIndicatorAlpha == 1 && doorIndicatorAlphaTarget == 1)	{doorIndicatorAlphaTarget = 0;}
 }
 
-/// @description 
+/// @description The function that will render the interaction prompt onto the screen if it is required.
+/// The condition for the requirement is the player being within range of an entity that has an interact
+/// component attached to it. If this happens, the interaction prompt will be shown on the screen telling
+/// the player what the interaction button will do in the context of the game world.
 draw_interact_prompt = function(){
-	// 
+	// Calculate the alpha target for the prompt's graphics, which is determined by the player having a
+	// valid instance ID within its "interactableID" variable; responsible for storing said IDs if the
+	// current interaction point collides with an interactable object.
 	var _interactPromptAlphaTarget = 0;
 	with(PLAYER.interactableID){
 		_interactPromptAlphaTarget = 1;
 		other.indicatorPrompt = interactPrompt;
 	}
 	
-	// 
+	// Update the alpha level for the interaction prompt's graphics; pulling it towards or away from full
+	// opacity or transparency depending on the value set for the target alpha.
 	interactPromptAlpha = value_set_linear(interactPromptAlpha, _interactPromptAlphaTarget, 0.1);
 	
-	// 
+	// If the current alpha level of the prompt is set to a value greater than zero, the rendering process
+	// will actually begin for said prompt and its information. Otherwise, the rendering code will be
+	// skipped over since it wouldn't be visible to the user, anyway.
 	if (interactPromptAlpha > 0){
 		shader_set_outline(RGB_GRAY, font_gui_small);
 		
-		// 
+		// First, grab the proper icon for the prompt's displayed control input, which can be either the
+		// keyboard key or the currently connected gamepad's interact button; depending on the currently
+		// active control input.
 		var _inputIconData = noone;
 		if (global.gamepad.deviceID != -1 && global.gamepad.isActive) {_inputIconData = global.keyboardIcons[? global.settings.gpadInteract];}
 		else {_inputIconData = global.keyboardIcons[? global.settings.keyInteract];}
 		
-		// 
+		// After getting the proper icon for the prompt, some calculations need to be performed so that
+		// the text and the icon show up at the center of the screen. However, since their actualy positions
+		// to render at aren't at the center, both the width of the icon and the string (Plus some extra
+		// space to compensate between the two) must be averaged to place both elements at the proper
+		// x coordinates.
 		var _stringWidth, _interactPromptAlpha, _iconWidth, _interactPromptOffset;
 		_stringWidth = string_width(indicatorPrompt);
 		_interactPromptAlpha = interactPromptAlpha;
@@ -115,7 +129,8 @@ draw_interact_prompt = function(){
 			draw_sprite_ext(iconSprite, imgIndex, _interactPromptOffset + _stringWidth + 2, CAM_HEIGHT - 41, 1, 1, 0, c_white, _interactPromptAlpha);
 		}
 		
-		// 
+		// After the icon is drawn at the proper position, the text will be drawn at the required offset
+		// for itself; much like the icon's text, but with no additional value applied to the initial offset.
 		draw_text_outline(_interactPromptOffset, CAM_HEIGHT - 40, indicatorPrompt, HEX_WHITE, RGB_GRAY, interactPromptAlpha);
 		
 		shader_reset();

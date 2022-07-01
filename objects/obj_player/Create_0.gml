@@ -1049,7 +1049,7 @@ set_crippled = function(_isCrippled){
 /// @param duration
 /// @param startFunction
 /// @param endFunction
-add_additional_effect = function(_effectID, _duration, _startFunction, _endFunction){
+add_additional_effect = function(_effectID, _duration, _startFunction = NO_FUNCTION, _endFunction = NO_FUNCTION){
 	// 
 	var _index = ds_list_find_index(effectKeys, _effectID);
 	if (_index != -1){
@@ -1060,12 +1060,59 @@ add_additional_effect = function(_effectID, _duration, _startFunction, _endFunct
 	}
 	
 	// 
+	ds_map_add(additionalEffects, _effectID, {
+		timeRemaining : _duration,
+		endFunction : _endFunction,
+	});
+	ds_list_add(effectKeys, _effectID);
+	
+	// 
+	if (_startFunction != NO_FUNCTION) {_startFunction();}
 }
 
 /// @description 
-/// @param key
-remove_additional_effect = function(_key){
+/// @param keyIndex
+/// @param callEndFunction
+remove_additional_effect = function(_keyIndex, _callEndFunction = false){
+	// 
+	var _key = effectKeys[| _keyIndex];
+	if (_callEndFunction){
+		with(additionalEffects[? _key]) {endFunction();}
+	}
 	
+	// 
+	delete additionalEffects[? _key];
+	ds_map_delete(additionalEffects, _key);
+	ds_list_delete(effectKeys, _keyIndex);
+}
+
+/// @description 
+update_additional_effect_timers = function(){
+	// 
+	var _length, _removeEffect, _key;
+	_length = ds_map_size(additionalEffects);
+	_removeEffect = false;
+	for (var i = 0; i < _length; i++){
+		// 
+		_key = effectKeys[| i];
+		with(additionalEffects[? _key]){
+			if (timeRemaining != INDEFINITE_EFFECT_DURATION){
+				timeRemaining -= DELTA_TIME;
+				if (timeRemaining <= 0){
+					if (endFunction != NO_FUNCTION) {endFunction();}
+					_removeEffect = true;
+				}
+			}
+		}
+		
+		// 
+		if (_removeEffect){
+			remove_additional_effect(i);
+			_removeEffect = false;
+			_length--;
+			i--;
+		}
+	}
 }
 
 #endregion

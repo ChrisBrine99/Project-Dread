@@ -238,6 +238,18 @@ function obj_debugger() constructor{
 			}
 		}
 		
+		//
+		with(PLAYER){
+			var _length, _key;
+			_length = ds_map_size(additionalEffects);
+			for (var i = 0; i < _length; i++){
+				_key = effectKeys[| i];
+				with(additionalEffects[? _key]){
+					draw_text_outline(5, 30 + (i * 20), "ID: " + string(_key) + "\nTime: " + string(timeRemaining), HEX_WHITE, RGB_GRAY, 1);
+				}
+			}
+		}
+		
 		// Reset the shader at the end of the function to prevent anything that is draw after to have the
 		// outline shader effect applied to it accidentally.
 		shader_reset();
