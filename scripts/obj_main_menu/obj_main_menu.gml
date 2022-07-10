@@ -50,12 +50,12 @@ function obj_main_menu() : par_menu() constructor{
 		var _xx, _yy;
 		_xx = CAM_HALF_WIDTH;
 		_yy = CAM_HEIGHT - 30;
-		option_info(_xx, _yy, "Begin a new venture into the horros of the mind...", "");
-		option_info(_xx, _yy, "Continue where you left off from an available save file.", "There's no save data to load from.");
-		option_info(_xx, _yy, "See all of the globally tracked data since you began playing.", "");
-		option_info(_xx, _yy, "View achievements and the rewards they unlock once completed.", "");
-		option_info(_xx, _yy, "Adjust options relating to the game's graphics, audio, and so on.", "");
-		option_info(_xx, _yy, "Close the game and exit to your desktop.", "");
+		add_option_info(_xx, _yy, "Begin a new venture into the horros of the mind...", "");
+		add_option_info(_xx, _yy, "Continue where you left off from an available save file.", "There's no save data to load from.");
+		add_option_info(_xx, _yy, "See all of the globally tracked data since you began playing.", "");
+		add_option_info(_xx, _yy, "View achievements and the rewards they unlock once completed.", "");
+		add_option_info(_xx, _yy, "Adjust options relating to the game's graphics, audio, and so on.", "");
+		add_option_info(_xx, _yy, "Close the game and exit to your desktop.", "");
 		
 		// 
 		control_info_add_displayed_icon(INPUT_MENU_UP, "", ALIGNMENT_LEFT);

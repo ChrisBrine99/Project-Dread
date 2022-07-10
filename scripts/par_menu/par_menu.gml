@@ -36,7 +36,9 @@ function par_menu() constructor{
 	animationState = NO_STATE;
 	animationStateArgs = array_create(0, 0);
 	
-	// 
+	// Much like the variables that are responsible for storing the animation state and any of its required
+	// arguments, these two variables will do the same, but for the optional function that can be set to
+	// call when the animation state has completed its execution.
 	animationEndFunction = NO_STATE;
 	animationEndFunctionArgs = array_create(0, 0);
 	
@@ -354,7 +356,7 @@ function par_menu() constructor{
 					// number of elements on the final row. It simply makes sure that the visible region is
 					// properly offset to match where the menu cursor wraps around to on the bottom of the menu.
 					var _curRow = floor(curOption / menuWidth) + 1;
-					firstRowOffset = max(0, min(menuHeight - numVisibleColumns, _curRow - columnShiftOffset));
+					firstRowOffset = max(0, min(menuHeight - numVisibleRows, _curRow - rowShiftOffset));
 				} else if (curOption + menuWidth >= _totalOptions && _magnitude[Y] == 1){
 					curOption = curOption % menuWidth;
 					firstRowOffset = 0;
@@ -381,28 +383,6 @@ function par_menu() constructor{
 			moveMenuCursor = true;
 			isAutoScrolling = false;
 			autoScrollTimer = 0;
-		}
-	}
-	
-	/// @description 
-	/// @param animationState
-	/// @param animationStateArgs
-	/// @param completionFunction
-	/// @param completionFunctionArgs
-	set_animation_state = function(_animationState, _animationStateArgs, _animationEndFunction = NO_STATE, _animationEndFunctionArgs = -1){
-		var _animationFunction = method_get_index(_animationState);
-		// Only set the animation state up if a valid function was provided AND the "state arguments" array
-		// variable actually being an array of data; otherwise the animation code will crash the program.
-		if (_animationFunction != NO_STATE && is_array(_animationStateArgs)){
-			animationState =		_animationState;
-			animationStateArgs =	_animationStateArgs;
-			// Much like the code above, only accept and set the completion function and its respective 
-			// argument array is the value provided is a valid index for a method in the menu's code, and 
-			// that the argument array is actually an array; otherwise the program will crash.
-			if (_animationEndFunction != NO_STATE && is_array(_animationEndFunctionArgs)){
-				animationEndFunction =		method_get_index(_animationEndFunction);
-				animationEndFunctionArgs =	_animationEndFunctionArgs;
-			}
 		}
 	}
 	
@@ -678,6 +658,31 @@ function par_menu() constructor{
 		// this function, since it will most likely not use the option alignment values if they don't happen
 		// to be the "fa_left" and "fa_top" defaults.
 		draw_reset_text_align();
+	}
+	
+	/// @description Assigns an animation state to the menu, which will take priority over the logic contained
+	/// within the current object state that the menu may be in. Once the animation has met its desired
+	/// ending conditions, an optional ending function can be called before the menu's current object state
+	/// code resumes execution.
+	/// @param animationState
+	/// @param animationStateArgs
+	/// @param completionFunction
+	/// @param completionFunctionArgs
+	set_animation_state = function(_animationState, _animationStateArgs, _animationEndFunction = NO_STATE, _animationEndFunctionArgs = -1){
+		var _animationFunction = method_get_index(_animationState);
+		// Only set the animation state up if a valid function was provided AND the "state arguments" array
+		// variable actually being an array of data; otherwise the animation code will crash the program.
+		if (_animationFunction != NO_STATE && is_array(_animationStateArgs)){
+			animationState =		method_get_index(_animationState);
+			animationStateArgs =	_animationStateArgs;
+			// Much like the code above, only accept and set the completion function and its respective 
+			// argument array is the value provided is a valid index for a method in the menu's code, and 
+			// that the argument array is actually an array; otherwise the program will crash.
+			if (_animationEndFunction != NO_STATE && is_array(_animationEndFunctionArgs)){
+				animationEndFunction =		method_get_index(_animationEndFunction);
+				animationEndFunctionArgs =	_animationEndFunctionArgs;
+			}
+		}
 	}
 	
 	/// @description alphaTarget A simple animation function that fades the menu's alpha level towards a 

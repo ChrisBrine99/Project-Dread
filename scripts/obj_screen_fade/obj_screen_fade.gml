@@ -49,7 +49,7 @@ function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
 			fadeDuration -= DELTA_TIME;
 			if (fadeDuration <= 0) {alphaTarget = 0;}
 		} else if (alpha == 0 && alphaTarget == 0){ // The fade has completed; clear its pointer from the singleton map.
-			GAME_SET_STATE(GAME_STATE_PREVIOUS, true);
+			if (GAME_STATE_CURRENT == GameState.Paused) {GAME_SET_STATE(GAME_STATE_PREVIOUS, true);}
 			delete SCREEN_FADE;
 			SCREEN_FADE = noone;
 		}
@@ -70,7 +70,7 @@ function effect_create_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration){
 	
 	// 
 	SCREEN_FADE = new obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration);
-	GAME_SET_STATE(GameState.Paused, true);
+	if (GAME_STATE_CURRENT != GameState.Cutscene) {GAME_SET_STATE(GameState.Paused, true);}
 }
 
 #endregion

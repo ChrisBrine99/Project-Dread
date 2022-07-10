@@ -105,15 +105,12 @@ draw_interact_prompt = function(){
 	// If the current alpha level of the prompt is set to a value greater than zero, the rendering process
 	// will actually begin for said prompt and its information. Otherwise, the rendering code will be
 	// skipped over since it wouldn't be visible to the user, anyway.
-	if (interactPromptAlpha > 0){
-		shader_set_outline(RGB_GRAY, font_gui_small);
-		
+	if (interactPromptAlpha > 0){		
 		// First, grab the proper icon for the prompt's displayed control input, which can be either the
 		// keyboard key or the currently connected gamepad's interact button; depending on the currently
 		// active control input.
 		var _inputIconData = noone;
-		if (global.gamepad.deviceID != -1 && global.gamepad.isActive) {_inputIconData = global.keyboardIcons[? global.settings.gpadInteract];}
-		else {_inputIconData = global.keyboardIcons[? global.settings.keyInteract];}
+		with(CONTROL_INFO) {_inputIconData = inputIcons[? INPUT_INTERACT];}
 		
 		// After getting the proper icon for the prompt, some calculations need to be performed so that
 		// the text and the icon show up at the center of the screen. However, since their actualy positions
@@ -131,8 +128,8 @@ draw_interact_prompt = function(){
 		
 		// After the icon is drawn at the proper position, the text will be drawn at the required offset
 		// for itself; much like the icon's text, but with no additional value applied to the initial offset.
+		shader_set_outline(RGB_GRAY, font_gui_small);
 		draw_text_outline(_interactPromptOffset, CAM_HEIGHT - 40, indicatorPrompt, HEX_WHITE, RGB_GRAY, interactPromptAlpha);
-		
 		shader_reset();
 	}
 }

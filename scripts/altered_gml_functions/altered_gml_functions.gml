@@ -12,7 +12,7 @@
 function instance_create_struct(_struct){
 	if (get_singleton_object_key(_struct) == undefined){
 		var _structInstance = new _struct();
-		if (variable_struct_exists(_struct, "initialize")) {_structInstance.initialize();}
+		if (variable_struct_exists(_structInstance, "initialize")) {_structInstance.initialize();}
 		return _structInstance;
 	}
 	return noone; // No instance was created; return noone to signify that.

@@ -216,7 +216,7 @@ function obj_textbox_handler() constructor{
 		// resetting all necessary variables in order to allow this new textbox to display its text properly.
 		if (actorSwap && alpha == 0){
 			// Open up the next textbox now that the current one has fully closed.
-			open_next_textbox();
+			open_next_textbox(curTextboxIndex + 1);
 			// Set all of the textbox's variables for its animation to what they are when the textbox first
 			// opens; triggering its opening animation once again for the new actor's textbox.
 			y = TEXTBOX_START_Y;
@@ -600,23 +600,7 @@ function obj_textbox_handler() constructor{
 			if (nextCharacter > finalCharacter){ // Opening the next textbox OR allowing the player to make a decision
 				var _numDecisions = array_length(textboxData[| curTextboxIndex].decisionData);
 				if (_numDecisions <= 1){ // No decision list or it has only one option; open next textbox
-					curTextboxIndex++;
-					if (curTextboxIndex == totalTextboxes || textboxData[| curTextboxIndex - 1].closeTextbox){
-						alphaTarget = 0;
-						actorSwap = false;
-						return; // Exit the event since the textbox is now closed.
-					}
-					// Stores either true or false to let the textbox know it needs to perform its closing and 
-					// opening animation in between the two textboxes. This is done since a new actor is in
-					// control of the upcoming textbox.
-					actorSwap = (textboxData[| curTextboxIndex - 1].actorID != textboxData[| curTextboxIndex].actorID);
-					if (actorSwap){ // Begin closing animation if a new actor is next to use the textbox
-						alphaTarget = 0;
-						return; // Exit the event since the next textbox opens AFTER the closing animation
-					}
-					// If no actor swap occurred, simply open the next textbox from here, which will instantly
-					// start displaying the next string without an animation in between.
-					open_next_textbox();
+					open_next_textbox(curTextboxIndex + 1);
 				} else{ // A decision needs to be made by the player for the current textbox
 					// First, jump into the state that allows the player to make a decision based on the 
 					// available options; pausing the textbox until they do so.
@@ -659,6 +643,7 @@ function obj_textbox_handler() constructor{
 		// processing below it from being ran until the alpha level matches whatever the target value is.
 		if (decisionAlpha != decisionAlphaTarget){
 			decisionAlpha = value_set_linear(decisionAlpha, decisionAlphaTarget, 0.1);
+			
 			// Closing out the state if the target alpha and current alpha of the decision area of the
 			// textbox are both set to 0. In this case, the state will be reset to the default state and
 			// the index of current textbox will be set to whatever is stored in the decision data array.
@@ -667,20 +652,25 @@ function obj_textbox_handler() constructor{
 				// functionality; changing the "curState" value instantly to avoid weird issues.
 				object_set_next_state(state_default);
 				curState = state_default; // Prevents accidental overwriting if the next textbox has a shake applied to it
-				// Assign the target index that the cutscene's current instruction index will be assigned
-				// to once said textbox has finished its execution. If this is any value other than -1
-				// it will manipulate that scene instruction value. Otherwise, nothing will happen.
-				var _data = textboxData[? curTextboxIndex];
-				if (CUTSCENE_MANAGER.isCutsceneActive) {cutsceneTargetIndex = _data[decisionIndex][2];}
-				// Move onto whatever textbox the stored index within the decision data contains. This allows
-				// for branching dialogue and different outcomes based on decisions chosen.
-				curTextboxIndex = _data.decisionData[decisionIndex][1];
-				open_next_textbox();
+				
 				// Reset the control information to remove the "Up" and "Down" inputs from it and reset the
 				// right-aligned input to show the advancement input for the textbox.
 				control_info_remove_displayed_icon(1); // Deletes the "Menu Up" display data
 				control_info_remove_displayed_icon(1); // Deletes the "Menu Down" display data
 				control_info_edit_displayed_icon(0, INPUT_SELECT, "Next", ALIGNMENT_RIGHT);
+				
+				// Assign the target index that the cutscene's current instruction index will be assigned
+				// to once said textbox has finished its execution. If this is any value other than -1
+				// it will manipulate that scene instruction value. Otherwise, nothing will happen.
+				var _data = textboxData[| curTextboxIndex];
+				if (CUTSCENE_MANAGER.isCutsceneActive) {cutsceneTargetIndex = _data.decisionData[decisionIndex][2];}
+				
+				// Move onto whatever textbox the stored index within the decision data contains. This allows
+				// for branching dialogue and different outcomes based on decisions chosen. A value of "-1"
+				// will simply make the textbox move onto the next available index by default.
+				var _outcomeTextboxIndex = _data.decisionData[decisionIndex][1];
+				if (_outcomeTextboxIndex == -1) {_outcomeTextboxIndex = curTextboxIndex + 1;}
+				open_next_textbox(_outcomeTextboxIndex);
 			}
 			return; // Don't allow player input during the opening/closing animation
 		}
@@ -782,10 +772,29 @@ function obj_textbox_handler() constructor{
 		}
 	}
 	
-	/// @description A simple function that condenses the entire process of resetting variables and data in
-	/// order to prepare for the next chunk of text to be displayed within the textbox down to a single line
-	/// of code. Necessary due to the two places in code where the next textbox can be opened.
-	open_next_textbox = function(){
+	/// @description 
+	/// @param nextIndex
+	open_next_textbox = function(_nextIndex){
+		// 
+		curTextboxIndex = _nextIndex;
+		if (curTextboxIndex > 0){
+			// 
+			if (curTextboxIndex == totalTextboxes || closeTextbox){
+				alphaTarget = 0;
+				actorSwap = false;
+				return; // Exit the event since the textbox is now closed.
+			}
+		
+			// Stores either true or false to let the textbox know it needs to perform its closing and 
+			// opening animation in between the two textboxes. This is done since a new actor is in
+			// control of the upcoming textbox.
+			actorSwap = (textboxData[| curTextboxIndex - 1].actorID != textboxData[| curTextboxIndex].actorID);
+			if (actorSwap){ // Begin closing animation if a new actor is next to use the textbox
+				alphaTarget = 0;
+				return; // Exit the event since the next textbox opens AFTER the closing animation
+			}
+		}
+		
 		// Reset the character offset values to ensure the characters for the next textbox aren't
 		// placed at the wrong coordinates for the surface.
 		characterX = 0;
@@ -1097,7 +1106,9 @@ function textbox_add_shake_effect(_shakeStrength, _shakeDuration){
 	with(TEXTBOX_HANDLER) {textboxData[| totalTextboxes - 1].shakeData = [_shakeStrength, _shakeDuration];}
 }
 
-/// @description 
+/// @description Adds a sound effect that will be queued up to play when the textbox index it is contained
+/// within has been reached by the taxtbox handler. The sound's volume and pitch can be altered if needed,
+/// but the sound isn't able to loop.
 /// @param sound
 /// @param volume
 /// @param pitch

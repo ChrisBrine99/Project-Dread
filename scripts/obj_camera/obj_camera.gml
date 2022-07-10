@@ -337,7 +337,7 @@ function obj_camera() constructor{
 		
 		// Update the position of the camera based on where it currently is relative to the target values;
 		// with those values multiplied by the speed the camera should move on top of that current difference.
-		update_position((_targetX - x) * _moveSpeed, (_targetY - y) * _moveSpeed);
+		update_position((_targetX - x) * _moveSpeed, (_targetY -  y) * _moveSpeed);
 	}
 	
 	/// @description A simple function that works identically to how "camera_move_to_position" works, but
@@ -471,7 +471,8 @@ function camera_set_aspect_ratio(_aspectRatio){
 		window_update_dimensions(curWidth * scale, curHeight * scale);
 	}
 	
-	// 
+	// Make sure to update the values for the texel width and height of the window to match the newly set
+	// aspect ratio's resolution values. Otherwise, certain post-processing effects won't work properly.
 	with(EFFECT_HANDLER){
 		windowTexelWidth = 1 / CAM_WIDTH;
 		windowTexelHeight = 1 / CAM_HEIGHT;
@@ -486,7 +487,7 @@ function camera_set_aspect_ratio(_aspectRatio){
 	}
 	
 	// Re-calculate the position of the right-aligned control information, since it will not be anchored to
-	// that edge of the screen if the aspect ratio goes from 16x9 to 21x9, or vice versa.
+	// that edge of the screen if the aspect ratio goes from 16x9 to 3x2, or vice versa.
 	with(CONTROL_INFO) {calculate_control_display_positions(ALIGNMENT_RIGHT);}
 }
 
@@ -530,7 +531,8 @@ function camera_set_shake(_shakeStrength, _duration){
 /// @param arguments[]
 function camera_set_state(_state, _arguments){
 	with(CAMERA){
-		camState = method_get_index(_state);
+		if (_state != NO_STATE) {camState = method_get_index(_state);}
+		else					{camState = NO_STATE;}
 		camStateArgs = _arguments;
 	}
 }

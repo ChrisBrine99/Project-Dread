@@ -103,6 +103,7 @@ function instance_create_menu_struct(_struct){
 	// manages and handles all the currently created menu that are in the game at the moment.
 	ds_list_add(global.menuInstances, instance_create_struct(_struct));
 	
+	
 	// Finally, return the ID of the newly created menu in order to allow the code that called this function
 	// to manipulate the newly menu struct's data if the need arises.
 	return global.menuInstances[| (ds_list_size(global.menuInstances) - 1)];

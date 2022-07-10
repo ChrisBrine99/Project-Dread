@@ -20,6 +20,9 @@ itemDurability = 0;
 // collected without having to use Game Maker's built-in persistence flags.
 index = noone;
 
+// 
+pickupSound = NO_SOUND;
+
 #endregion
 
 #region Function initialization
@@ -32,7 +35,8 @@ index = noone;
 /// @param quantity
 /// @param durability
 /// @param index
-set_item_data = function(_name, _quantity, _durability, _index){
+/// @param pickupSound
+set_item_data = function(_name, _quantity, _durability, _index, _pickupSound = NO_SOUND){
 	// First, check if the item's unique index value is found within the list for tracking all the items
 	// that have been collected during the player's current playthrough. If a matching index value is found
 	// within the list, the item has been collected, so the object is destroy; preventing the player from
@@ -41,6 +45,10 @@ set_item_data = function(_name, _quantity, _durability, _index){
 		instance_destroy(self);
 		return; // Exit early since the object was destroyed.
 	}
+	
+	// The sound is always assigned by this function when its called; regardless of any updates needed to
+	// accurately carry over an item's current quantity, and so on.
+	pickupSound = _pickupSound;
 	
 	// If the item hasn't been collected yet; the next thing to do is see if the item already has information
 	// stored within the world item data map structure. If this is the case, the item has been initialized

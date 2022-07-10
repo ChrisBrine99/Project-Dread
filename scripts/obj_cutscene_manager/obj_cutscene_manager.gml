@@ -8,6 +8,10 @@
 #macro	CUTSCENE_JUMP_INDEX					CUTSCENE_MANAGER.cutscene_jump_to_index
 #macro	CUTSCENE_SET_EVENT_FLAG				CUTSCENE_MANAGER.cutscene_set_event_flag
 #macro	CUTSCENE_WAIT						CUTSCENE_MANAGER.cutscene_wait
+#macro	CUTSCENE_UNLOCK_CAMERA				CUTSCENE_MANAGER.cutscene_unlock_camera
+#macro	CUTSCENE_SET_CAMERA_STATE			CUTSCENE_MANAGER.cutscene_set_camera_state
+#macro	CUTSCENE_WAIT_FOR_CAMERA_POSITION	CUTSCENE_MANAGER.cutscene_wait_for_camera_position
+#macro	CUTSCENE_SET_CAMERA_SHAKE			CUTSCENE_MANAGER.cutscene_set_camera_shake
 #macro	CUTSCENE_PLAY_SOUND					CUTSCENE_MANAGER.cutscene_play_sound
 #macro	CUTSCENE_PLAY_SOUND_AT				CUTSCENE_MANAGER.cutscene_play_sound_at
 #macro	CUTSCENE_ADD_TEXTBOX_TEXT			CUTSCENE_MANAGER.cutscene_add_textbox_text
@@ -19,6 +23,8 @@
 #macro	CUTSCENE_SET_ENTITY_POSITION		CUTSCENE_MANAGER.cutscene_set_entity_position
 #macro	CUTSCENE_MARK_ENTITY_PERSISTENT		CUTSCENE_MANAGER.cutscene_mark_entity_persistent
 #macro	CUTSCENE_SET_ENTITY_SPRITE			CUTSCENE_MANAGER.cutscene_set_entity_sprite
+#macro	CUTSCENE_INVOKE_SCREEN_FADE			CUTSCENE_MANAGER.cutscene_invoke_screen_fade
+#macro	CUTSCENE_END_SCREEN_FADE			CUTSCENE_MANAGER.cutscene_end_screen_fade
 
 #endregion
 
@@ -49,6 +55,11 @@ function obj_cutscene_manager() constructor{
 	// A flag that allows a different chunk of code to be executed on the first call of a given scene's
 	// instruction function. After the first call, the "firstExecution" chunk will no longer be processed.
 	firstExecution = false;
+	
+	// 
+	prevCameraState = NO_STATE;
+	prevCameraStateArgs = array_create(0, 0);
+	cameraManipulated = false;
 	
 	// Initialize some data structures (Two maps, and a list) that will be integral to how the cutscene
 	// manager functions. One of the maps is responsible for storing the previous state of the three "state"
@@ -150,6 +161,14 @@ function obj_cutscene_manager() constructor{
 				if (EVENT_GET_FLAG(eventFlagID) == eventTargetState) {instance_destroy(self);}
 			}
 			
+			// 
+			if (cameraManipulated){
+				CAMERA.camState = prevCameraState;
+				CAMERA.camStateArgs = prevCameraStateArgs;
+				cameraManipulated = false;
+			}
+			
+			
 			// Return all entity's back to the states they had before the cutscene began its execution by
 			// looping through each index in the map (Those maps are the IDs for each entity to allow for
 			// less overall data being stored in each key's array) and applying the three state values back
@@ -223,6 +242,57 @@ function obj_cutscene_manager() constructor{
 	cutscene_wait = function(_units){
 		waitTimer += DELTA_TIME; // Increment based on delta time for frame-independent timing.
 		if (waitTimer >= _units) {cutscene_end_instruction(false);}
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/// -- Cutscene Functions for Manipulating the Camera -- //////////////////////////////////////////////////////////
+	
+	/// @description 
+	cutscene_unlock_camera = function(){
+		if (!cameraManipulated){
+			prevCameraState =		CAMERA.camState;
+			prevCameraStateArgs =	CAMERA.camStateArgs;
+			cameraManipulated = true;
+		}
+		camera_set_state(NO_STATE, array_create(0, 0));
+		cutscene_end_instruction(true);
+	}
+	
+	/// @description 
+	/// @param state
+	/// @param arguments[]
+	cutscene_set_camera_state = function(_state, _arguments){
+		camera_set_state(_state, _arguments);
+		cutscene_end_instruction(true);
+	}
+	
+	/// @description 
+	/// @param targetX
+	/// @param targetY
+	cutscene_wait_for_camera_position = function(_targetX, _targetY){
+		var _positionReached = false;
+		with(CAMERA) {_positionReached = (x == _targetX && y == _targetY);}
+		if (_positionReached) {cutscene_end_instruction(false);}
+	}
+	
+	/// @description 
+	/// @param shakeStrength
+	/// @param duration
+	/// @param waitForShake
+	cutscene_set_camera_shake = function(_shakeStrength, _duration, _waitForShake = false){
+		// 
+		if (firstExecution){
+			camera_set_shake(_shakeStrength, _duration);
+			firstExecution = false;
+		}
+		
+		// 
+		var _shakeFinished = false;
+		with(CAMERA) {_shakeFinished = (shakeCurStrength < 0.1);}
+		
+		// 
+		if (!_waitForShake || (_waitForShake && _shakeFinished)) {cutscene_end_instruction(!_waitForShake);}
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,8 +383,9 @@ function obj_cutscene_manager() constructor{
 	/// addition to the textbox's data.
 	/// @param optionText
 	/// @param outcomeIndex
-	cutscene_add_textbox_decision = function(_optionText, _outcomeIndex){
-		textbox_add_decision_data(_optionText, _outcomeIndex);
+	/// @param cutsceneOutcomeIndex
+	cutscene_add_textbox_decision = function(_optionText, _outcomeIndex, _cutsceneOutcomeIndex = -1){
+		textbox_add_decision_data(_optionText, _outcomeIndex, _cutsceneOutcomeIndex);
 		cutscene_end_instruction(true);
 	}
 	
@@ -484,7 +555,7 @@ function obj_cutscene_manager() constructor{
 
 	/// -- Cutscene Functions for Creating Objects -- /////////////////////////////////////////////////////////////////
 	
-	/// @description
+	/// @description 
 	/// @param itemName
 	/// @param itemQuantity
 	/// @param itemDurability
@@ -496,6 +567,38 @@ function obj_cutscene_manager() constructor{
 	/// @param 
 	cutscene_create_note = function(){
 		
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/// -- Cutscene Functions for Manipulating the Screen Fade -- /////////////////////////////////////////////////////
+	
+	/// @description 
+	/// @param fadeColor
+	/// @param fadeSpeed
+	/// @param fadeDuration
+	/// @param waitForFadeIn
+	cutscene_invoke_screen_fade = function(_fadeColor, _fadeSpeed, _fadeDuration, _waitForFadeIn){
+		// 
+		if (firstExecution){
+			effect_create_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration);
+			firstExecution = false;
+		}
+		
+		// 
+		var _fadeComplete = false;
+		with(SCREEN_FADE) {_fadeComplete = (alpha == alphaTarget && alphaTarget == 1);}
+		if (!_waitForFadeIn || _fadeComplete) {cutscene_end_instruction(!_waitForFadeIn);}
+	}
+	
+	/// @description 
+	/// @param waitForFadeOut
+	cutscene_end_screen_fade = function(_waitForFadeOut){
+		if (firstExecution){
+			with(SCREEN_FADE) {fadeDuration = 0;}
+			firstExecution = false;
+		}
+		if (!_waitForFadeOut || SCREEN_FADE == noone) {cutscene_end_instruction(!_waitForFadeOut);}
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

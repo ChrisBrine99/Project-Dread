@@ -90,6 +90,7 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _interactPro
 /// @param y
 /// @param radius
 /// @param interactFunction
+/// @param interactPrompt
 function object_add_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt){
 	if (interactComponent == noone){
 		interactComponent = new obj_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt, id);

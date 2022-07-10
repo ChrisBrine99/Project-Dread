@@ -190,31 +190,43 @@ function obj_effect_handler() constructor{
 		gpu_set_blendmode(bm_normal);
 	}
 	
-	/// @description 
+	/// @description The function that contains all the logic for rendering the contents of the entire
+	/// screen with a blur applied to them. It's a two-pass system that will blur in one direction, then
+	/// take that first pass's result and draw it back to the application surface for the second direction's
+	/// blur; creating an accurate gaussian blur effect in the game.
 	render_screen_blur = function(){
-		// 
+		// Don't waste time attempting to render the screen blur if there isn't a possibility of it being
+		// visible to the user due to either of these two parameters being zeroed out.
 		if (blurRadius == 0 || blurIntensity == 0) {return;}
 		
-		// 
+		// Make sure the buffer surface for the blurring effect exists within the GPU's memory before
+		// any processing of the effect has begun. It's dimensions are the same as the window's.
 		if (!surface_exists(surfBlurBuffer)) {surfBlurBuffer = surface_create(CAM_WIDTH, CAM_HEIGHT);}
 		
-		// 
+		// First, the shader will be activated and the main parameters will be set; the radius of the blur,
+		// (This determines how many pixels around the current fragment will effect the final color of said
+		// fragment) its intensity, (How blurry the image will be overall) and the values for the texel
+		// width and height of each pixel for the screen. (THese are normalized values between 0 and 1)
 		shader_set(shd_screen_blur);
 		shader_set_uniform_f(sBlurRadius, blurRadius);
 		shader_set_uniform_f(sBlurTexelSize, windowTexelWidth, windowTexelHeight);
 		shader_set_uniform_f(sBlurIntensity, blurIntensity);
 		
-		// 
+		// Once the parameters for the shader have been properly set/updated, the first pass of the shader
+		// will draw the application surface to the blur's buffer surface; applying the horizontal blurring
+		// to it. (What axis is blurred first doesn't actually matter to the shader)
 		shader_set_uniform_f(sBlurDirection, 1, 0);
 		surface_set_target(surfBlurBuffer);
 		draw_surface(application_surface, 0, 0);
 		surface_reset_target();
 		
-		// 
+		// After the first pass is completed, the buffer surface containing that first pass texture will be
+		// redrawn to the application surface; blurring it on the remaining axis to complete the blur effect.
 		shader_set_uniform_f(sBlurDirection, 0, 1);
 		draw_surface(surfBlurBuffer, 0, 0);
 		
-		// 
+		// Finally, the shader is reset to prevent any accidental applications of this blur shader's effects
+		// in other draw events throughout the code.
 		shader_reset();
 	}
 	
@@ -251,7 +263,10 @@ function obj_effect_handler() constructor{
 
 #region Global functions related to obj_effect_handler
 
-/// @description 
+/// @description Removes all of the light sources from memory that aren't set to persistent whenever a room
+/// has triggered its "Room End" event (This function should be called by "obj_controller" in its "Room End"
+/// for this very purpose. Without this function all light sources will be lost in memory since the objects
+/// they were previously attached to might not exist within the next room.
 function effect_unload_room_lighting(){
 	// First, create a new list that will become the global light sources list once all the non-persistent
 	// lights have been cleared out of memory. Persistent are carried over into this list.

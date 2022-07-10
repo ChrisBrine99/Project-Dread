@@ -523,23 +523,34 @@ function control_info_add_displayed_icon(_input, _infoString, _alignment, _calcu
 	}
 }
 
-/// @description
+/// @description Edits the information stored within the given index of the currently displayed icons list.
+/// Allows for easy swapping of data without having to keep track of where other indexes are translated to
+/// if this index had to be deleted instead of having this function to simply alter the data without any
+/// deletion occuring for the list.
 /// @param index
 /// @param input
 /// @param infoString
 /// @param alignment
 function control_info_edit_displayed_icon(_index, _input, _infoString, _alignment){
 	with(CONTROL_INFO){
-		// 
+		// First, make sure that the index provided is within the valid range of indexes for the list of
+		// displayed icons. If not, the function will not perform any logic. However, if a value less 
+		// than 0 is provided to the function's index parameter, the function will use the most recently 
+		// added icon data and place the provided information there; replacing whatever was stored there
+		// previously.
 		if (_index >= ds_list_size(displayedIcons)) {return;}
 		else if (_index < 0) {_index = ds_list_size(displayedIcons) - 1;}
 		
-		// 
+		// Edit the information found at each of the three indexes of the array stored in the list at the
+		// given list index value only if values of "-1" weren't placed in any of the argument parameters.
+		// Otherwise, the piece of data will be skipped over in this editing process.
 		if (_input != -1 && ds_map_find_value(inputIcons, _input) != undefined)	{displayedIcons[| _index][0] = _input;}
 		if (_infoString != -1 && is_string(_infoString))						{displayedIcons[| _index][1] = _infoString;}
 		if (_alignment != -1)													{displayedIcons[| _index][2] = _alignment;}
 		
-		// 
+		// Finally, recalculate the display positions of all the displayed control information in case the
+		// input's icon is a different width, the string is a different width, or the icon's alignment was
+		// altered.
 		calculate_control_display_positions();
 	}
 }
@@ -552,7 +563,7 @@ function control_info_remove_displayed_icon(_index){
 	with(CONTROL_INFO){
 		// First, check to see if the index that was provided it out of the valid boundaries of the list. Also,
 		// don't let the code delete an index from the list that doesn't actually exist. (AKA the size is 0)
-		var _length = ds_list_size(_index);
+		var _length = ds_list_size(displayedIcons);
 		if (_length == 0 || _index < 0 || _index >= _length) {return;}
 		
 		// If a valid index was provided, store the alignment that the control information was locked onto,
