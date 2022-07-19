@@ -6,6 +6,7 @@ You'll play as Claire Warren, a college student down on her luck; having to bala
 
 Some core features of the game include:
 - Heavy emphasis on resource management; similar to how the original Resident Evil trilogy on the PSX functioned with their limited inventory space, ammunition, weapons, and game saves themselves.
+- A sanity system that will cause Claire to begin having audio and visual hallucinations throughout the game. It will also mess with the player themselves through messing with settings on the fly to really get into their heads. (Much like Eternal Darkness: Sanity's Requiem)
 - Multiple combat difficulty modes (Three available by default; two unlockable) that are all tailored to give a unique experience to the player while also maintaining the overall tension, atmosphere, and horror of the game itself.
 - Three choices for puzzle difficulty that will add/remove certain elements of puzzles in order to make them easier or harder for the player to solve. This feature was inspired by the "Riddle Difficulty" system from the PlayStation 2 Silent Hill games.
 - A world designed much like how a mertroidvania-style game would build its world: many branching paths, areas blocked off by key items that must be found through exploring, environmental and general puzzles to solve, backtracking to older areas to open new areas to explore, and so on.
