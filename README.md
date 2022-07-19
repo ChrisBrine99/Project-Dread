@@ -2,7 +2,7 @@
 
 The goal with this project is to create a new kind of survival horror game; one that takes elements from both the Silent Hill and Resident Hill series of games to create an experience that has never been seen before in the genre. 
 
-You'll play as Claire Warren, a college student down on her luck; having to balance school and a job--all the while taking care of her little brother, Jacob. However, one night she returns home incredibiliy late to find that her brother is nowhere to be found. With no signs of forced entry into the apartment, it's up to her to figure out where Jacob went, who/what took him, and why strange things have been happening to her on top of everything else.
+You'll play as Claire Warren, a college student down on her luck; having to balance school and a job--all the while taking care of her little brother, Jacob. However, one night she returns home incredibly late to find that her brother is nowhere to be found. With no signs of forced entry into the apartment, it's up to her to figure out where Jacob went, who/what took him, and why strange things have been happening to her on top of everything else.
 
 Some core features of the game include:
 - Heavy emphasis on resource management; similar to how the original Resident Evil trilogy on the PSX functioned with their limited inventory space, ammunition, weapons, and game saves themselves.
