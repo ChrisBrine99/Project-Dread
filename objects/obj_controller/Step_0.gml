@@ -7,6 +7,8 @@ with(CUTSCENE_MANAGER)	{step();}
 with(EFFECT_HANDLER)	{step();}
 with(TEXTBOX_HANDLER)	{step();}
 with(SCREEN_FADE)		{step();}
+with(WEATHER_RAIN)		{step();}
+with(WEATHER_FOG)		{step();}
 
 // Loop through all of the currently existing menus and execute their step events, which handle player input,
 // animations, and menu cursor movement logic.
@@ -14,5 +16,3 @@ var _length = ds_list_size(global.menuInstances);
 for (var i = 0; i < _length; i++){
 	with(global.menuInstances[| i]) {step();}
 }
-
-with(test) {step();}

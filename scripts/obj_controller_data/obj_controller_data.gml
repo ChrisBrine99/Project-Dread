@@ -12,6 +12,8 @@
 #macro	KEY_DEPTH_SORTER			"depth_sorter"
 #macro	KEY_CONTROL_INFO			"control_icon"
 #macro	KEY_SCREEN_FADE				"screen_fade"
+#macro	KEY_WEATHER_RAIN			"weather_rain"
+#macro	KEY_WEATHER_FOG				"weather_fog"
 #macro	KEY_CONTROLLER				"controller"
 #macro	KEY_PLAYER					"player"
 #macro	KEY_DEBUGGER				"debugger"
@@ -27,6 +29,8 @@
 #macro	DEPTH_SORTER				global.sInstances[? KEY_DEPTH_SORTER]
 #macro	CONTROL_INFO				global.sInstances[? KEY_CONTROL_INFO]
 #macro	SCREEN_FADE					global.sInstances[? KEY_SCREEN_FADE]
+#macro	WEATHER_RAIN				global.sInstances[? KEY_WEATHER_RAIN]
+#macro	WEATHER_FOG					global.sInstances[? KEY_WEATHER_FOG]
 #macro	CONTROLLER					global.sInstances[? KEY_CONTROLLER]
 #macro	PLAYER						global.sInstances[? KEY_PLAYER]
 #macro	DEBUGGER					global.sInstances[? KEY_DEBUGGER]
@@ -51,6 +55,8 @@ ds_map_add(global.sInstances, KEY_TEXTBOX_HANDLER,	new obj_textbox_handler());
 ds_map_add(global.sInstances, KEY_DEPTH_SORTER,		new obj_depth_sorter());
 ds_map_add(global.sInstances, KEY_CONTROL_INFO,		new obj_control_info());
 ds_map_add(global.sInstances, KEY_SCREEN_FADE,		noone); // Doesn't start occupied like other singletons.
+ds_map_add(global.sInstances, KEY_WEATHER_RAIN,		noone); // Doesn't start occupied like other singletons.
+ds_map_add(global.sInstances, KEY_WEATHER_FOG,		noone); // Doesn't start occupied like other singletons.
 ds_map_add(global.sInstances, KEY_DEBUGGER,			new obj_debugger());	// FOR TESTING
 
 // Stores all the unique ID values for all of the menu structs that have been created and currently exist
@@ -77,6 +83,8 @@ function get_singleton_object_key(_object){
 		case obj_textbox_handler:	return KEY_TEXTBOX_HANDLER;
 		case obj_control_info:		return KEY_CONTROL_INFO;
 		case obj_screen_fade:		return KEY_SCREEN_FADE;
+		case obj_weather_rain:		return KEY_WEATHER_RAIN;
+		case obj_weather_fog:		return KEY_WEATHER_FOG;
 		case obj_controller:		return KEY_CONTROLLER;
 		case obj_player:			return KEY_PLAYER;
 		case obj_debugger:			return KEY_DEBUGGER;	// FOR TESTING

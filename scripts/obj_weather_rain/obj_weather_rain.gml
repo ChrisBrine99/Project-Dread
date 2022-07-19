@@ -12,6 +12,9 @@
 #macro	MIN_SPAWN_BUFFER			2
 #macro	MAX_SPAWN_BUFFER			10
 
+//
+#macro	RAIN_Y_START_OFFSET			32
+
 #endregion
 
 #region Initializing enumerators that are useful/related to obj_weather_rain
@@ -23,6 +26,10 @@
 #region The main object code for obj_weather_rain
 
 function obj_weather_rain() constructor{
+	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
+	// object by Game Maker during runtime; in order to easily use it within a singleton system.
+	object_index = obj_weather_rain;
+	
 	// Stores all of the instances of raindrops that currently exist for the weather effect. The variable
 	// "totalRaindrops" determines how many raindrops can exist within the ds_list at once; determined by
 	// randomly choosing a value between the two set minimum and maximum range values.
@@ -33,6 +40,11 @@ function obj_weather_rain() constructor{
 	// spawning of rain droplets; making the rain smoothly begin from no raindrops to a gradual screen full
 	// of them.
 	spawnBuffer = 0;
+	
+	// A simple toggle that causes the rain weather effect to slowly end after a call to the function 
+	// "effect_end_weather_rain" by slowly decreasing the amount of raindrops that exist at once until that
+	// number reaches zero. At that point, the struct will free itself from memory.
+	isEnding = false;
 	
 	// Holds all of the currently existing instances of raindrop splashes that currently exist in the world.
 	// These splashes are created by raindrops hitting their "target value" on the y-axis, which resets
@@ -47,20 +59,28 @@ function obj_weather_rain() constructor{
 	/// obj_weather_rain. In short, it will handle the creation of raindrops, as well as the updating of
 	/// their vertical positions and the animations for each currently existing raindrop splash. 
 	step = function(){
+		// 
+		var _length = ds_list_size(raindrops);
+		if (isEnding && _length == 0 && audio_sound_get_gain(rainSound) == 0){
+			audio_stop_sound(rainSound);
+			delete WEATHER_RAIN;
+			WEATHER_RAIN = noone;
+			return;
+		}
+		
 		// The chunk of code responsible for spawning in all of the raindrop instances that are required
 		// for the effect to actually look like rain. It will count down the buffer timer's value until it
 		// reaches zero, where another rain struct will be added to the list of total raindrops.
-		var _length = ds_list_size(raindrops);
-		if (_length < totalRaindrops){
+		if (_length < totalRaindrops && !isEnding){
 			spawnBuffer -= DELTA_TIME;
 			if (spawnBuffer <= 0){
 				spawnBuffer = random_range(MIN_SPAWN_BUFFER, MAX_SPAWN_BUFFER);
-				var _startY = CAMERA.y - 4;
+				var _startY = CAMERA.y - RAIN_Y_START_OFFSET;
 				ds_list_add(raindrops, {
 					x :			CAMERA.x + irandom_range(2, CAM_WIDTH - 2),
 					y :			_startY, // All raindrops will initially spawn at the same Y offset.
 					fractionY : 0, // Prevents fractional vertical position values.
-					targetY :	_startY + irandom_range(16, CAM_HEIGHT + 20),
+					targetY :	_startY + irandom_range(32, CAM_HEIGHT + 64),
 					vspd :		4 + random(1.25), // Makes each raindrop have a slightly offset vertical velocity.
 					alpha :		random_range(0.45, 1),
 				});
@@ -81,8 +101,10 @@ function obj_weather_rain() constructor{
 		// position being updated such that it wraps along the screen as the camera moves horizontally, and
 		// each y position being updated if the raindrop's target y position has been reached. (That position
 		// is where the raindrop's splash effect will be spawned)
-		var _splashes, _x, _y, _alpha;
-		_splashes = splashes; // Store reference to the splash instance list so the raindrops can access it.
+		var _raindrops, _splashes, _isEnding, _x, _y, _alpha;
+		_raindrops = raindrops;	// Store references to some of the main struct's variables for faster reference in the loop.
+		_splashes = splashes;
+		_isEnding = isEnding;
 		for (var i = 0; i < _length; i++){
 			with(raindrops[| i]){
 				// Wraps the raindrops that end up outside of the current horizontal bounds of the camera's
@@ -104,28 +126,43 @@ function obj_weather_rain() constructor{
 					// If the target position has been hit by the raindrop OR the raindrop goes well below
 					// the bottom bounds of the game's current camera view. When this happens, the raindrop
 					// splash will be created at the position of the raindrop.
-					if (y >= targetY || y >= _cameraY + _cameraHeight + 32){
+					if (y >= targetY){
 						// Pass over the raindrop's coordinates in the room, and the alpha value for the
 						// raindrop so the splash will match the characteristics of the raindrop it came
-						// from. Then, create the splash struct with those stored values.
-						_x = x;
-						_y = y;
-						_alpha = alpha;
-						ds_list_add(_splashes, {
-							x :				_x,
-							y :				_y,
-							startAlpha :	_alpha,
-							curAlpha :		_alpha,
-							imgIndex :		0,
-						});
+						// from. Then, create the splash struct with those stored values IF the raindrop
+						// is within a visible region around the view. Otherwise, no raindrop is created.
+						if (x > _cameraX - 16 && y > _cameraY - 16 && x < _cameraX + _cameraWidth + 16 && y < _cameraY + _cameraHeight + 16){
+							_x = x;
+							_y = y;
+							_alpha = alpha;
+							ds_list_add(_splashes, {
+								x :				_x,
+								y :				_y,
+								startAlpha :	_alpha,
+								curAlpha :		_alpha,
+								imgIndex :		0,
+							});
+						}
+						
+						// When the weather effect is toggled to end, there will be a 33% chance of the 
+						// raindrop will despawn instead of being reset to the top of the screen. The only
+						// exception to this is when there are less than 10 raindrops remaining on screen;
+						// when that happens the raindrop will always despawn no matter what.
+						if (_isEnding && (_length <= 10 || irandom_range(0, 99) <= 33)){
+							delete _raindrops[| i];
+							ds_list_delete(_raindrops, i);
+							_length--;
+							i--;
+							continue; // Skips over the position/target resetting code
+						}
 						
 						// In order to make the rain seem random and nor repetitive, the horiztonal position,
 						// and target y position will be randomly set each time the raindrop hits its target
 						// or goes too far below the screen. The y position is always set to be four pixels
 						// above the camera's top view boundary, however.
 						x = _cameraX + irandom_range(2, _cameraWidth - 2);
-						y = _cameraY - 4;
-						targetY = y + irandom_range(16, _cameraHeight + 16);
+						y = _cameraY - RAIN_Y_START_OFFSET;
+						targetY = y + irandom_range(32, _cameraHeight + 64);
 					}
 				}
 			}
@@ -202,4 +239,18 @@ function obj_weather_rain() constructor{
 #endregion
 
 #region Global functions related to obj_weather_rain
+
+/// @description 
+function effect_create_weather_rain(){
+	if (WEATHER_RAIN == noone) {WEATHER_RAIN = new obj_weather_rain();}
+}
+
+/// @description
+function effect_end_weather_rain(){
+	with(WEATHER_RAIN){
+		audio_sound_gain(rainSound, 0, 2500);
+		isEnding = true;
+	}
+}
+
 #endregion

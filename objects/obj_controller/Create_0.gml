@@ -15,8 +15,6 @@ doorIndicatorAlphaTarget = 0;
 interactPromptAlpha = 0;
 interactPrompt = "";
 
-test = new obj_weather_rain();
-
 #endregion
 
 #region Function Initialization
