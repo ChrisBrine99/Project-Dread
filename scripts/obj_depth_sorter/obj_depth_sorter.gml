@@ -1,4 +1,8 @@
-/// @description 
+/// @description The data found in this file relates to the depth sorter, which has the responsibility of
+/// organizing the entities (Children of "obj_dynamic_entity" and "obj_static_entity", respectively) by
+/// their current y and z positions within the world; rendering them in such an order after that sorting to
+/// make entities higher up on the screen appear before other, which helps add to the 2.5D perspective of
+/// the game's art.
 
 #region	Initializing any macros that are useful/related to obj_depth_sorter
 #endregion
@@ -134,6 +138,7 @@ function obj_depth_sorter() constructor{
 	/// default, so it doesn't matter as much in that case)
 	cleanup = function(){
 		ds_grid_destroy(global.entities);
+		totalEntities = 0;
 	}
 	
 	/// @description The function that is responsible for rendering shadows on the game's floor beneath each
@@ -197,7 +202,7 @@ function depth_sorter_add_entity(){
 function depth_sorter_remove_entity(){
 	if (!object_is_ancestor(object_index, par_dynamic_entity) && !object_is_ancestor(object_index, par_static_entity)) {return;}
 	with(DEPTH_SORTER){ // Jump into scope with the depth sorter to access the "totalEntities" value faster.
-		if (totalEntities > 0){ // Only resize if the number of entities isn't already 0.
+		if (totalEntities > 0 && ds_exists(global.entities, ds_type_grid)){ // Only resize if the number of entities isn't already 0.
 			ds_grid_resize(global.entities, 2, totalEntities - 1);
 			totalEntities--;
 		}

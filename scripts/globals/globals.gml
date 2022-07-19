@@ -81,6 +81,12 @@ global.events = {
 	// example.
 	flags : ds_map_create(),
 	
+	/// @description Simply removes the flag map from memory to prevent it from remaining allocated if
+	/// its parent struct (This one) is deleted before the end of the game's runtime.
+	cleanup : function(){
+		ds_map_destroy(flags);
+	},
+	
 	/// @description Creates a new entry into the event flag data map with the given ID value and starting
 	/// state value. However, no event flag is created if there is already an event flag that exists at the
 	/// given ID value.
@@ -116,27 +122,42 @@ global.events = {
 
 #region In-Game Playtime Tracker
 
-// 
+// Handles the management of the game's delta-timing, as well as the in-game time tracker. Also, this
+// struct stores the string representation (HH:MM:SS) of the current in-game playtime's value.
 global.gameTime = {
-	// 
+	// Stores the values for the current delta timing between two frames (A value of 1 is equal to the
+	// game running at a steady 60 frames per second) and the target frame rate for physics calculations
+	// per second. Changing the lower variable's value will change what FPS is equal to a delta time of 1.
 	deltaTime :			0,
 	targetFPS :			60,
 	
-	// 
+	// Three variables for the delta in-game playtime tracking. The first will store the integer value for
+	// the playtime. (This is the value that is converted to a viewable time format) The second variable
+	// will keep track of the delta time between each real-world second; counting up to one before the
+	// in game timer's value is increased. Finally, the third value will unpause and pause the timer.
 	inGameTime :		0,
 	inGameTimeMillis :	0,
 	freezeTimer :		false,
 	
-	// 
+	// Variables for the viewable format of the current in-game playtime. The first variable stores the
+	// string value of the last converted value, and the second variable stores what the previously
+	// converted value is; ensuring that the string is only re-formatted when necessary.
 	inGameTimeString :	"00:00:00",
 	stringLastVal :		0,
 	
-	/// @description 
+	/// @description Updates the current delta time value, and the current in-game playtime value if the 
+	/// timer is currently toggled to update itself on a per-second basis. This function is called in the
+	/// "begin_step" in the main controller object.
 	begin_step : function(){
-		// 
+		// Calculate the new value for delta time, which uses Game Maker's built-in "delta_time" variable,
+		// which calculates the time between frames in nanoseconds. This value is converted to seconds and
+		// multiplied by the targetFPS's value, such that whatever that value is makes the delta timing
+		// equal one when the game is running at that frame rate.
 		deltaTime = (delta_time / 1000000) * targetFPS;
 		
-		// 
+		// Increase the millisecond timer by whatever delta time is divided by 60. (60 = 1 second of real-
+		// world time) Once that value passes 1, the ingame time will be increased by one if the timer isn't
+		// currently frozen at its current value.
 		inGameTimeMillis += deltaTime / 60;
 		if (inGameTimeMillis >= 1){
 			inGameTimeMillis--;
@@ -144,7 +165,10 @@ global.gameTime = {
 		}
 	},
 	
-	/// @description 
+	/// @description Returns the current in-game playtime as a formatted string (HH:MM:SS) for them to
+	/// view wherever it is needed. (Ex. Pause Menu) If the string's value doesn't match the current value
+	/// for the in-game time, it will format that new value to match. This prevents the function from
+	/// constantly having to format a string that only changes value once every second.
 	get_current_in_game_time : function(){
 		if (stringLastVal != inGameTime){
 			inGameTimeString = string_number_to_time_format(inGameTime, false);

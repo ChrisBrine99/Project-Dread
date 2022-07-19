@@ -5,7 +5,9 @@
 
 #region Initializing any macros that are useful/related to obj_screen_fade
 
-// 
+// A constant that will prevent the screen fade from automatically fading itself out once it reaches full
+// opacity and it has depleted the value stored within the "fadeDuration" variable. When this value is set
+// in the duration variable, the fade out must be manually triggered somewhere else within the code.
 #macro	FADE_PAUSE_FOR_TOGGLE	   -250
 
 #endregion
@@ -42,7 +44,11 @@ function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
 	alpha = 0;
 	alphaTarget = 1;
 
-	/// @description 
+	/// @description Code that should be placed into the "Step" event of whatever object is controlling
+	/// obj_screen_fade. In short, it will handle fading the effect into full opacity, counting down the
+	/// timer that causes a pause between the fade in and fade out, (This doesn't occur if the screen fade
+	/// was set to remain fully opaque for an indefinite amount of time.) and fading the effect out of 
+	/// visibility if the effect is required to do so.
 	step = function(){
 		alpha = value_set_linear(alpha, alphaTarget, fadeSpeed);
 		if (fadeDuration != FADE_PAUSE_FOR_TOGGLE && alpha == 1 && alphaTarget == 1){ // Count down the duration until the fade out can begin.
@@ -60,15 +66,20 @@ function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
 
 #region Global functions related to obj_screen_fade
 
-/// @description 
+/// @description Creates an instance of the screen fade effect struct that will perform its fading effect
+/// into the color provided, at the speed supplied for fading it in and out of visibility, while remaining
+/// fully opaque for the duration in "frames" (1/60th of a real-world second) provided by the function.
 /// @param fadeColor
 /// @param fadeSpeed
 /// @param fadeDuration
 function effect_create_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration){
-	// 
+	// If another screen fade struct currently exists within the singleton variable for managing any insatnces
+	// of this effect, this function will simply exit before creating another insatnce of said struct.
 	if (SCREEN_FADE != noone) {return;}
 	
-	// 
+	// Create a new instance of the screen fade with the provided characteristics found in the three 
+	// arguments values for this function; storing its unique pointer in the singleton management variable.
+	// The game state will be set to "Paused" for the duration of the screen fade.
 	SCREEN_FADE = new obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration);
 	if (GAME_STATE_CURRENT != GameState.Cutscene) {GAME_SET_STATE(GameState.Paused, true);}
 }

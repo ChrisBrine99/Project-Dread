@@ -1,4 +1,6 @@
-/// @description 
+/// @description Manages the graphical effects in the game that could be classified as "post-processing"
+/// within the rendering pipeline. Effects like lighting, bloom, screen blurring, as well as filters like
+/// the scanline and coise are all handled and rendered by this object.
 
 #region	Initializing any macros that are useful/related to obj_effect_handler
 #endregion
@@ -21,7 +23,9 @@ function obj_effect_handler() constructor{
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_effect_handler;
 	
-	// 
+	// Stores the current texel values for the application surface, which is a normalized value for a single
+	// pixel relative to the dimensions of said surface. Since the aspect ratio can be altered in the game,
+	// these variables will be updated to store the proper texel sizes for any changes that occur.
 	windowTexelWidth =	1 / CAM_WIDTH;
 	windowTexelHeight = 1 / CAM_HEIGHT;
 	
@@ -43,29 +47,41 @@ function obj_effect_handler() constructor{
 	ambientColor =		HEX_DARK_BLUE;
 	ambientStrength =	0.95;
 	
-	// 
+	// Stores a buffer image of the application surface that is used to properly create the blurring effect.
+	// It can either handle the vertical pass or the horizontal pass required for the shader, but the default
+	// application surface cannot be used for both at the same time.
 	surfBlurBuffer = noone;
 	
-	// 
+	// Store each of the uniforms required for the blurring shader to their own unique variables, which are
+	// then used again when rendering with the blur shader to apply the correct settings to it; creating
+	// the desired effect based on the settings applied to said uniforms.
 	sBlurRadius =		shader_get_uniform(shd_screen_blur, "blurRadius");
 	sBlurIntensity =	shader_get_uniform(shd_screen_blur, "blurIntensity");
 	sBlurTexelSize =	shader_get_uniform(shd_screen_blur, "blurTexelSize");
 	sBlurDirection =	shader_get_uniform(shd_screen_blur, "blurDirection");
 	
-	// 
+	// These two variables will determine how the blur will actually look when applied to the application
+	// surface. The first value is the radius for the blur, (How many pixels to the left and right of the
+	// current fragment being processed in will affect said fragment's final color) and the second is how
+	// intense the application of that blurring process will be on a given fragment.
 	blurRadius =		5;
-	blurIntensity =		0.25;
+	blurIntensity =		0;
 	
-	// 
+	// These variables will cause the blur's intensity value to smoothly shift between the current value
+	// and the target value set within the "intensityTarget" variable. The modifier will determine how
+	// fade the blur's intensity shifts between its currentl value and the target value.
 	intensityTarget =	0;
 	intensityModifier = 0.001;
 	
-	// 
+	// Variables that allow the sprite used for the film grain effect to move sporadically across the screen.
+	// In short, the size is used to track the range for the offset values (Both the x and y values will use
+	// the same limit value) that are randomly updated on a per-frame basis within the game.
 	fgSize = sprite_get_width(spr_film_grain);
 	fgOffsetX = 0;
 	fgOffsetY = 0;
 	
-	// 
+	// Stores the uniform location for the scanline shader's opacity value, which is then used to determine
+	// how instance the "scanline" effect is within the game itself.
 	sScanlineOpacity =	shader_get_uniform(shd_scanlines, "opacity");
 	
 	/// @description Code that should be placed into the "Step" event of whatever object is controlling
@@ -83,7 +99,10 @@ function obj_effect_handler() constructor{
 		render_lights(camera_get_view_x(_camera), camera_get_view_y(_camera));
 	}
 	
-	/// @description 
+	/// @description Code that should be placed into the "Draw GUI Begin" event of whatever object is 
+	/// controlling obj_effect_handler. In short, it will render graphical effects to the screen that above 
+	/// the application surface, but BEFORE the game's GUI surface. For example, the screen blurring and
+	/// bloom effects are applied here.
 	draw_gui_begin = function(){
 		render_screen_blur();
 	}
@@ -101,13 +120,20 @@ function obj_effect_handler() constructor{
 	/// obj_effect_handler. In short, it will cleanup any data that needs to be freed from memory that isn't 
 	/// collected by Game Maker's built-in garbage collection handler.
 	cleanup = function(){
-		// 
+		// Freeing the memory that could still potentially be reserved for each of the surfaces that are
+		// used in order to achieve all of the post-processing effects that exist within the game. Otherwise,
+		// they will remain allocated in memory with no reference to clear them from memory.
 		if (surface_exists(surfLight)) {surface_free(surfLight);}
 		if (surface_exists(surfBlurBuffer)) {surface_free(surfBlurBuffer);}
 		
-		// 
+		// Since this struct should exist for the entire duration of the game, all existing light sources
+		// will be removed from memory through this loop before the ds_list for managing and referencing
+		// those lights is cleared from memory.
 		var _length = ds_list_size(global.lightSources);
-		for (var i = 0; i < _length; i++) {delete global.lightSources[| i];}
+		for (var i = 0; i < _length; i++){
+			with(global.lightSources[| i].parentID) {object_remove_light_component(true);}
+			delete global.lightSources[| i];
+		}
 		ds_list_destroy(global.lightSources);
 	}
 	

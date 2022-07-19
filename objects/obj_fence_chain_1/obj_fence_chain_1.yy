@@ -5,6 +5,7 @@
   },
   "solid": false,
   "visible": false,
+  "managed": true,
   "spriteMaskId": {
     "name": "spr_fence_chain_1c",
     "path": "sprites/spr_fence_chain_1c/spr_fence_chain_1c.yy",

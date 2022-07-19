@@ -21,7 +21,8 @@
 /// @param fov
 /// @param direction
 /// @param persistent
-function obj_light_component(_x, _y, _radius, _color, _strength = 1, _fov = 360, _direction = 0, _persistent = false) constructor{
+/// @param trueLight
+function obj_light_component(_x, _y, _radius, _color, _strength = 1, _fov = 360, _direction = 0, _persistent = false, _trueLight = true) constructor{
 	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_light_component;
@@ -30,6 +31,11 @@ function obj_light_component(_x, _y, _radius, _color, _strength = 1, _fov = 360,
 	// space in memory) in pieces of code whenever necessary--particularly useful for checking if interactable
 	// objects are close enough to be interacted with. (When no flashlight is active)
 	id = noone;
+	
+	// Stores the unique ID value for the instance that this light component is attached to. This allows
+	// the component to always know exactly which instance is linked to them if the parent ever needs to
+	// be referenced through the light component.
+	parentID = noone;
 	
 	// Create two variables for the coordinates of the light within the game world, which are identical to
 	// the variable pair that is built into every Game Maker object by default.
@@ -49,6 +55,11 @@ function obj_light_component(_x, _y, _radius, _color, _strength = 1, _fov = 360,
 	strength = _strength;
 	fov = _fov;
 	isPersistent = _persistent;
+	
+	// A flag that lets interactable objects know that the current light instance isn't actually a light
+	// that exists within the game world. (Ex. The small, faint light around the player that illuminates
+	// them slightly when in complete darkness)
+	trueLight = _trueLight;
 	
 	/// @description A very simple function that allows the position of the light to be set in a single
 	/// line rather than the two it would normally required for both axes.
@@ -85,7 +96,7 @@ function obj_light_component(_x, _y, _radius, _color, _strength = 1, _fov = 360,
 		// The strength variable determines how bright the light is perceived in the game world. If this value
 		// is too low, it will barely illuminate the area and thus the interactable isn't recieving enough
 		// light for it to be "seen" without a flashlight or another light source.
-		if (strength < -8.0) {return -1;}
+		if (strength <= -8.0 || !trueLight) {return -1;}
 		
 		// The light is bright enough to have an effect. First, the distance between the origin point of the
 		// light and origin point of the interact component is compared against the light's radius multiplied
@@ -136,13 +147,15 @@ function obj_light_component(_x, _y, _radius, _color, _strength = 1, _fov = 360,
 /// @param fov
 /// @param direction
 /// @param persistent
-function object_add_light_component(_x, _y, _offsetX, _offsetY, _radius, _color, _strength = 1, _fov = 360, _direction = 0, _persistent = false){
+/// @param trueLight
+function object_add_light_component(_x, _y, _offsetX, _offsetY, _radius, _color, _strength = 1, _fov = 360, _direction = 0, _persistent = false, _trueLight = true){
 	if (lightComponent == noone){
 		// Create the light component and store its unique pointer within the entity's struct for keeping
 		// track of and manipulating said component after it's created. Add it to the global list of light
 		// sources as well for rendering.
-		lightComponent = new obj_light_component(_x, _y, _radius, _color, _strength, _fov, _direction, _persistent);
+		lightComponent = new obj_light_component(_x, _y, _radius, _color, _strength, _fov, _direction, _persistent, _trueLight);
 		lightComponent.id = lightComponent; // Stores the "ID" value for the struct
+		lightComponent.parentID = id; // Stores the object ID that is managing this light component
 		ds_list_add(global.lightSources, lightComponent);
 	
 		// Make sure the supplied offsets relative to the entity's actual position are stored within the
@@ -156,8 +169,9 @@ function object_add_light_component(_x, _y, _offsetX, _offsetY, _radius, _color,
 /// parent entity is deleted or the pointer is lost from the global render list without explicitly telling
 /// Game Maker to delete the struct. Putting this function in the entity's "Clean Up" event will prevent that
 /// from ever being an issue.
-function object_remove_light_component(){
-	if (lightComponent != noone && !lightComponent.isPersistent){
+/// @param removePersistent
+function object_remove_light_component(_removePersistent = false){
+	if (lightComponent != noone && (!lightComponent.isPersistent || _removePersistent) && ds_exists(global.lightSources, ds_type_list)){
 		var _index = ds_list_find_index(global.lightSources, lightComponent);
 		if (!is_undefined(_index)) {ds_list_delete(global.lightSources, _index);}
 		// Regardless if the light was part of the list for light source instances or not, it will still need

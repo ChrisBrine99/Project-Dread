@@ -423,6 +423,11 @@ equip_flashlight = function(_slot){
 	}
 	isFlashlightOn = true;
 	
+	// Updates all interactable's interact states such that the player can interact with them no matter
+	// if they're near an environmental light source or not because the player's flashlight will show the
+	// items regardless of that.
+	update_interactable_interact_state();
+	
 	// After setting up all the flashlight properties accordingly, set the flag in the item's struct
 	// for whether it's equipped or not to true, and set the flashlight's equipment slot to the slot
 	// index that the flashlight is stored.
@@ -444,10 +449,12 @@ unequip_flashlight = function(){
 	
 	// If the flashlight was toggled on by the player before they unequipped that light, the player's
 	// light component struct needs to have its properties reverted back to the default ambient light
-	// settings that is has when no flashlight is in use.
+	// settings that is has when no flashlight is in use. Also, all interactables will have their 
+	// interact states reset to what they were prior to the flashlight being activated.
 	if (isFlashlightOn){
 		with(lightComponent) {set_properties(12, HEX_VERY_DARK_GRAY, -1.5, 360);}
 		isFlashlightOn = false;
+		update_interactable_interact_state();
 	}
 	
 	// Finally, clear the flag value from the item struct's "isEquipped" flag so the inventory knows
@@ -476,8 +483,10 @@ toggle_flashlight = function(){
 	
 	// Flipping the flag that tells this function whether it should turn the light on (The player's
 	// lighting component will use the flashlight bulb's properties) or off. (The light will use the
-	// default values for the player's ambient light source)
+	// default values for the player's ambient light source) After that, update the interact state for
+	// all existing interactable objects to reflect the changed flashlight state.
 	isFlashlightOn = !isFlashlightOn;
+	update_interactable_interact_state();
 }
 
 #endregion
@@ -1132,7 +1141,7 @@ initialize = function(){
 	camera_set_state(STATE_FOLLOW_OBJECT, [id, 8]);
 	
 	// 
-	object_add_light_component(x, y, 0, -12, 32, HEX_VERY_DARK_GRAY, -10, 360, 0, true);
+	object_add_light_component(x, y, 0, -12, 32, HEX_VERY_DARK_GRAY, -10, 360, 0, true, false);
 	object_set_shadow(true, 6);
 
 	// 

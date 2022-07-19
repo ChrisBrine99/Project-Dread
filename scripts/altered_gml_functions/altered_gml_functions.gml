@@ -95,9 +95,10 @@ function place_meeting_3d(_x, _y, _z, _object){
 /// @param volume
 /// @param pitch
 /// @param stopPrevious
-function audio_play_sound_ext(_sound, _priority, _volume, _pitch, _stopPrevious){
+/// @param loopSound
+function audio_play_sound_ext(_sound, _priority, _volume, _pitch, _stopPrevious = false, _loopSound = false){
 	if (_stopPrevious && audio_is_playing(_sound)) {audio_stop_sound(_sound);}
-	var _soundID = audio_play_sound(_sound, _priority, false);
+	var _soundID = audio_play_sound(_sound, _priority, _loopSound);
 	audio_sound_gain(_soundID, _volume, 0);
 	audio_sound_pitch(_soundID, _pitch);
 	return _soundID; // Returns the unique ID for the sound played for easy manipulation outside of the function.
@@ -119,7 +120,7 @@ function audio_play_sound_ext(_sound, _priority, _volume, _pitch, _stopPrevious)
 /// @param maxDistance
 /// @param falloffFactor
 /// @param stopPrevious
-function audio_play_sound_at_ext(_x, _y, _sound, _priority, _volume, _pitch, _refDistance, _maxDistance, _falloffFactor, _stopPrevious){
+function audio_play_sound_at_ext(_x, _y, _sound, _priority, _volume, _pitch, _refDistance, _maxDistance, _falloffFactor = 1, _stopPrevious = false){
 	if (_stopPrevious && audio_is_playing(_sound)) {audio_stop_sound(_sound);}
 	var _soundID = audio_play_sound_at(_sound, _x, _y, 0, _refDistance, _maxDistance, _falloffFactor, false, _priority);
 	audio_sound_gain(_soundID, _volume, 0);

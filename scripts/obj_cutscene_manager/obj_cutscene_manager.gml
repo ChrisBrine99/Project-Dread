@@ -8,7 +8,6 @@
 #macro	CUTSCENE_JUMP_INDEX					CUTSCENE_MANAGER.cutscene_jump_to_index
 #macro	CUTSCENE_SET_EVENT_FLAG				CUTSCENE_MANAGER.cutscene_set_event_flag
 #macro	CUTSCENE_WAIT						CUTSCENE_MANAGER.cutscene_wait
-#macro	CUTSCENE_UNLOCK_CAMERA				CUTSCENE_MANAGER.cutscene_unlock_camera
 #macro	CUTSCENE_SET_CAMERA_STATE			CUTSCENE_MANAGER.cutscene_set_camera_state
 #macro	CUTSCENE_WAIT_FOR_CAMERA_POSITION	CUTSCENE_MANAGER.cutscene_wait_for_camera_position
 #macro	CUTSCENE_SET_CAMERA_SHAKE			CUTSCENE_MANAGER.cutscene_set_camera_shake
@@ -56,7 +55,10 @@ function obj_cutscene_manager() constructor{
 	// instruction function. After the first call, the "firstExecution" chunk will no longer be processed.
 	firstExecution = false;
 	
-	// 
+	// Variables that store the camera's state and the arguments that are required for said state to 
+	// function whenever the camera gets maniupulated by a given cutscene. The "cameraManipulated" flag is
+	// what tells the cutscene manager if the camera had its state altered at all, which then make the
+	// manager store the state data within these variables.
 	prevCameraState = NO_STATE;
 	prevCameraStateArgs = array_create(0, 0);
 	cameraManipulated = false;
@@ -161,13 +163,14 @@ function obj_cutscene_manager() constructor{
 				if (EVENT_GET_FLAG(eventFlagID) == eventTargetState) {instance_destroy(self);}
 			}
 			
-			// 
+			// Reapplies the state and state arguments back into the camera if they had been manipulated
+			// at all during the cutscene's instruction execution. The flag is then set to false to prevent
+			// an accidental overwrite curing a cutscene that never messed with the camera.
 			if (cameraManipulated){
 				CAMERA.camState = prevCameraState;
 				CAMERA.camStateArgs = prevCameraStateArgs;
 				cameraManipulated = false;
 			}
-			
 			
 			// Return all entity's back to the states they had before the cutscene began its execution by
 			// looping through each index in the map (Those maps are the IDs for each entity to allow for
@@ -248,50 +251,61 @@ function obj_cutscene_manager() constructor{
 	
 	/// -- Cutscene Functions for Manipulating the Camera -- //////////////////////////////////////////////////////////
 	
-	/// @description 
-	cutscene_unlock_camera = function(){
-		if (!cameraManipulated){
-			prevCameraState =		CAMERA.camState;
-			prevCameraStateArgs =	CAMERA.camStateArgs;
-			cameraManipulated = true;
-		}
-		camera_set_state(NO_STATE, array_create(0, 0));
-		cutscene_end_instruction(true);
-	}
-	
-	/// @description 
+	/// @description Applies a state to the camera; allowing it to be move freely around the current room
+	/// without having to worry about whatever object the camera was following prior to this instruction
+	/// being processed by the cutscene manager. If the camera's state hadn't been altered yet in the scene,
+	/// the previous state data will be stored in the cutscene's camera state storage variables so that
+	/// they are restored after the scene is finished.
 	/// @param state
 	/// @param arguments[]
 	cutscene_set_camera_state = function(_state, _arguments){
+		if (!cameraManipulated){
+			prevCameraState =		CAMERA.camState;
+			prevCameraStateArgs =	CAMERA.camStateArgs;
+			cameraManipulated =		true;
+		}
 		camera_set_state(_state, _arguments);
 		cutscene_end_instruction(true);
 	}
 	
-	/// @description 
-	/// @param targetX
-	/// @param targetY
-	cutscene_wait_for_camera_position = function(_targetX, _targetY){
+	/// @description Tells the cutscene manager to wait until the camera has reached the position it needs
+	/// to be at given the current movement state that is active for the camera. However, if the current
+	/// state wasn't set to one of those positional movement states, or if there isn't any state applied
+	/// to the camera for movement, the cutscene will simply skip over the instruction to prevent any
+	/// softlocking for an improperly setup cutscene instruction list.
+	cutscene_wait_for_camera_position = function(){
 		var _positionReached = false;
-		with(CAMERA) {_positionReached = (x == _targetX && y == _targetY);}
+		with(CAMERA){
+			_positionReached = !((camState == STATE_TO_POSITION || camState == STATE_TO_POSITION_SMOOTH) && array_length(camStateArgs) > 0);
+			if (!_positionReached) {_positionReached = (x == camStateArgs[X] && y == camStateArgs[Y]);}
+		}
 		if (_positionReached) {cutscene_end_instruction(false);}
 	}
 	
-	/// @description 
+	/// @description Applies a shake effect of a given strength and duration of time for the camera to 
+	/// apply to its current position. Optionally, this instruction can wait for that shake effect to 
+	/// complete its execution before moving onto the next instruction in the scene list.
 	/// @param shakeStrength
 	/// @param duration
 	/// @param waitForShake
 	cutscene_set_camera_shake = function(_shakeStrength, _duration, _waitForShake = false){
-		// 
+		// The first execution is where the shake is applied to the camera itself. Otherwise, the shake
+		// would be constantly reset to its strongest amount infinitely. Only allowing one execution of
+		// this code prevents this issue.
 		if (firstExecution){
 			camera_set_shake(_shakeStrength, _duration);
 			firstExecution = false;
 		}
 		
-		// 
+		// If the instruction is set to wait out the shake's duration, a check will be constantly performed
+		// and every call of this function until the strength of the shake goes below the threshold of 0.1.
+		// After that, the cutscene will move onto the next instruction.
 		var _shakeFinished = false;
 		with(CAMERA) {_shakeFinished = (shakeCurStrength < 0.1);}
 		
-		// 
+		// Finally, check if the cutscene should move onto the next instruction in the scene IF it was
+		// set to not wait for the shake to complete or if the shake has finished its execution on the
+		// camera's side of things.
 		if (!_waitForShake || (_waitForShake && _shakeFinished)) {cutscene_end_instruction(!_waitForShake);}
 	}
 	
@@ -563,7 +577,7 @@ function obj_cutscene_manager() constructor{
 		
 	}
 	
-	/// @description
+	/// @description 
 	/// @param 
 	cutscene_create_note = function(){
 		
@@ -573,25 +587,37 @@ function obj_cutscene_manager() constructor{
 
 	/// -- Cutscene Functions for Manipulating the Screen Fade -- /////////////////////////////////////////////////////
 	
-	/// @description 
+	/// @description Creates an instance of the screen fade object. It can be set to whatever color, speed,
+	/// and duration is desired for the current cutscene, while also having a flag set that can wait until
+	/// the fade in has completed before moving onto the next seen or if it should just move onto the next
+	/// scene instantly.
 	/// @param fadeColor
 	/// @param fadeSpeed
 	/// @param fadeDuration
 	/// @param waitForFadeIn
 	cutscene_invoke_screen_fade = function(_fadeColor, _fadeSpeed, _fadeDuration, _waitForFadeIn){
-		// 
+		// On the first execution of the instruction, the screen fade is created with the settings that
+		// were provided by the scene function's arguments; color, speed of the fade in and fade out, and
+		// the duration in frames. (1/60th of a real-world second)
 		if (firstExecution){
 			effect_create_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration);
 			firstExecution = false;
 		}
 		
-		// 
+		// After the screen fade object has been created, the instruction will then begin checking to see
+		// if the fade has to wait until its fully opaque or if the cutscene should just move on without
+		// any time spent waiting.
 		var _fadeComplete = false;
-		with(SCREEN_FADE) {_fadeComplete = (alpha == alphaTarget && alphaTarget == 1);}
+		with(SCREEN_FADE){
+			_fadeComplete = (alpha == alphaTarget && alphaTarget == 1);
+			show_debug_message(alpha);
+		}
 		if (!_waitForFadeIn || _fadeComplete) {cutscene_end_instruction(!_waitForFadeIn);}
 	}
 	
-	/// @description 
+	/// @description Another cutscene instruction that interacts with the screen fading graphical effect.
+	/// This instruction will call for the object to fade itself out; regardless of if the duration wasn't
+	/// reached yet OR if the screen fade was set to remain opaque for an indefinite amount of time.
 	/// @param waitForFadeOut
 	cutscene_end_screen_fade = function(_waitForFadeOut){
 		if (firstExecution){

@@ -14,3 +14,5 @@ var _length = ds_list_size(global.menuInstances);
 for (var i = 0; i < _length; i++){
 	with(global.menuInstances[| i]) {step();}
 }
+
+with(test) {step();}

@@ -104,7 +104,7 @@ function object_add_interact_component(_x, _y, _radius, _interactFunction, _inte
 /// ensuring it is removed by the garbage collector to free up memory. This should be placed in the "cleanup"
 /// event of ANY objects that use an interaction component struct.
 function object_remove_interact_component(){
-	if (interactComponent != noone){
+	if (interactComponent != noone && ds_exists(global.interactables, ds_type_list)){
 		var _index = ds_list_find_index(global.interactables, interactComponent);
 		if (!is_undefined(_index)) {ds_list_delete(global.interactables, _index);}
 		// Much like the light and audio component removal functions, the interact component's pointer must
@@ -112,6 +112,24 @@ function object_remove_interact_component(){
 		// remain in memory without a reference to it; a big bad memory leak.
 		delete interactComponent;
 		interactComponent = noone;
+	}
+}
+
+/// @description Loops through all currently loaded interactable component structs; checking their current
+/// interactability based on how far they are from a given light source, or if the player has a flashlight
+/// equipped and currently active, and so on.
+function update_interactable_interact_state(){
+	var _isFlashlightOn, _length;
+	_isFlashlightOn = PLAYER.isFlashlightOn;
+	_length = ds_list_size(global.interactables);
+	for (var i = 0; i < _length; i++){
+		with(global.interactables[| i]){
+			if (_isFlashlightOn){ // When the flashlight is on, the player will be able to interact no matter what.
+				canInteract = true;
+				continue;
+			}
+			can_player_interact();
+		}
 	}
 }
 

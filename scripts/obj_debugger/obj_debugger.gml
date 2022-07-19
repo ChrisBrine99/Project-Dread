@@ -238,7 +238,6 @@ function obj_debugger() constructor{
 			}
 		}
 		
-		//
 		with(PLAYER){
 			var _length, _key;
 			_length = ds_map_size(additionalEffects);
