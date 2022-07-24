@@ -205,8 +205,13 @@ function obj_textbox_handler() constructor{
 	shakeCurStrength = 0;
 	shakeDuration = 0;
 	
-	// 
+	// Determines the target index for the cutscene relative to decisions made/event flag states if there 
+	// is a textbox currently active. Otherwise, this variable goes unused.
 	cutsceneTargetIndex = -1;
+	
+	// 
+	textboxSound = NO_SOUND;
+	textboxSoundTimer = 0;
 	
 	/// @description Code that should be placed into the "Step event of whatever object is controlling
 	/// obj_textbox_handler. In short, it checks for input from the game's currently active input device
@@ -224,10 +229,14 @@ function obj_textbox_handler() constructor{
 			actorSwap = false;
 		}
 		
-		// In order to prevent the player from animating in place if they were moving when a textbox opens,
-		// their sprite needs to be set to the standing sprite in whatever direction they were facing.
-		if (isTextboxActive){
-			with(PLAYER) {set_sprite(spr_player_unarmed_stand0, 0);}
+		// Only attempt to play the textbox's "text scrolling" sound effect if there isn't a sound being
+		// played by the current textbox and if the textbox still has text to place onto the textbox.
+		if (curCharacter < finalCharacter && (textboxSound == NO_SOUND || !audio_is_playing(textboxSound))){
+			textboxSoundTimer -= DELTA_TIME;
+			if (textboxSoundTimer <= 0){
+				audio_play_sound_ext(snd_textbox_scroll, 100, SOUND_VOLUME * 0.3, 1, true);
+				textboxSoundTimer = global.settings.textSpeed * 2; // Timer is always twice the speed of the text.
+			}
 		}
 		
 		// Don't allow any input to be processed by the textbox if it currently isn't actively displaying
@@ -377,10 +386,11 @@ function obj_textbox_handler() constructor{
 		}
 		
 		// Only allow the textbox's text-to-surface rendering to occur while there are actually still parts
-		// of the string that haven't been rendered onto said surface. After that, all that needs to be done
-		// is simply rendering that texture, so this entire chunk will be ignored; saving processing time
+		// of the string that haven't been rendered onto said surface AND there isn't a sound effect assigned 
+		// to this textbox that is currently playing. If both are checked, all that needs to be done is 
+		// simply rendering that texture, so this entire chunk will be ignored; saving processing time
 		// that would be useless otherwise.
-		if (nextCharacter < finalCharacter + 1){
+		if (nextCharacter < finalCharacter + 1 && (textboxSound == NO_SOUND || !audio_is_playing(textboxSound))){
 			nextCharacter += textSpeed * DELTA_TIME;
 			
 			// If there isn't a possibility to render a new character onto the text surface, don't bother
@@ -500,7 +510,9 @@ function obj_textbox_handler() constructor{
 						_nextWordWidth += string_width(_curCharExt) * _xScale;
 					}
 					
-					// 
+					// If the character was set to skip over itself make sure the value stored within the
+					// "curSharacter" variable is updated to match that skip, and that the rendering for
+					// the character is skipped over through the use of "continue".
 					if (_skipCharacter){
 						curCharacter++;
 						continue;
@@ -620,6 +632,7 @@ function obj_textbox_handler() constructor{
 				}
 			} else{ // Filling out the textbox's text instantly
 				nextCharacter = finalCharacter;
+				textboxSoundTimer = 0;
 			}
 		}
 	}
@@ -712,7 +725,7 @@ function obj_textbox_handler() constructor{
 	/// @param xScale
 	/// @param yScale
 	draw_character = function(_character, _color = HEX_WHITE, _outlineColor = RGB_GRAY, _xScale = 1, _yScale = 1){
-		if (characterX == 0 && _character == " ") {return;}
+		//if (characterX == 0 && _character == " ") {return;}
 		draw_text_outline((2 * _xScale) + characterX + textOffsetX, 1 + characterY, _character, _color, _outlineColor, 1, _xScale, _yScale);
 	}
 	
@@ -772,51 +785,48 @@ function obj_textbox_handler() constructor{
 		}
 	}
 	
-	/// @description 
+	/// @description A function that resets the necessary variables and calls the required functions to
+	/// update the data shown by the textbox to match the newly assigned index determined by the argument
+	/// value for this function. If that index is out of the valid range and values or the previous index
+	/// had called for the textbox to close, it will also automatically perform that closing setup.
 	/// @param nextIndex
 	open_next_textbox = function(_nextIndex){
-		// 
+		// Store the previous index (Used for determining if an actor swap is necessary) for the textbox
+		// and then assign the new index to replace that value. Then, check if the textbox needs to be
+		// closed given that index value or the value in the "closeTextbox" flag.
+		var _previousIndex = curTextboxIndex;
 		curTextboxIndex = _nextIndex;
-		if (curTextboxIndex > 0){
-			// 
-			if (curTextboxIndex == totalTextboxes || closeTextbox){
-				alphaTarget = 0;
-				actorSwap = false;
-				return; // Exit the event since the textbox is now closed.
-			}
-		
-			// Stores either true or false to let the textbox know it needs to perform its closing and 
-			// opening animation in between the two textboxes. This is done since a new actor is in
-			// control of the upcoming textbox.
-			actorSwap = (textboxData[| curTextboxIndex - 1].actorID != textboxData[| curTextboxIndex].actorID);
-			if (actorSwap){ // Begin closing animation if a new actor is next to use the textbox
-				alphaTarget = 0;
-				return; // Exit the event since the next textbox opens AFTER the closing animation
-			}
+		if (curTextboxIndex < 0 || curTextboxIndex >= totalTextboxes || closeTextbox){
+			alphaTarget = 0;
+			actorSwap = false;
+			return; // Exit the event since the textbox is now closed.
 		}
 		
-		// Reset the character offset values to ensure the characters for the next textbox aren't
-		// placed at the wrong coordinates for the surface.
+		// Check if an actor swap is required. If so, the rest of this function is skipped until the
+		// "closing" animation has played for the textbox box. Only after that will the data for the
+		// textbox will be updated.
+		actorSwap = (textboxData[| _previousIndex].actorID != textboxData[| curTextboxIndex].actorID);
+		if (actorSwap){
+			alphaTarget = 0;
+			return;
+		}
+		
+		// Reset the variables that are responsible for determining the position and color of the current 
+		// character on the textbox.
 		characterX = 0;
 		characterY = 0;
-		
-		// Also, reset all the typerwriter effect variables in order to begin it again with the new
-		// chunk of text to be rendered. Reset the text color variables back to the defaults in case they
-		// weren't reset by the end of the previous textbox's text rendering finished.
 		curCharacter = 1;
 		nextCharacter = 1;
 		textColor = HEX_WHITE;
 		textOutlineColor = RGB_GRAY;
 		
-		// Call the functions that will apply the additional optional effects for the newly opened textbox;
-		// whether it should close out the textbox handler earlier, play a sound, apply the shaking effect,
-		// and whatever other effects are able to occur on a per-textbox basis; the other function updating
-		// the actor information used to color the textbox, show a name, and even their current portrait
-		// to show alongside the text.
+		// Call the functions that update and apply extra textbox effects (The final character's index, 
+		// textbox shaking, or a sound effect to play) and the function that updates the current actor's
+		// displayed information. (Portrait image, textbox color, etc.)
 		apply_extra_textbox_effects(curTextboxIndex);
 		update_current_actor_info(actorSwap);
 		
-		// Reset the text surface by clearing out the buffer of any data and applying that cleared
+		// Finall, reset the text surface by clearing out the buffer of any data and applying that cleared
 		// out data to the surface, which should set every pixel to (0, 0, 0, 0).
 		if (!surface_exists(surfText)) {surfText = surface_create(textboxWidth, textboxHeight);}
 		buffer_fill(surfTextBuffer, 0, buffer_u32, 0, textboxWidth * textboxHeight * 4);
@@ -931,26 +941,40 @@ function obj_textbox_handler() constructor{
 		isTextboxActive = false;
 	}
 	
-	/// @description 
+	/// @description A function that condenses all of the additional textbox effect logic into a function.
+	/// In short, it updates the value for the final character, checks if there are any shake effects or
+	/// sounds to execute, and finally if the current textbox should close the handler early or not.
 	/// @param index
 	apply_extra_textbox_effects = function(_index){
-		// 
+		// First, attempt to grab the data struct found at the current index within the data for the
+		// current textboxes. If there isn't any valid data stored at the given index within the list,
+		// the function will exit and no variables will be updated.
 		var _textbox = textboxData[| _index];
 		if (is_undefined(_textbox)) {return;}
 		
-		// 
+		// Grab the numerical index for the final character's position within the string that is stored
+		// in the current textbox struct.
 		finalCharacter =	string_length(_textbox.fullText);
 		
-		// 
+		// Next, apply the values for the shake data for the current textbox to the handler's variables,
+		// which are then used to execute the optional shaking effect for the current textbox. The state
+		// for the textbox is paused for the duration of shaking effect.
 		shakeCurStrength =	_textbox.shakeData[0];
 		shakeDuration =		_textbox.shakeData[1];
 		if (shakeCurStrength != 0 && shakeDuration != 0) {object_set_next_state(NO_STATE);}
 		
-		// 
-		var _soundEffect = _textbox.soundEffect; // Stores the array reference for a cleaner look for the function call below.
-		if (_soundEffect[0] != NO_SOUND) {audio_play_sound_ext(_soundEffect[0], 0, _soundEffect[1], _soundEffect[2], false);}
+		// After that, check if there is a sound effect that needs to be played by the textbox handler.
+		// If there is a valid sound effect, it will be played and the textbox will be paused until the
+		// sound has finished playing.
+		var _soundEffect = _textbox.soundEffect;
+		if (_soundEffect[0] != NO_SOUND){
+			audio_play_sound_ext(_soundEffect[0], 0, _soundEffect[1], _soundEffect[2], false);
+			textboxSound = _soundEffect[0];
+		}
 	
-		// 
+		// Store the boolean value that each textbox struct contains to determine whether or not it
+		// should close early or not; a value of "true" meaning the textbox will close regardless of if
+		// it's the final textbox index or not.
 		closeTextbox =		_textbox.closeTextbox;
 	}
 }
@@ -967,7 +991,7 @@ function textbox_begin_execution(){
 		// Don't bother reinitializing the textbox if it's currently in an active state.
 		if (isTextboxActive) {return;}
 		
-		// 
+		// Always make sure the textbox's index is set to the first in the list of textbox data.
 		curTextboxIndex = 0;
 		
 		// Reset the offset position values that will be used for rendering the next character onto the
@@ -1027,6 +1051,10 @@ function textbox_begin_execution(){
 			// for the textbox's execution duration.
 			GAME_SET_STATE(GameState.Cutscene);
 		}
+		
+		// Make sure the player's sprite is set to their standing animation. Otherwise they'll freeze in
+		// place while still using whatever animation they were in prior to the textbox opening.
+		with(PLAYER) {set_sprite(spr_player_unarmed_stand0, 0);}
 		
 		// Display the textbox's controls at the bottom of the screen; right below the actual textbox. If the
 		// textbox isn't currently set to log text, that input will not be shown; only the "next" input will

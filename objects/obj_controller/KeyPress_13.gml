@@ -5,9 +5,13 @@
 //						+ GREEN + "*green, *" + BLUE + "*blue.");
 //textbox_begin_execution();
 
-if (WEATHER_RAIN != noone){
-	effect_end_weather_rain();
-	return;
-}
+music_set_next_song(Music.Test);
 
-effect_create_weather_rain();
+//if (WEATHER_RAIN != noone || WEATHER_FOG != noone){
+//	effect_end_weather_rain(true);
+	//effect_end_weather_fog(true);
+//	return;
+//}
+
+//effect_create_weather_rain(false, true);
+//effect_create_weather_fog(true);

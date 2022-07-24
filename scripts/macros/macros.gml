@@ -141,6 +141,12 @@
 #macro	X						0
 #macro	Y						1
 
+// Macros that replace the array index values for what is returned by the "load_external_sound_wav" function.
+// These values refer to the audio buffer that was created for sound playback, and the buffer that the audio's
+// data is being referenced from. Both need to be managed and deleted to avoid memory leaks.
+#macro	AUDIO_DATA				0
+#macro	AUDIO_BUFFER			1
+
 #endregion
 
 #region Color hex value macros (ALL ARE IN BGR FORMAT)

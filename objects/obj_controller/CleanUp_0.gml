@@ -1,11 +1,6 @@
-// 
-with(par_dynamic_entity) {instance_destroy(self);}
-with(par_static_entity) {instance_destroy(self);}
-
 // Destroy each singleton; cleaning up all their allocated data in the form of data structures, surfaces, and so
 // on. For the player, the cleanup event is automatically called by GML's "instance_destroy" function, but for
 // the other struct singletons their cleanups must be called before their pointer's deletion.
-										delete PLAYER;				PLAYER = noone;
 with(CAMERA)			{cleanup();}	delete CAMERA;				CAMERA = noone;
 with(MUSIC_HANDLER)		{cleanup();}	delete MUSIC_HANDLER;		MUSIC_HANDLER = noone;
 with(EFFECT_HANDLER)	{cleanup();}	delete EFFECT_HANDLER;		EFFECT_HANDLER = noone;
@@ -14,6 +9,8 @@ with(TEXTBOX_HANDLER)	{cleanup();}	delete TEXTBOX_HANDLER;		TEXTBOX_HANDLER = no
 with(DEPTH_SORTER)		{cleanup();}	delete DEPTH_SORTER;		DEPTH_SORTER = noone;
 with(CONTROL_INFO)		{cleanup();}	delete CONTROL_INFO;		CONTROL_INFO = noone;
 										delete SCREEN_FADE;			SCREEN_FADE = noone;
+with(WEATHER_RAIN)		{cleanup();}	delete WEATHER_RAIN;		WEATHER_RAIN = noone;
+with(WEATHER_FOG)		{cleanup();}	delete WEATHER_FOG;			WEATHER_FOG = noone;
 with(DEBUGGER)			{cleanup();}	delete DEBUGGER;			DEBUGGER = noone;
 
 // Destroy all existing menus and clean up their structs by calling each of their "menu_cleanup" functions.
@@ -57,7 +54,7 @@ ds_list_destroy(global.collectedItems);
 // Remove the event struct from memory and the map it contains that stores all of the event flag states
 // that are currently being utilized within the game. After that, the struct itself is signalled to be
 // destroyed from memory after it is cleaned up.
-with(global.events) {cleanup();} 
+with(global.events) {cleanup();}
 delete global.events;
 
 // After cleaning up all the singletones and their allocated memory, clean up all of the global data structures

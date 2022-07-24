@@ -4,7 +4,7 @@
   "volume": 1.0,
   "preload": false,
   "bitRate": 128,
-  "sampleRate": 44100,
+  "sampleRate": 32000,
   "type": 1,
   "bitDepth": 1,
   "audioGroupId": {
@@ -15,7 +15,7 @@
   "duration": 0.283542,
   "parent": {
     "name": "Footsteps",
-    "path": "folders/Resources/Audio/Sound Effects/Entities/Dynamic/Player/Footsteps.yy",
+    "path": "folders/Resources/Audio/Entities/Dynamic/Player/Footsteps.yy",
   },
   "resourceVersion": "1.0",
   "name": "snd_player_step_gravel",

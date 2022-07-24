@@ -194,7 +194,7 @@ function obj_debugger() constructor{
 		// Always display entity rendering information on the screen; how many entities have been drawn
 		// for the current room view and how many drop shadows have been drawn as well.
 		draw_set_halign(fa_right);
-		draw_text_outline(CAM_WIDTH - 5, 5, "Drawn Entities: " + string(DEPTH_SORTER.entitiesDrawn) + "\nDrawn Shadows: " + string(DEPTH_SORTER.shadowsDrawn) + "\n\nAmmoRemaining: " + string(PLAYER.weaponData.ammoRemaining), HEX_WHITE, RGB_GRAY, 1);
+		draw_text_outline(CAM_WIDTH - 5, 5, "Drawn Entities: " + string(DEPTH_SORTER.entitiesDrawn) + "\nDrawn Shadows: " + string(DEPTH_SORTER.shadowsDrawn), HEX_WHITE, RGB_GRAY, 1);
 		
 		// Loop through all of the currently available debug messages and display them to the screen in the
 		// order of their creation, which is the newest (index 0) to the oldest message. (index "n")

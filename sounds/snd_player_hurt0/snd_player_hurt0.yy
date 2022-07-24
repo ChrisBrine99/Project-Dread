@@ -15,7 +15,7 @@
   "duration": 0.191104,
   "parent": {
     "name": "Voice",
-    "path": "folders/Resources/Audio/Sound Effects/Entities/Dynamic/Player/Voice.yy",
+    "path": "folders/Resources/Audio/Entities/Dynamic/Player/Voice.yy",
   },
   "resourceVersion": "1.0",
   "name": "snd_player_hurt0",

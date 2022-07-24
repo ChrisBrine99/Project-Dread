@@ -261,6 +261,33 @@ function is_special_character(_char){
 
 #endregion
 
+#region Additional file loading functions
+
+/// @description
+/// @param filepath
+/// @param sampleRate
+/// @param audioChannel
+function load_external_sound_wav(_filepath, _sampleRate, _audioChannel){
+	// 
+	var _file = buffer_load(_filepath);
+	if (_file == -1){
+		show_debug_message("Buffer could not be created!");
+		return;
+	}
+	
+	// 
+	var _filesize, _buffer;
+	_filesize = buffer_get_size(_file);
+	_buffer = buffer_create(_filesize, buffer_fixed, 1);
+	buffer_copy(_file, 0, _filesize, _buffer, 0);
+	buffer_delete(_file);
+	
+	// 
+	return [audio_create_buffer_sound(_buffer, buffer_s16, _sampleRate, 0, _filesize, _audioChannel), _buffer];
+}
+
+#endregion
+
 #region Additional math functions
 
 /// @description A simple function that linearly adds or subtracts a given value towards the supplied target

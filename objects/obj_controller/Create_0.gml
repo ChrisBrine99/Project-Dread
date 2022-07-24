@@ -15,6 +15,10 @@ doorIndicatorAlphaTarget = 0;
 interactPromptAlpha = 0;
 interactPrompt = "";
 
+
+
+testSnd = NO_SOUND;
+
 #endregion
 
 #region Function Initialization

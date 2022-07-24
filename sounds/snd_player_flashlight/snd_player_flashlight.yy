@@ -4,7 +4,7 @@
   "volume": 1.0,
   "preload": false,
   "bitRate": 128,
-  "sampleRate": 44100,
+  "sampleRate": 32000,
   "type": 0,
   "bitDepth": 1,
   "audioGroupId": {
@@ -15,7 +15,7 @@
   "duration": 0.201111,
   "parent": {
     "name": "Miscellaneous",
-    "path": "folders/Resources/Audio/Sound Effects/Entities/Dynamic/Player/Miscellaneous.yy",
+    "path": "folders/Resources/Audio/Entities/Dynamic/Player/Miscellaneous.yy",
   },
   "resourceVersion": "1.0",
   "name": "snd_player_flashlight",

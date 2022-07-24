@@ -43,7 +43,8 @@ function obj_depth_sorter() constructor{
 	shadowsDrawn = 0;
 	
 	/// @description Code that should be placed into the "room start" event of whatever object is controlling
-	/// obj_depth_sorter. In short, 
+	/// obj_depth_sorter. In short, it will grab the ID values for the wall layers that the depth sorter
+	/// is responsible for rendering in between the entities and their drop shadows.
 	room_start = function(){
 		// First, get the layer IDs for the tilemap layers themselves, since they have to be checked for
 		// validity before any tilemap IDs can be grabbed and their data can be tweaked.
