@@ -73,6 +73,23 @@ function obj_effect_handler() constructor{
 	intensityTarget =	0;
 	intensityModifier = 0.001;
 	
+	// 
+	surfBloomLum = noone;
+	bloomTextureID = noone;
+	
+	// 
+	sBloomThreshold =	shader_get_uniform(shd_bloom_luminance, "threshold");
+	sBloomRange =		shader_get_uniform(shd_bloom_luminance, "range");
+	
+	// 
+	sBloomIntensity =	shader_get_uniform(shd_bloom_blend, "intensity");
+	sBloomDarken =		shader_get_uniform(shd_bloom_blend, "darkenAmount");
+	sBloomSaturation =	shader_get_uniform(shd_bloom_blend, "saturation");
+	sBloomTexture =		shader_get_sampler_index(shd_bloom_blend, "bloomTexture");
+	
+	// 
+	sAbrIntensity =		shader_get_uniform(shd_aberration, "intensity");
+	
 	// Variables that allow the sprite used for the film grain effect to move sporadically across the screen.
 	// In short, the size is used to track the range for the offset values (Both the x and y values will use
 	// the same limit value) that are randomly updated on a per-frame basis within the game.
@@ -104,7 +121,9 @@ function obj_effect_handler() constructor{
 	/// the application surface, but BEFORE the game's GUI surface. For example, the screen blurring and
 	/// bloom effects are applied here.
 	draw_gui_begin = function(){
-		render_screen_blur();
+		if (global.settings.bloomEffect)		{apply_screen_bloom();}
+		if (global.settings.abberationEffect)	{apply_chromatic_aberration();}
+		render_screen_blur(application_surface, blurRadius, blurIntensity);
 	}
 	
 	/// @description Code that should be placed into the "Draw GUI End" event of whatever object is controlling
@@ -220,10 +239,13 @@ function obj_effect_handler() constructor{
 	/// screen with a blur applied to them. It's a two-pass system that will blur in one direction, then
 	/// take that first pass's result and draw it back to the application surface for the second direction's
 	/// blur; creating an accurate gaussian blur effect in the game.
-	render_screen_blur = function(){
+	/// @param baseSurface
+	/// @param blurRadius
+	/// @param blurIntensity
+	render_screen_blur = function(_baseSurface, _blurRadius, _blurIntensity){
 		// Don't waste time attempting to render the screen blur if there isn't a possibility of it being
 		// visible to the user due to either of these two parameters being zeroed out.
-		if (blurRadius == 0 || blurIntensity == 0) {return;}
+		if (_blurRadius == 0 || _blurIntensity == 0) {return;}
 		
 		// Make sure the buffer surface for the blurring effect exists within the GPU's memory before
 		// any processing of the effect has begun. It's dimensions are the same as the window's.
@@ -234,16 +256,16 @@ function obj_effect_handler() constructor{
 		// fragment) its intensity, (How blurry the image will be overall) and the values for the texel
 		// width and height of each pixel for the screen. (THese are normalized values between 0 and 1)
 		shader_set(shd_screen_blur);
-		shader_set_uniform_f(sBlurRadius, blurRadius);
+		shader_set_uniform_f(sBlurRadius, _blurRadius);
 		shader_set_uniform_f(sBlurTexelSize, windowTexelWidth, windowTexelHeight);
-		shader_set_uniform_f(sBlurIntensity, blurIntensity);
+		shader_set_uniform_f(sBlurIntensity, _blurIntensity);
 		
 		// Once the parameters for the shader have been properly set/updated, the first pass of the shader
 		// will draw the application surface to the blur's buffer surface; applying the horizontal blurring
 		// to it. (What axis is blurred first doesn't actually matter to the shader)
 		shader_set_uniform_f(sBlurDirection, 1, 0);
 		surface_set_target(surfBlurBuffer);
-		draw_surface(application_surface, 0, 0);
+		draw_surface(_baseSurface, 0, 0);
 		surface_reset_target();
 		
 		// After the first pass is completed, the buffer surface containing that first pass texture will be
@@ -256,6 +278,65 @@ function obj_effect_handler() constructor{
 		shader_reset();
 	}
 	
+	/// @description The function that handles rendering the bloom effect in the game. This effect will
+	/// result in a bright blur on pixels that are already bright to begin with; increasing the overall
+	/// contrast of the image and also mimicking how our eyes and camera lenses react to very bright colors.
+	apply_screen_bloom = function(){
+		// First, make sure the surface used to store the pixels on the screen that are bright enough to
+		// be altered by this screen blooming function. The ID given to that surface is also stored since
+		// it is required for the blending of the luminance surface and the application surface.
+		if (!surface_exists(surfBloomLum)){
+			surfBloomLum = surface_create(CAM_WIDTH, CAM_HEIGHT);
+			bloomTextureID = surface_get_texture(surfBloomLum);
+		}
+		
+		// First, the luminance for the application surface is calculated using the respective shader for
+		// parsing out those bright pixels. The threshold for which pixels are grabbed from the application
+		// surface or not is set, and the range that "fades out" the bright pixels to darken (threshold - 
+		// range; anything lower than that result is pure black on the surface) relative to the completely
+		// affected pixels.
+		shader_set(shd_bloom_luminance);
+		shader_set_uniform_f(sBloomThreshold, 0.9);
+		shader_set_uniform_f(sBloomRange, 0.075);
+		surface_set_target(surfBloomLum);
+		draw_surface(application_surface, 0, 0);
+		surface_reset_target();
+		shader_reset();
+		
+		// Next, the blurring shader needs to be utilized in order to create the bloom effect using the
+		// luminance shader that was calculated with the first shader pass above. After this, a blurred
+		// surface is created to then be blended with the base application surface.
+		render_screen_blur(surfBloomLum, 4, 0.15);
+		
+		// The next and final shader pass for this blooming effect is executed here; determining how the
+		// blending will occur between the bloom luminance surface and the base application surface.
+		// These values along with a saturation to add a little more to the blooming all have their values
+		// set to prepare them for use in rendering.
+		shader_set(shd_bloom_blend);
+		shader_set_uniform_f(sBloomIntensity, 0.25);
+		shader_set_uniform_f(sBloomDarken, 0.9);
+		shader_set_uniform_f(sBloomSaturation, 0.95);
+		
+		// In order to blend the surfaces, the texture ID for the bloom luminance surface is send to the
+		// shader; allowing it to reference colors wihtin that surface for use in the base texture's color.
+		// The bloom surface has its interpolation turned on to make the blooming smooth.
+		texture_set_stage(sBloomTexture, bloomTextureID);
+		gpu_set_tex_filter_ext(sBloomTexture, true);
+		draw_surface(application_surface, 0, 0);
+		gpu_set_tex_filter(false);
+		shader_reset();
+	}
+	
+	/// @description A simple function that applies a chromatic aberration effect to the edges of whatever
+	/// is in the current camera view. Aberration is a color distortion that occurs towards the edges of
+	/// certain camera lenses; causing a "split" in colors as the light enters closer to the edge of said
+	/// lens. These four lines reproduce that effect within the game.
+	apply_chromatic_aberration = function(){
+		shader_set(shd_aberration);
+		shader_set_uniform_f(sAbrIntensity, 0.01);
+		draw_surface(application_surface, 0, 0);
+		shader_reset();
+	}
 	
 	/// @description A simple function that simulates a film grain effect on top of the game's image. It will
 	/// do so by picking a new randomized coordinate to offset itself by and then it will used that offset to
