@@ -292,21 +292,30 @@ world_collision = function(_deltaHspd, _deltaVspd, _destroyOnCollide){
 /// will simply update the animation speed modifier on every call--allowing for on-the-fly control of the
 /// animation's overall speed.
 /// @param spriteIndex
+/// @param imageIndex
 /// @param animationSpeed
-set_sprite = function(_spriteIndex, _animationSpeed){
+set_sprite = function(_spriteIndex, _imageIndex = 0, _animationSpeed = 1){
 	// Only update the sprite variables when a sprite change has occurred. Otherwise, grabbing these values
 	// on every function call (These sprite changes should occur within state functions, which run every step)
 	// will waste time since the values don't change.
 	if (sprite_index != _spriteIndex){
 		sprite_index = _spriteIndex;
+		imageIndex = loopOffset + _imageIndex;
 		spriteAnimSpeed = sprite_get_speed(sprite_index);
 		spriteLength = sprite_get_number(sprite_index);
 		loopLength = spriteLength / 4; // Each sprite contains 4 unique directional animations. (Up, down, right, and left)
 	}
 	
-	// The animation speed variable, which allows the sprite's animation to be sped up and slowed down 
-	// relative to the sprite resource's base animation speed, is updated every time this function is called.
-	animSpeed = _animationSpeed;
+	// Whenever the animation speed for a given entity sprite is updated, ensure that the image index is
+	// updated alongside it UNLESS the value for image index argument is -1; only then will the animation
+	// resume or freeze on whatever frame the entity was at prior to this animation speed change.
+	if (animSpeed != _animationSpeed){
+		if (_imageIndex != -1){
+			loopOffset = (loopLength * round(direction / SPRITE_ANGLE_DELTA)) % spriteLength;
+			imageIndex = loopOffset + _imageIndex;
+		}
+		animSpeed = _animationSpeed;
+	}
 }
 
 /// @description 

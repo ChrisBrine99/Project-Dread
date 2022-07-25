@@ -217,6 +217,9 @@ function obj_textbox_handler() constructor{
 	/// obj_textbox_handler. In short, it checks for input from the game's currently active input device
 	/// and then it manipulates the textbox accordingly.
 	step = function(){
+		// Prevent execution of the step event whenever the textbox isn't currently in its active state.
+		if (!isTextboxActive) {return;}
+		
 		// Waiting until the textbox fades away before completing the transition to the new textbox data;
 		// resetting all necessary variables in order to allow this new textbox to display its text properly.
 		if (actorSwap && alpha == 0){
@@ -238,6 +241,10 @@ function obj_textbox_handler() constructor{
 				textboxSoundTimer = global.settings.textSpeed * 2; // Timer is always twice the speed of the text.
 			}
 		}
+		
+		// Make sure the player's sprite is set to their standing animation. Otherwise they'll freeze in
+		// place while still using whatever animation they were in prior to the textbox opening.
+		with(PLAYER) {set_sprite(mainSprite, 1, 0);}
 		
 		// Don't allow any input to be processed by the textbox if it currently isn't actively displaying
 		// text to the player OR while it's animation. Failing to check if there is a state will result
@@ -1051,10 +1058,6 @@ function textbox_begin_execution(){
 			// for the textbox's execution duration.
 			GAME_SET_STATE(GameState.Cutscene);
 		}
-		
-		// Make sure the player's sprite is set to their standing animation. Otherwise they'll freeze in
-		// place while still using whatever animation they were in prior to the textbox opening.
-		with(PLAYER) {set_sprite(spr_player_unarmed_stand0, 0);}
 		
 		// Display the textbox's controls at the bottom of the screen; right below the actual textbox. If the
 		// textbox isn't currently set to log text, that input will not be shown; only the "next" input will

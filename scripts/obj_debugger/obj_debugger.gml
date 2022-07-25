@@ -220,20 +220,20 @@ function obj_debugger() constructor{
 				// Display a default value for the empty item slot, which is just the text "---" next to the
 				// relative slot number, which is the _itemViewOffset variables value's with one added.
 				if (global.items[_itemViewOffset] == noone){
-					draw_text_outline(5, 5 + (j * 10), string(_itemViewOffset + 1) + ": " + NO_ITEM, HEX_WHITE, RGB_GRAY, 1);
+					draw_text_outline(5, 25 + (j * 10), string(_itemViewOffset + 1) + ": " + NO_ITEM, HEX_WHITE, RGB_GRAY, 1);
 					continue;
 				}
 			
 				// If there is an item struct current stored within the slot, the name of that item and its
 				// current quantity will be rendered alongside the slot's numerical value.
 				with(global.items[_itemViewOffset]){
-					draw_text_outline(5, 5 + (j * 10), string(_itemViewOffset + 1) + ": " + itemName, HEX_WHITE, RGB_GRAY, 1);
-					draw_text_outline(125, 5 + (j * 10), "x" + string(quantity), HEX_WHITE, RGB_GRAY, 1);
+					draw_text_outline(5, 25 + (j * 10), string(_itemViewOffset + 1) + ": " + itemName, HEX_WHITE, RGB_GRAY, 1);
+					draw_text_outline(125, 25 + (j * 10), "x" + string(quantity), HEX_WHITE, RGB_GRAY, 1);
 				
 					// If the item is currently equipped to the player in some way, (Ex. weapons, armor,
 					// amulets, flashlight, and a throwable items) an E will be drawn next to the quantity
 					// to show that is the case.
-					if (isEquipped) {draw_text_outline(140, 5 + (j * 10), "E", HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, 1);}
+					if (isEquipped) {draw_text_outline(140, 25 + (j * 10), "E", HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, 1);}
 				}
 			}
 		}

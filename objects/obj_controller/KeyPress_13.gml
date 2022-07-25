@@ -5,7 +5,7 @@
 //						+ GREEN + "*green, *" + BLUE + "*blue.");
 //textbox_begin_execution();
 
-music_set_next_song(Music.Test);
+music_set_next_song(Music.Test2);
 
 //if (WEATHER_RAIN != noone || WEATHER_FOG != noone){
 //	effect_end_weather_rain(true);

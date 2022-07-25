@@ -93,17 +93,13 @@ inputMaps = false;
 // two variations of the standing and walking sprites: one for when they have more than 50% health,
 // and another for when they are below that percentage threshold; which plays an animation to show
 // that the character is injured.
-standSprite =		spr_player_unarmed_stand0;
-walkSprite =		spr_player_unarmed_walk0;
-hurtStandSprite =	spr_player_unarmed_stand0;
-hurtWalkSprite =	spr_player_unarmed_walk0;
+mainSprite =		spr_player_unarmed0;
 
 // The three sprites for the player that are set on a per-weapon basis. Unlike the standard walking
 // and standing sprites, these will not have an injured variation since that would be unecessary
 // details for something that might actually hinder the gameplay.
-aimingSprite =		spr_player_unarmed_stand0; // TEMP VALUE
-reloadSprite =		spr_player_unarmed_walk0; // TEMP VALUE
-useSprite =			spr_player_unarmed_walk0; // TEMP VALUE
+reloadSprite =		spr_player_unarmed0; // TEMP VALUE
+useSprite =			spr_player_unarmed0; // TEMP VALUE
 
 // Variables for the game's 8-directional movement system. The first value is simply a value of 0
 // or 1 depending on if there is valid input detected on either movement axis. The second variable
@@ -597,7 +593,6 @@ equip_weapon = function(_slot){
 	
 	// 
 	//useSprite =			_itemData[? WEAPON_USE_SPRITE];
-	//aimingSprite =		_itemData[? WEAPON_AIMING_SPRITE];
 	//reloadSprite =		_itemData[? WEAPON_RELOAD_SPRITE];
 	
 	// Loop through all the available ammunition types in order to set the index value for swapping
@@ -1145,7 +1140,7 @@ initialize = function(){
 	object_set_shadow(true, 6);
 
 	// 
-	set_sprite(spr_player_unarmed_stand0, 0);
+	set_sprite(mainSprite, 1, 0);
 
 	// 
 	maxHspd = 0.65;
@@ -1328,7 +1323,7 @@ play_footstep_sound = function(){
 __state_cutscene_move = state_cutscene_move; // Stores the parent function before overriding it.
 state_cutscene_move = function(){
 	__state_cutscene_move();
-	set_sprite(walkSprite, 1);
+	set_sprite(mainSprite, 0, 1);
 	play_footstep_sound();
 }
 
@@ -1339,6 +1334,7 @@ state_default = function(){
 	// First, get the input from the player's current control method (Either gamepad or keyboard)
 	// and then check if the movement needs to be updates based on the character movement inputs
 	// with the "update_movement" function.
+	var _prevInputMagnitude = inputMagnitude;
 	check_player_input();
 	update_movement();
 	
@@ -1357,12 +1353,12 @@ state_default = function(){
 	// the standing sprite will be used otherwise.
 	if (inputMagnitude != 0){
 		direction = inputDirection; // Only update the player's direction when there is valid input.
-		set_sprite(walkSprite, 1);
+		set_sprite(mainSprite, 0, 1);
 		// Call the function responsible for handling footstep sounds during this chunk of code 
 		// that only runs when the player is moving/recieving input from the user.
 		play_footstep_sound();
 	} else{
-		set_sprite(standSprite, 1);
+		set_sprite(mainSprite, 1, 0);
 		// Stop the footstep sound from playing so it doesn't continue playing while the player
 		// is no longer moving. Also, reset the flag to play the next footstep sound to true.
 		if (audio_is_playing(curFootstepSound)) {audio_stop_sound(curFootstepSound);}
@@ -1409,7 +1405,7 @@ state_weapon_ready = function(){
 	// Otherwise, the sprite will simply be drawn based on the direction the player is facing.
 	inputMagnitude = ((inputRight - inputLeft) != 0) || ((inputDown - inputUp) != 0);
 	if (inputMagnitude != 0) {direction = point_direction(0, 0, (inputRight - inputLeft), (inputDown - inputUp));}
-	set_sprite(aimingSprite, 0);
+	set_sprite(mainSprite, 1, 0);
 }
 
 /// @description The state that the player enters whenever they fire a ranged weapon. (The grenade 
@@ -1421,7 +1417,7 @@ state_weapon_recovery = function(){
 	fireRateTimer -= DELTA_TIME;
 	if (fireRateTimer <= 0) {object_set_next_state(state_weapon_ready);}
 	
-	set_sprite(useSprite, 0); // Lock animation speed to match the length of the recoil
+	set_sprite(useSprite, -1, 0); // Lock animation speed to match the length of the recoil
 	imageIndex = loopOffset + ((1 - (fireRateTimer / weaponData.fireRate)) * loopLength);
 }
 
@@ -1437,7 +1433,7 @@ state_weapon_reload = function(){
 		reload_weapon(equipSlot.weapon);
 	}
 	
-	set_sprite(reloadSprite, 0);  // Lock animation speed to match the length of the reload
+	set_sprite(reloadSprite, -1, 0);  // Lock animation speed to match the length of the reload
 	imageIndex = loopOffset + ((1 - (reloadRateTimer / timeToReload)) * loopLength);
 }
 
@@ -1475,7 +1471,7 @@ state_weapon_spaced_bullets = function(){
 		// value is measured in "frames", where 1/60th of a real-world second is a frame) and also
 		// resetting the weapon's use sprite's animation for the next possible bullet spawning.
 		bulletSpacingTimer = weaponData.bulletSpacing;
-		imageIndex = 0;
+		imageIndex = loopOffset;
 		
 		// Finally, remove one from the weapon's magazine (This is the same as the quantity value
 		// for regular stacking items; hence the "quantity--". Also, decrement the remaining sum 
@@ -1487,7 +1483,7 @@ state_weapon_spaced_bullets = function(){
 	// Set the sprite for this state to be the weapon's use animation, which is automatically reset
 	// every time a new bullet is spawned in order to match the animation to the bullets actually
 	// being created in the game world itself.
-	set_sprite(useSprite, 1);
+	set_sprite(useSprite, 0, 1);
 }
 
 /// @description 
