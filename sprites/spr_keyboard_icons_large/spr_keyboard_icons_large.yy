@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMSprite",
+  "resourceVersion": "1.0",
+  "name": "spr_keyboard_icons_large",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -24,51 +27,25 @@
   "gridX": 2,
   "gridY": 2,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"b131d0f3-41a0-4d39-a2be-ac5371e992ea","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"b131d0f3-41a0-4d39-a2be-ac5371e992ea","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"b131d0f3-41a0-4d39-a2be-ac5371e992ea","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"04cd1365-cae4-43b0-bc22-a2bad83a0178","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"04cd1365-cae4-43b0-bc22-a2bad83a0178","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"04cd1365-cae4-43b0-bc22-a2bad83a0178","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"71a2a57b-80b9-4d18-98a1-266d6d525e70","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"71a2a57b-80b9-4d18-98a1-266d6d525e70","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"71a2a57b-80b9-4d18-98a1-266d6d525e70","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"9142547c-8823-42b5-807f-5e2ebcbe4548","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"9142547c-8823-42b5-807f-5e2ebcbe4548","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"9142547c-8823-42b5-807f-5e2ebcbe4548","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"bf019f1b-d183-4d83-8b0a-40876fb15648","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"bf019f1b-d183-4d83-8b0a-40876fb15648","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"bf019f1b-d183-4d83-8b0a-40876fb15648","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"0ca9d232-2ba0-4e46-9a3e-f51252705423","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"0ca9d232-2ba0-4e46-9a3e-f51252705423","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"0ca9d232-2ba0-4e46-9a3e-f51252705423","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"5aefd767-eb6d-4bb0-ae07-83a4c74b4ae0","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"5aefd767-eb6d-4bb0-ae07-83a4c74b4ae0","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"5aefd767-eb6d-4bb0-ae07-83a4c74b4ae0","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"e9e5d7f0-6b8e-4c27-b513-b7029526fe1d","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"e9e5d7f0-6b8e-4c27-b513-b7029526fe1d","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"e9e5d7f0-6b8e-4c27-b513-b7029526fe1d","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"96ea72e1-6cee-41fe-8bce-f869984a5761","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"96ea72e1-6cee-41fe-8bce-f869984a5761","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"96ea72e1-6cee-41fe-8bce-f869984a5761","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"d9863f88-027d-466d-83c0-cfe0267735dd","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"d9863f88-027d-466d-83c0-cfe0267735dd","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"d9863f88-027d-466d-83c0-cfe0267735dd","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"deea810c-7130-4ead-856c-2341bb04e275","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"imported","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"deea810c-7130-4ead-856c-2341bb04e275","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"deea810c-7130-4ead-856c-2341bb04e275","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"97ef5600-0a65-403d-b9fe-3b08f9572afd","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"97ef5600-0a65-403d-b9fe-3b08f9572afd","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"97ef5600-0a65-403d-b9fe-3b08f9572afd","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"41c5dbf6-8d34-4cfd-99b0-8a4076dbeec5","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"41c5dbf6-8d34-4cfd-99b0-8a4076dbeec5","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"41c5dbf6-8d34-4cfd-99b0-8a4076dbeec5","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"78c13540-776d-4a53-9281-2d776c7bc11e","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"78c13540-776d-4a53-9281-2d776c7bc11e","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"LayerId":{"name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","name":"78c13540-776d-4a53-9281-2d776c7bc11e","tags":[],"resourceType":"GMSpriteFrame",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"b131d0f3-41a0-4d39-a2be-ac5371e992ea",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"04cd1365-cae4-43b0-bc22-a2bad83a0178",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"71a2a57b-80b9-4d18-98a1-266d6d525e70",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"9142547c-8823-42b5-807f-5e2ebcbe4548",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"bf019f1b-d183-4d83-8b0a-40876fb15648",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"0ca9d232-2ba0-4e46-9a3e-f51252705423",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"5aefd767-eb6d-4bb0-ae07-83a4c74b4ae0",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"e9e5d7f0-6b8e-4c27-b513-b7029526fe1d",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"96ea72e1-6cee-41fe-8bce-f869984a5761",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"d9863f88-027d-466d-83c0-cfe0267735dd",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"deea810c-7130-4ead-856c-2341bb04e275",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"97ef5600-0a65-403d-b9fe-3b08f9572afd",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"41c5dbf6-8d34-4cfd-99b0-8a4076dbeec5",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"78c13540-776d-4a53-9281-2d776c7bc11e",},
   ],
   "sequence": {
-    "spriteId": {"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},
+    "resourceType": "GMSequence",
+    "resourceVersion": "1.4",
+    "name": "spr_keyboard_icons_large",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 15.0,
@@ -79,7 +56,7 @@
     "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
-      {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
+      {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
             {"id":"d537d073-559f-4654-a03f-da68c3d7fcea","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"b131d0f3-41a0-4d39-a2be-ac5371e992ea","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"92419e75-658f-482a-8536-4ccfe13dc68b","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"04cd1365-cae4-43b0-bc22-a2bad83a0178","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"9927d21d-508c-44aa-b2c5-c49c804382ef","Key":2.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"71a2a57b-80b9-4d18-98a1-266d6d525e70","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
@@ -94,7 +71,7 @@
             {"id":"8db227f7-159a-456e-a46d-835941580031","Key":11.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"97ef5600-0a65-403d-b9fe-3b08f9572afd","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"3a9f373d-418c-4c4a-b425-919716731584","Key":12.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"41c5dbf6-8d34-4cfd-99b0-8a4076dbeec5","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"685aecee-1384-432f-960c-107d3e5c9029","Key":13.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"78c13540-776d-4a53-9281-2d776c7bc11e","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
+          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
     "lockOrigin": true,
@@ -110,22 +87,13 @@
     "yorigin": 0,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"spr_keyboard_icons_large","path":"sprites/spr_keyboard_icons_large/spr_keyboard_icons_large.yy",},
-    "resourceVersion": "1.4",
-    "name": "spr_keyboard_icons_large",
-    "tags": [],
-    "resourceType": "GMSequence",
   },
   "layers": [
-    {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","tags":[],"resourceType":"GMImageLayer",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"33b0e67b-313e-402c-81b1-2ff5224e92ac","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
     "name": "Keyboard",
     "path": "folders/Resources/Graphics/Sprites/UI/Control Icons/Keyboard.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "spr_keyboard_icons_large",
-  "tags": [],
-  "resourceType": "GMSprite",
 }

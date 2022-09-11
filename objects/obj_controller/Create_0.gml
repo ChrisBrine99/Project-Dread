@@ -15,10 +15,6 @@ doorIndicatorAlphaTarget = 0;
 interactPromptAlpha = 0;
 interactPrompt = "";
 
-
-
-testSnd = NO_SOUND;
-
 #endregion
 
 #region Function Initialization
@@ -29,10 +25,10 @@ testSnd = NO_SOUND;
 /// directions depending on where the door is facing in the room relative to the camera's perspective. It 
 /// slowly fades in and out of visibility until the player moves too far from said door, which will stop 
 /// the arrow from continuing to render.
-/// @param playerX
-/// @param playerY
-/// @param cameraX
-/// @param cameraY
+/// @param {Real}	playerX
+/// @param {Real}	playerY
+/// @param {Real}	cameraX
+/// @param {Real}	cameraY
 draw_door_indicator = function(_playerX, _playerY, _cameraX, _cameraY){
 	// First, all the doors need to have their distances from the player's current position calculated to
 	// see which is the actual door that is closest to them. An arrow will be drawn for each door that is

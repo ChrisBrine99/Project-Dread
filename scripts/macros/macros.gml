@@ -1,6 +1,7 @@
-/// @description Stores all constant values used within the code that aren't specifically tailored to an 
-/// object or struct. Things like color code macros, item names, key values for certain global ds_maps, 
-/// and so on.
+/// @description Stores all constant values that are used all throughout the game's code. From values like
+/// keyboard inputs that aren't covered by the built-in vk_* constants, to unique colors, game settings, input
+/// bindings, keys for important data structures; all global constants are found here. (Object specific macros
+/// will be placed in the Create Event or script file since they are only used by that object/script)
 
 #region Additional vk_* macros for letters, numbers, and other keyboard keys
 
@@ -47,7 +48,7 @@
 // Virtual keyboard constants for any other keys that aren't covered by Game Maker's default vk_* constants
 #macro	vk_capslock				20
 #macro	vk_numberlock			144
-#macro	vk_scrolllock			145		
+#macro	vk_scrolllock			145
 #macro	vk_semicolon			186		// Also ":"
 #macro	vk_equal				187		// Also "+"
 #macro	vk_comma				188		// Also "<"
@@ -90,8 +91,10 @@
 #macro	KEY_SELECT				global.settings.keySelect			// Menu interaction inputs
 #macro	KEY_RETURN				global.settings.keyReturn
 #macro	KEY_FILE_DELETE			global.settings.keyFileDelete
+#macro	KEY_ADVANCE				global.settings.keyAdvance			// Textbox inputs
+#macro	KEY_LOG					global.settings.keyLog
 
-// Macro values for all of the GAMEPAD input bindings
+// Macro values for all of the GAMEPAD input bindings.
 #macro	PAD_GAME_RIGHT			global.settings.gpadGameRight		// Movement inputs
 #macro	PAD_GAME_LEFT			global.settings.gpadGameLeft
 #macro	PAD_GAME_UP				global.settings.gpadGameUp
@@ -117,6 +120,8 @@
 #macro	PAD_SELECT				global.settings.gpadSelect			// Menu interaction inputs
 #macro	PAD_RETURN				global.settings.gpadReturn
 #macro	PAD_FILE_DELETE			global.settings.gpadFileDelete
+#macro	PAD_ADVANCE				global.settings.gpadAdvance			// Textbox inputs
+#macro	PAD_LOG					global.settings.gpadLog
 
 #endregion
 
@@ -124,9 +129,10 @@
 
 // Constants that represent their respective default or "zero" values--representing the value that any 
 // variable SHOULD be set to whenever it doesn't have a valid reference to whatever they represent.
-#macro	NO_STATE			   -1
-#macro	NO_SOUND			   -2
-#macro	NO_FUNCTION			   -3
+#macro	NO_STATE			   -20
+#macro	NO_SOUND			   -21
+#macro	NO_FUNCTION			   -22
+#macro	NO_SPRITE			   -23
 
 // A macro replacement for the value that is returned by the built-in "object_get_parent" function when there
 // is no parent object assigned to the object in question. 
@@ -226,7 +232,8 @@
 #macro	GAME_STATE_PREVIOUS		global.gameState.lastState
 #macro	GAME_SET_STATE			global.gameState.set_state
 
-// 
+// Constants that allow easy reference to the delta timing variables for physics/general timing calculations
+// and the current amount of in-game playtime that the player has racked up thus far.
 #macro	DELTA_TIME				global.gameTime.deltaTime
 #macro	GET_IN_GAME_TIME		global.gameTime.get_current_in_game_time
 
@@ -241,7 +248,9 @@
 #macro	IS_RUN_TOGGLE			global.settings.isRunToggle
 #macro	IS_AIM_TOGGLE			global.settings.isAimToggle
 
-// 
+// Constants to condense the code required to reference the game's current values for gameplay/combat and 
+// puzzle difficulty, repsectively. On top of that, variables that adjust certain aspects of the game (player
+// damage, enemy damage/health, saving restrictions, etc.) are also stored in constants for easy reference.
 #macro	GAME_DIFFICULTY			global.gameplay.combatDifficulty
 #macro	PUZZLE_DIFFICULTY		global.gameplay.puzzleDifficulty
 #macro	PLAYER_DAMAGE_MOD		global.gameplay.pDamageModifier
@@ -268,16 +277,9 @@
 #macro	EVENT_SET_FLAG			global.events.set_flag
 #macro	EVENT_GET_FLAG			global.events.get_flag
 
-#endregion
-
-#region Controller GUI and description constants
-
-// Macros that store the unique guid value and description for a given controller. In short, all supported
-// controllers will have constants located here.
-#macro	XINPUT_GAMEPAD			"none,XInput STANDARD GAMEPAD"
-#macro	SONY_DUALSHOCK_FOUR		"4c05cc09000000000000504944564944,Sony DualShock 4"
-#macro	SONY_DUALSENSE			"4c05e60c000000000000504944564944,Wireless Controller"
-#macro	SWITCH_PRO_CONTROLLER	""
+// 
+#macro	GAMEPAD_DEVICE_ID		global.gamepad.deviceID
+#macro	GAMEPAD_IS_ACTIVE		global.gamepad.isActive
 
 #endregion
 
@@ -330,10 +332,10 @@
 #macro	WEAPON_BULLET_SPACING	"Spacing"			// Value > 0 means bullets show out sequentially; == 0 means all bullets spawn at once
 #macro	WEAPON_HIT_FRAME		"Hit Frame"			// Stat is exclusive to melee weaponry
 #macro	WEAPON_AMMO_TYPES		"Ammo Types"
-#macro	WEAPON_BARREL_POSITION	"Barrel Pos"
-#macro	WEAPON_USE_SPRITE		"Use Sprite"
-#macro	WEAPON_AIMING_SPRITE	"Aiming Sprite"
-#macro	WEAPON_RELOAD_SPRITE	"Reload Sprite"
+#macro	WEAPON_GROUP_ID			"Group ID"
+#macro	WEAPON_SPRITES			"Weapon Sprites"
+#macro	WEAPON_POSITION			"Weapon Position"
+#macro	WEAPON_BARREL_POSITION	"Barrel Position"
 /// TODO -- Add sound effect key values here for using the weapon, and reloading.
 
 // Macro that contains the key value for accessing the weapon stat modifier values for a given ammunition.

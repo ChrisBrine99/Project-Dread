@@ -7,4 +7,4 @@
 //DEBUG_ADD_MESSAGE(id,	"Hitpoints: " + string(hitpoints) + "/" + string(get_max_hitpoints()) + "\n" +
 //						"Stamina: " + string(stamina) + "/" + string(get_max_stamina()));
 
-add_additional_effect(irandom_range(EFFECT_DAMAGE_RESIST, EFFECT_HITPOINT_REGEN), choose(INDEFINITE_EFFECT_DURATION, 6000, 9000, 12000, 15000, 18000));
+//add_additional_effect(irandom_range(EFFECT_DAMAGE_RESIST, EFFECT_HITPOINT_REGEN), choose(INDEFINITE_EFFECT_DURATION, 6000, 9000, 12000, 15000, 18000));

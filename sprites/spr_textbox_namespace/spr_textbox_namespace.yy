@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMSprite",
+  "resourceVersion": "1.0",
+  "name": "spr_textbox_namespace",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -8,13 +11,13 @@
   "collisionTolerance": 0,
   "swfPrecision": 2.525,
   "bbox_left": 1,
-  "bbox_right": 22,
+  "bbox_right": 5,
   "bbox_top": 1,
   "bbox_bottom": 12,
   "HTile": false,
   "VTile": false,
   "For3D": false,
-  "width": 24,
+  "width": 7,
   "height": 13,
   "textureGroupId": {
     "name": "Default",
@@ -24,12 +27,12 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"806bc6f0-f6dd-4a97-9192-a86f871243ef","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"806bc6f0-f6dd-4a97-9192-a86f871243ef","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},"LayerId":{"name":"c375be08-89a6-4068-aec4-0d2e2a266e45","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_textbox_namespace","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},"resourceVersion":"1.0","name":"806bc6f0-f6dd-4a97-9192-a86f871243ef","tags":[],"resourceType":"GMSpriteFrame",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"806bc6f0-f6dd-4a97-9192-a86f871243ef",},
   ],
   "sequence": {
-    "spriteId": {"name":"spr_textbox_namespace","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},
+    "resourceType": "GMSequence",
+    "resourceVersion": "1.4",
+    "name": "spr_textbox_namespace",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 30.0,
@@ -40,9 +43,9 @@
     "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
-      {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
+      {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
             {"id":"6d81647c-e5dc-4ad9-968a-ca6608438f2a","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"806bc6f0-f6dd-4a97-9192-a86f871243ef","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
+          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
     "lockOrigin": false,
@@ -58,19 +61,14 @@
     "yorigin": 0,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"spr_textbox_namespace","path":"sprites/spr_textbox_namespace/spr_textbox_namespace.yy",},
-    "resourceVersion": "1.4",
-    "name": "spr_textbox_namespace",
-    "tags": [],
-    "resourceType": "GMSequence",
   },
   "layers": [
-    {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"c375be08-89a6-4068-aec4-0d2e2a266e45","tags":[],"resourceType":"GMImageLayer",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"c375be08-89a6-4068-aec4-0d2e2a266e45","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": {
-    "left": 8,
+    "left": 3,
     "top": 7,
-    "right": 8,
+    "right": 3,
     "bottom": 0,
     "guideColour": [
       4294902015,
@@ -96,8 +94,4 @@
     "name": "Textbox",
     "path": "folders/Resources/Graphics/Sprites/UI/Textbox.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "spr_textbox_namespace",
-  "tags": [],
-  "resourceType": "GMSprite",
 }

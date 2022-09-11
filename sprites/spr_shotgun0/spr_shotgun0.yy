@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMSprite",
+  "resourceVersion": "1.0",
+  "name": "spr_shotgun0",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -24,15 +27,13 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"adf1385c-e881-4211-8d0b-fe0ea42884d7","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"adf1385c-e881-4211-8d0b-fe0ea42884d7","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"LayerId":{"name":"ec408eb0-51cc-4fd5-8d27-f24868a72ffa","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_shotgun0","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","name":"adf1385c-e881-4211-8d0b-fe0ea42884d7","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"fef49c5e-f81f-4de0-aa32-fa301697dbeb","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"fef49c5e-f81f-4de0-aa32-fa301697dbeb","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"LayerId":{"name":"ec408eb0-51cc-4fd5-8d27-f24868a72ffa","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_shotgun0","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","name":"fef49c5e-f81f-4de0-aa32-fa301697dbeb","tags":[],"resourceType":"GMSpriteFrame",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"adf1385c-e881-4211-8d0b-fe0ea42884d7",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"fef49c5e-f81f-4de0-aa32-fa301697dbeb",},
   ],
   "sequence": {
-    "spriteId": {"name":"spr_shotgun0","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},
+    "resourceType": "GMSequence",
+    "resourceVersion": "1.4",
+    "name": "spr_shotgun0",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 30.0,
@@ -40,16 +41,16 @@
     "autoRecord": true,
     "volume": 1.0,
     "length": 2.0,
-    "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore`1","elementType":"MessageEventKeyframe",},
-    "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore`1","elementType":"MomentsEventKeyframe",},
+    "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
+    "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
-      {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"b1a0665e-8936-45ed-8b02-1d2c66c94ac2","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"adf1385c-e881-4211-8d0b-fe0ea42884d7","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe`1","elementType":"SpriteFrameKeyframe",},
-            {"id":"8edfe4d8-1149-4ae3-b62a-b8b4fac5cab1","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"fef49c5e-f81f-4de0-aa32-fa301697dbeb","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe`1","elementType":"SpriteFrameKeyframe",},
-          ],"resourceVersion":"1.0","resourceType":"KeyframeStore`1","elementType":"SpriteFrameKeyframe",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
+      {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
+            {"id":"b1a0665e-8936-45ed-8b02-1d2c66c94ac2","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"adf1385c-e881-4211-8d0b-fe0ea42884d7","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"8edfe4d8-1149-4ae3-b62a-b8b4fac5cab1","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"fef49c5e-f81f-4de0-aa32-fa301697dbeb","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
-    "lockOrigin": false,
+    "lockOrigin": true,
     "showBackdrop": true,
     "showBackdropImage": false,
     "backdropImagePath": "",
@@ -62,22 +63,13 @@
     "yorigin": 0,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"spr_shotgun0","path":"sprites/spr_shotgun0/spr_shotgun0.yy",},
-    "resourceVersion": "1.4",
-    "name": "spr_shotgun0",
-    "tags": [],
-    "resourceType": "GMSequence",
   },
   "layers": [
-    {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"ec408eb0-51cc-4fd5-8d27-f24868a72ffa","tags":[],"resourceType":"GMImageLayer",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"ec408eb0-51cc-4fd5-8d27-f24868a72ffa","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
     "name": "Weapons",
     "path": "folders/Resources/Graphics/Sprites/Entities/Dynamic/Player/Weapons.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "spr_shotgun0",
-  "tags": [],
-  "resourceType": "GMSprite",
 }

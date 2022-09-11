@@ -664,11 +664,11 @@ function par_menu() constructor{
 	/// within the current object state that the menu may be in. Once the animation has met its desired
 	/// ending conditions, an optional ending function can be called before the menu's current object state
 	/// code resumes execution.
-	/// @param animationState
-	/// @param animationStateArgs
-	/// @param completionFunction
-	/// @param completionFunctionArgs
-	set_animation_state = function(_animationState, _animationStateArgs, _animationEndFunction = NO_STATE, _animationEndFunctionArgs = -1){
+	/// @param {Function}	animationState
+	/// @param {Array}		animationStateArgs
+	/// @param {Function}	completionFunction
+	/// @param {Array}		completionFunctionArgs
+	set_animation_state = function(_animationState, _animationStateArgs, _animationEndFunction = NO_STATE, _animationEndFunctionArgs = array_create(0)){
 		var _animationFunction = method_get_index(_animationState);
 		// Only set the animation state up if a valid function was provided AND the "state arguments" array
 		// variable actually being an array of data; otherwise the animation code will crash the program.

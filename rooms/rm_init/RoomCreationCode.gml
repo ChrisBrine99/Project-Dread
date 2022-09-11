@@ -16,7 +16,7 @@ global.sInstances[? KEY_PLAYER] = instance_create_depth(0, 0, 30, obj_player);
 
 // By default, all keyboard icons are set to keyboard. (Since this is the PC version...) This function will
 // initialize the control info icons to that control method.
-control_info_set_icons_keyboard();
+CONTROL_INFO.initialize_input_icons();
 
 // Finally, once all the initialization has completed, move into the first true room of the game.
 room_goto(rm_test01);

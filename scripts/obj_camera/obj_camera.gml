@@ -113,19 +113,16 @@ function obj_camera() constructor{
 	// object, and so on. The second of the two variables is an array containing all the required arguments
 	// for the function stored in the first variable.
 	camState = NO_STATE;
-	camStateArgs = -1;
+	camStateArgs = array_create(0);
 	
-	// Variables that are responsible for managing the camera's optional shaking effect that can be temporarily
-	// applied to the viewport. The first two variables store the origin point of the shake at the given
-	// moment; otherwise the shake will swing the camera all over the place. Next, the set strength and
-	// current strength store how strong the shake began at and what it currently is in real time. Finally,
-	// the last variable is simply the duration in "physics" frame (60 = 1 second) that the shake should
-	// last for before ending.
-	shakeOriginX = 0;
-	shakeOriginY = 0;
-	shakeSetStrength = 0;
-	shakeCurStrength = 0;
-	shakeDuration = 0;
+	// 
+	shakeData = {
+		originX :		0,
+		originY :		0,
+		initialPower :	0,
+		curPower :		0,
+		duration :		0,
+	};
 	
 	// Creating the camera and placing its unique ID into a variable. After the initialization, use the
 	// returned ID to alter the size of the camera's view into the game world to the desired size and
@@ -144,18 +141,21 @@ function obj_camera() constructor{
 	display_set_gui_size(CAM_WIDTH, CAM_HEIGHT);
 	
 	/// @description Code that should be placed into the "End Step" event of whatever object is controlling
-	/// obj_camera. In short, it is ran every frame and checks to see if there is a valid movement function
-	/// attached to the camera. If there is one, it will execute it; letting said function handle all the
-	/// logic based on what it is designed to do.
+	/// obj_camera. In short, it handles executing the current movement state and the camera's shake effect 
+	/// that can occur for it if said effect happens to be currently active.
 	end_step = function(){
 		if (camState != NO_STATE) {script_execute_ext(camState, camStateArgs);}
 		
-		// Apply the shake effect to the camera's position based on its current strength relative to its
-		// starting strength and the duration of the shake in real seconds. (1 = second = 60 in the code)
-		// The duration determines how fast the strength of the shake will decrease.
-		if (shakeCurStrength > 0){
-			shakeCurStrength -= shakeSetStrength / shakeDuration * DELTA_TIME;
-			camera_set_view_pos(cameraID, shakeOriginX + irandom_range(-shakeCurStrength, shakeCurStrength), shakeOriginY + irandom_range(-shakeCurStrength, shakeCurStrength));
+		// Update the shake effect by slowly lowering its intensity until it reaches or goes below a value
+		// of zero. The shake is based on an "origin" position instead of the camera's actual position in
+		// order to allow the object's position within the deadzone to remain relatively consistent both 
+		// before and after the shake effect occurs.
+		with(shakeData){
+			if (curPower > 0){
+				curPower -= initialPower / duration * DELTA_TIME;
+				other.x = originX + irandom_range(-curPower, curPower);
+				other.y = originY + irandom_range(-curPower, curPower);
+			}
 		}
 	}
 	
@@ -186,8 +186,8 @@ function obj_camera() constructor{
 	/// given "frame" of game physics' speed. (60 = 1 second of real-time) On top of that, it prevents the
 	/// camera's position from being a non-integer value, which would cause the pixels to be rendered in
 	/// odd offset shapes.
-	/// @param hspd
-	/// @param vspd
+	/// @param {Real}	hspd
+	/// @param {Real}	vspd
 	update_position = function(_hspd, _vspd){
 		// First things first, the delta movement amount for the frame must be calculated.
 		var _hspdDelta, _vspdDelta;
@@ -222,16 +222,16 @@ function obj_camera() constructor{
 		// After everything has been calculated, update the origin point of the camera's shaking calculations
 		// and update the viewport to be at those same previously calculated x and y positions.
 		camera_set_view_pos(cameraID, x, y);
-		shakeOriginX = x;
-		shakeOriginY = y;
+		shakeData.originX = x;
+		shakeData.originY = y;
 	}
 	
 	/// @description A movement function for the camera that centers itself on a given object; that object
 	/// being a unique ID provided within the _objectID argument space. The camera will remain stationary
 	/// whilst the object is within a defined "deadzone" and will only begin moving with the object when it
 	/// reaches the bounds of said deadzone.
-	/// @param objectID
-	/// @param deadzoneSize
+	/// @param {Id.Instance}	objectID
+	/// @param {Real}			deadzoneSize
 	move_follow_object = function(_objectID, _deadzoneSize){
 		// First, the target position needs to be acquired, which will then be checked against the camera's
 		// current coordinates to see if movement needs to occur. If there is no valid object for the given
@@ -250,9 +250,8 @@ function obj_camera() constructor{
 		// First, create two variables that store the camera's position within the room, but offset it by half
 		// the width and height in order to center to coordinate within the camera. This will then be used in
 		// tandem with the _deadzoneSize variable in order to see if movement should occur.
-		var _cameraX, _cameraY;
-		_cameraX = x + CAM_HALF_WIDTH;
-		_cameraY = y + CAM_HALF_HEIGHT;
+		var _cameraX = x + CAM_HALF_WIDTH;
+		var _cameraY = y + CAM_HALF_HEIGHT;
 		
 		// Checking for horizontal movement; clamping the player to the edge of the deadzone for that 
 		// respective direction until they cease moving in said direction.
@@ -263,29 +262,27 @@ function obj_camera() constructor{
 		if (_targetY >= _cameraY + _deadzoneSize)		{_cameraY = _targetY - _deadzoneSize;}
 		else if (_targetY <= _cameraY - _deadzoneSize)	{_cameraY = _targetY + _deadzoneSize;}
 		
-		// Next, set the coordinates for the camera to be equal to the _cameraX and _cameraY values, but
-		// with their offsets removed since no more calculations will occur. 
+		// Update the position of the camera to whatever its new position SHOULD be after checking if the
+		// object it is currently following has surpassed the deadzone range in the camera's center. After,
+		// make sure the camera doesn't exceed its bounds if the view is locked to only show the room's
+		// area. Finally, update the camera's view position and shake effect's new origin position.
 		x = _cameraX - CAM_HALF_WIDTH;
 		y = _cameraY - CAM_HALF_HEIGHT;
-		shakeOriginX = x;	// Don't forget to store the shake origin for an accurate shake effect!
-		shakeOriginY = y;
-		
-		// Finally, lock the position of the camera to within the valid bounds of the current room given its
-		// dimensions. This will prevent the edges of the room from being bypassed by the view. After that has
-		// been checked and corrected, the camera's view position is updated for the frame.
 		if (lockViewBounds){
 			x = clamp(x, 0, room_width - CAM_WIDTH);
 			y = clamp(y, 0, room_height - CAM_HEIGHT);
 		}
 		camera_set_view_pos(cameraID, x, y);
+		shakeData.originX = x;
+		shakeData.originY = y;
 	}
 	
 	/// @description A simple function that moves the camera to the provided position within the current room.
 	/// If the view bounaries are locked, the target position will be locked within the valid range of values
 	/// should the X of Y targets exceed said ranges.
-	/// @param targetX
-	/// @param targetY
-	/// @param moveSpeed
+	/// @param {Real}	targetX
+	/// @param {Real}	targetY
+	/// @param {Real}	moveSpeed
 	move_to_position = function(_targetX, _targetY, _moveSpeed){
 		// If the camera is set to lock its bounds within the valid values for the current room make sure 
 		// that the target values are clamped to said ranges for the X and Y axis, respectively.
@@ -314,11 +311,11 @@ function obj_camera() constructor{
 	/// @description A simple function that moves the camera much like the function above, but it moves with
 	/// a relative speed instead of a linear speed. This means that as the camera approaches its target, the
 	/// speed that it moves per-physics frame will be slower and slower.
-	/// @param targetX
-	/// @param targetY
-	/// @param moveSpeed
+	/// @param {Real}	targetX
+	/// @param {Real}	targetY
+	/// @param {Real}	moveSpeed
 	move_to_position_smooth = function(_targetX, _targetY, _moveSpeed){
-		// This chunk of code operates the exact same way that it does in the function "camera_move_to_position"
+		// This chunk of code operates the exact same way that it does in the function "camera_move_to_position".
 		if (lockViewBounds){
 			_targetX = clamp(_targetX, 0, room_width - CAM_WIDTH);
 			_targetY = clamp(_targetY, 0, room_height - CAM_HEIGHT);
@@ -345,17 +342,16 @@ function obj_camera() constructor{
 	/// change on a per-frame basis in some cases. So, it will constantly update that target position until
 	/// the camera reaches the target values, and then the function is by whatever it found in the final
 	/// two argument spaces.
-	/// @param objectID
-	/// @param moveSpeed
-	/// @param nextFunction
-	/// @param nextFunctionArgs
-	move_to_object = function(_objectID, _moveSpeed, _nextFunction = NO_STATE, _nextFunctionArgs = -1){
+	/// @param {Id.Instance}	objectID
+	/// @param {Real}			moveSpeed
+	/// @param {Real}			nextFunction
+	/// @param {Array<Any>}		nextFunctionArgs
+	move_to_object = function(_objectID, _moveSpeed, _nextState = NO_STATE, _nextStateArgs = array_create(0)){
 		// First, get the position of the target, but default the values to the cmaera's x and y position in
 		// the event of an invalid object ID being supplied. Otherwise, those failsafe values are overwritten
 		// by the object's position in the room, and the camera is moved to that position.
-		var _targetX, _targetY;
-		_targetX = x;
-		_targetY = y;
+		var _targetX = x;
+		var _targetY = y;
 		with(_objectID){
 			_targetX = x - CAM_HALF_WIDTH;
 			_targetY = y - CAM_HALF_HEIGHT;
@@ -366,8 +362,8 @@ function obj_camera() constructor{
 		// has been hit which will then overwrite the camera's current state with the new data.
 		move_to_position(_targetX, _targetY, _moveSpeed);
 		if (x == _targetX && y == _targetY){
-			camState = _nextFunction;
-			camStateArgs = _nextFunctionArgs;
+			camState = _nextState;
+			camStateArgs = _nextStateArgs;
 		}
 	}
 	
@@ -376,10 +372,10 @@ function obj_camera() constructor{
 	/// base movement function. Like above, it will constantly update the target position to whatever the
 	/// followed object's position on a given frame; only this time it will be smooth camera movement instead
 	/// of a linear camera movement like the non-smooth counterparts.
-	/// @param objectID
-	/// @param moveSpeed
-	/// @param nextFunction
-	/// @param nextFunctionArgs
+	/// @param {Id.Instance}	objectID
+	/// @param {Real}			moveSpeed
+	/// @param {Real}			nextFunction
+	/// @param {Array<Any>}		nextFunctionArgs
 	move_to_object_smooth = function(_objectID, _moveSpeed, _nextFunction = NO_STATE, _nextFunctionArgs = -1){
 		// This chunk of code works the exact same way as it does in the non-smooth variation of this camera
 		// state; taking the target variables and applying the followed object's coordinates only if it's a
@@ -418,7 +414,7 @@ function obj_camera() constructor{
 
 /// @description Sets the camera's aspect ratio to one of the three possible ratios: 16:9, 16:10, and 21:9.
 /// After updating the width and height of the camera's viewport, the window is adjust to match as well.
-/// @param aspectRatio
+/// @param {Enum.AspectRatio}	aspectRatio
 function camera_set_aspect_ratio(_aspectRatio){
 	// First, jump into the camera dimensions struct in order to update the variables from within; changing
 	// them all to reflect the new aspect ratio if the one in the argument field is in face a new ratio.
@@ -459,9 +455,8 @@ function camera_set_aspect_ratio(_aspectRatio){
 		// width and half height values. The stored previous values will be used further down in the function 
 		// to determine the offset that camera needs to move by to remained centered on what it's current 
 		// viewing.
-		var _prevHalfWidth, _prevHalfHeight;
-		_prevHalfWidth = halfWidth;
-		_prevHalfHeight = halfHeight;
+		var _prevHalfWidth = halfWidth;
+		var _prevHalfHeight = halfHeight;
 		halfWidth = (curWidth / 2);
 		halfHeight = (curHeight / 2);
 		
@@ -482,7 +477,7 @@ function camera_set_aspect_ratio(_aspectRatio){
 	// to the right side of the screen if the aspect ratio went from 16:9 or 16:10 to 21:9, or be offset to
 	// the left side of the screen if the change was the other way around.
 	with(TEXTBOX_HANDLER){
-		x = CAM_HALF_WIDTH - (textboxWidth / 2);
+		x = CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2);
 		y = TEXTBOX_TARGET_Y;
 	}
 	
@@ -494,8 +489,8 @@ function camera_set_aspect_ratio(_aspectRatio){
 /// @description A simple function that will instantly snap the camera to a new position; based on a few
 /// factors and exceptions. If the view bounds are locked to the room's boundaries, the values will be clamped
 /// as such to handle that. Otherwise, any value is possible, but any decimal values are dropped from them.
-/// @param x
-/// @param y
+/// @param {Real}	x
+/// @param {Real}	y
 function camera_set_position(_x, _y){
 	with(CAMERA){
 		if (lockViewBounds){ // Clamp the x and y to remain within the room's dimensions.
@@ -512,14 +507,14 @@ function camera_set_position(_x, _y){
 /// @description A simple function that applies a shake to the camera for a set duration. In order for the
 /// supplied argument to overwrite the current shake effect, the strength must be greater in intensity.
 /// Otherwise, the function will simply do nothing.
-/// @param shakeStrength
-/// @param duration
-function camera_set_shake(_shakeStrength, _duration){
-	with(CAMERA){
-		if (_shakeStrength >= shakeCurStrength){
-			shakeSetStrength = _shakeStrength;
-			shakeCurStrength = _shakeStrength;
-			shakeDuration = _duration;
+/// @param {Real}	power
+/// @param {Real}	duration
+function camera_set_shake(_power, _duration){
+	with(CAMERA.shakeData){
+		if (_initalPower >= curPower){
+			initialPower = _initalPower;
+			curPower = _initalPower;
+			duration = _duration;
 		}
 	}
 }
@@ -527,8 +522,8 @@ function camera_set_shake(_shakeStrength, _duration){
 /// @description A simple function that overwrites the camera's current logic function and its arguments with
 /// new data that is provided in the argument fields. The function is run in the "camera_end_step" function
 /// which is processed on every available in-game frame.
-/// @param state
-/// @param arguments[]
+/// @param {Function}	state
+/// @param {Array}		arguments[]
 function camera_set_state(_state, _arguments){
 	with(CAMERA){
 		if (_state != NO_STATE) {camState = method_get_index(_state);}
@@ -540,8 +535,8 @@ function camera_set_state(_state, _arguments){
 /// @description A simple function that updates the dimensions of the current window to match the current
 /// camera dimensions with a given scale applied to the values (Shown as "_width" and "_height" in the
 /// argument fields. It also keeps the window centered on the display it's being rendered on.
-/// @param width
-/// @param height
+/// @param {Real}	width
+/// @param {Real}	height
 function window_update_dimensions(_width, _height){
 	// First, determine the maximum possible scaling that the window can achieve before either the width OR
 	// the height surpasses the resolution of the current display. That value will then be used to clamp the

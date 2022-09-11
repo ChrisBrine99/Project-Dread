@@ -386,8 +386,8 @@ function obj_cutscene_manager() constructor{
 	/// @param portraitIndex
 	/// @param textXScale
 	/// @param textYScale
-	cutscene_add_textbox_text = function(_text, _actor = Actor.NoActor, _portraitIndex = -1, _textXScale = 1, _textYScale = 1){
-		textbox_add_text_data(_text, _actor, _portraitIndex, _textXScale, _textYScale);
+	cutscene_add_textbox_text = function(_text, _actor = Actor.None, _portraitIndex = -1, _textXScale = 1, _textYScale = 1){
+		//textbox_add_text_data(_text, _actor, _portraitIndex, _textXScale, _textYScale);
 		cutscene_end_instruction(true);
 	}
 	

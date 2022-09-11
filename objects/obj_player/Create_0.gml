@@ -19,13 +19,6 @@
 // 
 #macro	INDEFINITE_EFFECT_DURATION	   -65535
 
-// 
-#macro	EFFECT_DAMAGE_RESIST			0
-#macro	EFFECT_POISON_IMMUNITY			1
-#macro	EFFECT_BLEED_IMMUNITY			2
-#macro	EFFECT_CRIPPLE_IMMUNITY			3
-#macro	EFFECT_HITPOINT_REGEN			4
-
 // Macros that are used with the accuracy penalty system, which makes a ranged weapon more inaccurate
 // the more it is fired in quick succession. This system will reward a player that takes the time to
 // line up a shot rather than one who just squeezes the trigger and hopes for the best. The first value
@@ -51,6 +44,15 @@ enum WeaponType{
 	Projectile,
 	Hitscan,
 	Melee,
+}
+
+// 
+enum Effect{
+	DamageResist,
+	PoisonImmunity,
+	BleedImmunity,
+	CrippleImmunity,
+	HitpointRegen,
 }
 
 #endregion
@@ -89,17 +91,11 @@ inputItems = false;
 inputNotes = false;
 inputMaps = false;
 
-// The main sprites for the player character whenever they are in their default state(s). There are
-// two variations of the standing and walking sprites: one for when they have more than 50% health,
-// and another for when they are below that percentage threshold; which plays an animation to show
-// that the character is injured.
+// 
 mainSprite =		spr_player_unarmed0;
-
-// The three sprites for the player that are set on a per-weapon basis. Unlike the standard walking
-// and standing sprites, these will not have an injured variation since that would be unecessary
-// details for something that might actually hinder the gameplay.
-reloadSprite =		spr_player_unarmed0; // TEMP VALUE
-useSprite =			spr_player_unarmed0; // TEMP VALUE
+readySprite =		NO_SPRITE;
+reloadSprite =		NO_SPRITE;
+useSprite =			NO_SPRITE;
 
 // Variables for the game's 8-directional movement system. The first value is simply a value of 0
 // or 1 depending on if there is valid input detected on either movement axis. The second variable
@@ -180,6 +176,11 @@ equipSlot = {
 // equipped weapon. It contains variables for storing necessary ranged weapon stats, melee weapon
 // stats, and the few that are shared between both.
 weaponData = {
+	// Holds the sprite that is currently being used to represent the weapon in the game world. //
+	weaponSprites :		noone,
+	spriteIndex :		NO_SPRITE,
+	imageIndex :		0,
+	
 	// Weapon stats that are shared by both melee and ranged weaponry //
 	damage :			0,
 	range :				0,
@@ -200,6 +201,7 @@ weaponData = {
 	
 	// Stats that are used exclusively by melee weaponry //
 	hitFrame :			0,
+	hitDuration :		0,	// Determines how many frames after the inital hit frame that a melee attack can still hit.
 	
 	// Modifier stats for certain weapon stats (Used only by ranged weapons) //
 	damageMod :			0,
@@ -207,8 +209,9 @@ weaponData = {
 	accuracyMod :		0,
 	bulletCountMod :	0,
 	
-	// Stores the position of the weapon's barrel for each of the four main directions //
-	barrelPosition :	noone, // Stores reference to ds_list found in global item data ds_map.
+	// Stores the position of the weapon and its barrel for each of the four main directions //
+	position :		noone,		// Both store index values that reference ds_lists inside of "global.itemData".
+	barrelPosition :	noone, 
 	
 	/// @description A group of getters that will return the true values for damage, range, accuracy,
 	/// and bullet count relative to the current weapon's base states, and the modifications that
@@ -272,7 +275,7 @@ painSounds = [
 	snd_player_hurt3,
 	snd_player_hurt4
 ];
-painSoundIndex = noone;
+painSoundIndex = -1;
 
 #endregion
 
@@ -374,7 +377,7 @@ get_input_gamepad = function(){
 /// struct.
 /// @param slot
 equip_item_to_player = function(_slot){
-	var _function = noone;
+	var _function = NO_FUNCTION;
 	if (!global.items[_slot].isEquipped){ // Calling the function that will equip the item in the slot.
 		_function = variable_instance_get(id, global.itemData[? KEY_EQUIPMENT_DATA][? global.items[_slot].itemName][? EQUIP_FUNCTION]);
 		_function(_slot);
@@ -567,7 +570,15 @@ equip_weapon = function(_slot){
 		bulletCount =		_itemData[? WEAPON_BULLET_COUNT];
 		bulletSpacing =		_itemData[? WEAPON_BULLET_SPACING];
 		ammoTypes =			_itemData[? WEAPON_AMMO_TYPES];
+		position =			_itemData[? WEAPON_POSITION];
 		barrelPosition =	_itemData[? WEAPON_BARREL_POSITION];
+		
+		// 
+		var _sprites = array_create(0);
+		var _length = ds_list_size(_itemData[? WEAPON_SPRITES]);
+		for (var i = 0; i < _length; i++) {_sprites[i] = asset_get_index(_itemData[? WEAPON_SPRITES][| i]);}
+		weaponSprites =	_sprites;
+		spriteIndex = 0;
 		
 		// Finding out how much ammunition is currently available for the weapon in the inventory.
 		var _ammoInUse = global.items[_slot].currentAmmo;
@@ -592,8 +603,16 @@ equip_weapon = function(_slot){
 	}
 	
 	// 
-	//useSprite =			_itemData[? WEAPON_USE_SPRITE];
-	//reloadSprite =		_itemData[? WEAPON_RELOAD_SPRITE];
+	switch(_itemData[? WEAPON_GROUP_ID]){
+		case 0:	// Weapons that use the small gun base sprites.
+			mainSprite = spr_player_gun_small0;
+			readySprite = spr_player_gun_small0_aim;
+			break;
+		case 1: // Weapons that use the large gun base sprites.
+			mainSprite = spr_player_gun_large0;
+			readySprite = spr_player_gun_large0_aim;
+			break;
+	}
 	
 	// Loop through all the available ammunition types in order to set the index value for swapping
 	// ammunition to match what is currently within the weapon when it's equipped.
@@ -619,7 +638,12 @@ unequip_weapon = function(){
 	// weapon will no longer be equipped to the player character; both the melee exclusive variables
 	// and the ranged weapon variables since there is no way to determine what was unequipped.
 	with(weaponData){
-		// First, reset the three variables that are shared between all weapon types.
+		// Clear out the sprite data for the weapon since it is no longer equipped.
+		weaponSprites =		noone;
+		spriteIndex =		NO_SPRITE;
+		imageIndex =		0;
+		
+		// Then, reset the three variables that are shared between all weapon types.
 		damage =			0;
 		range =				0;
 		typeID =			noone;
@@ -634,6 +658,7 @@ unequip_weapon = function(){
 		bulletCount =		0;
 		bulletSpacing =		0;
 		ammoTypes =			0;
+		gunPosition =		noone;
 		barrelPosition =	noone;
 		
 		// Resetting the calculated value for the weapon's surplus ammunition that exists within
@@ -643,6 +668,7 @@ unequip_weapon = function(){
 		// Resetting the melee hitbox spawning frame data for the current melee weapon if one was
 		// what was equipped.
 		hitFrame =			0;
+		hitDuration =		0;
 		
 		// Resetting all ranged weapon stat modifier variables back to their default values in case
 		// the unequipped weapon was a ranged weapon.
@@ -1381,6 +1407,7 @@ state_weapon_ready = function(){
 	// no longer have a weapon equipped for whatever reason.
 	if ((!inputReadyWeapon && !global.settings.isAimToggle) || (inputReadyWeapon && global.settings.isAimToggle) || equipSlot.weapon == noone){
 		object_set_next_state(state_default);
+		animSpeed = 1; // Set animation speed to an abitrary value so the image index is properly reset between states.
 		return; // Exit the state early to prevent the weapon from being used.
 	}
 	
@@ -1405,7 +1432,7 @@ state_weapon_ready = function(){
 	// Otherwise, the sprite will simply be drawn based on the direction the player is facing.
 	inputMagnitude = ((inputRight - inputLeft) != 0) || ((inputDown - inputUp) != 0);
 	if (inputMagnitude != 0) {direction = point_direction(0, 0, (inputRight - inputLeft), (inputDown - inputUp));}
-	set_sprite(mainSprite, 1, 0);
+	set_sprite(readySprite, 0, 0);
 }
 
 /// @description The state that the player enters whenever they fire a ranged weapon. (The grenade 

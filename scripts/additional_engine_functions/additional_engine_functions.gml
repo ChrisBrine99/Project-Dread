@@ -8,8 +8,8 @@
 /// @description A simple function that works just like keyboard_check_pressed(vk_anykey) works within the
 /// actual engine--just for a connected controller instead of the PC's keyboard. Optionally, the thumbsticks
 /// can also be checked for input detection if required.
-/// @param device
-/// @param includeSticks
+/// @param {Real}	device
+/// @param {Bool}	includeSticks
 function gamepad_any_button(_device, _includeSticks){
 	// If there isn't a valid gamepad connected don't bother checking for any input.
 	if (!gamepad_is_connected(_device)) {return;}
@@ -40,8 +40,8 @@ function gamepad_any_button(_device, _includeSticks){
 
 /// @description A simple function that returns a single line from a given string. An offset can be provided
 /// to the function in order to see out the next available line starting from that character index. 
-/// @param string
-/// @param startIndex
+/// @param {String}	string
+/// @param {Real}	startIndex
 function string_get_line(_string, _startIndex = 1){
 	var _line, _curChar, _length;
 	_line = "";
@@ -61,9 +61,9 @@ function string_get_line(_string, _startIndex = 1){
 /// @description A simple function that takes in a string of any length and converts it to fit within a certain
 /// width by applying line breaks in between words to prevent any from exceeding the provided maximum width.
 /// While there is a limit to how wide the string can be, there isn't a limit to how many lines it can contain.
-/// @param string
-/// @param maxWidth
-/// @param usedFont
+/// @param {String}			string
+/// @param {Real}			maxWidth
+/// @param {Asset.GMFont}	usedFont
 function string_format_width(_string, _maxWidth, _usedFont){
 	// Overwrite whatever the previous font was in order to have accurate calculations relative to the font
 	// that will be used for the supplied string. Otherwise, the calculations will use whatever the current
@@ -113,8 +113,8 @@ function string_format_width(_string, _maxWidth, _usedFont){
 /// will be broken apart into the split array. In short, the function goes through every character in the
 /// array until the delim character is hit. From there it will add that chunk of the string onto the split
 /// string array and repeat that process until the string is completely split up.
-/// @param string
-/// @param delim
+/// @param {String}	string
+/// @param {String}	delim
 function string_split_array(_string, _delim){
 	// A delim value cannot be more than one character long. So, if that's the case OR there isn't a single
 	// delim character found within the string; it will simply be returned in an unaltered form.
@@ -152,8 +152,8 @@ function string_split_array(_string, _delim){
 /// set within the "_totalZeroes" argument space. Optionally, the number's value can be limited to the max
 /// possible place values alloted by the max amount of zeroes. (Ex. 1435 with a total of 3 possible zeroes 
 /// would be formatted to "999" by the function)
-/// @param number
-/// @param totalZeroes
+/// @param {Real}	number
+/// @param {Real}	totalZeroes
 function string_number_add_zeroes(_number, _totalZeroes, _limitNumber = false){
 	_number = floor(_number); // Removes any decimal values from the supplied number.
 	
@@ -177,8 +177,8 @@ function string_number_add_zeroes(_number, _totalZeroes, _limitNumber = false){
 /// @description Takes in a number (Can even be non-integer) and converts it to the standard hours/minutes/seconds
 /// format for calculating time. An optional flag to allow the function to calculate milliseconds can also be
 /// used, which will use whatever the current decimial's top 2 place values for it's final calculated amount.
-/// @param number
-/// @param displayMilliseconds
+/// @param {Real}	number
+/// @param {Bool}	displayMilliseconds
 function string_number_to_time_format(_number, _displayMilliseconds = false){
 	// All of these calculations are stored inside of local variables for easier readability on both return
 	// values found in the function. Otherwise, these would clutter what is already two cluttered lines of
@@ -204,10 +204,10 @@ function string_number_to_time_format(_number, _displayMilliseconds = false){
 /// possible with Game Maker's conventional "string_width" function unless the font is question actually was
 /// monospaced to begin with. Optionally, special characters can be ignored in the monospacing just like the 
 /// monospace text rendering function allows.
-/// @param string
-/// @param separation
-/// @param usedFont
-/// @param ignoreSpecialCharacters
+/// @param {String}			string
+/// @param {Real}			separation
+/// @param {Asset.GMFont}	usedFont
+/// @param {Bool}			ignoreSpecialCharacters
 function string_width_monospace(_string, _separation, _usedFont, _ignoreSpecialCharacters = false){
 	// Overwrite whatever the previous font was in order to have accurate calculations relative to the font
 	// that will be used for the supplied string. Otherwise, the calculations will use whatever the current
@@ -253,10 +253,10 @@ function string_width_monospace(_string, _separation, _usedFont, _ignoreSpecialC
 /// @description A simple function that checks to see if the supplied character is considered a "special
 /// character." In short, a special character is any character that isn't an upper case letter, lower case
 /// letter, number, or "code" value.
-/// @param character
+/// @param {String}	character
 function is_special_character(_char){
-	_char = ord(_char); // Convert the character to it's ascii value counterpart
-	return ((_char >= 20 /* " " */ && _char <= 47 /* "/" */) || (_char >= 58 /* ":" */ && _char <= 64 /* "@" */) || (_char >= 91 /* "[" */ && _char <= 96 /* "`" */) || (_char >= 123 /* "{" */ && _char <= 126 /* "~" */));
+	var _code = ord(_char); // Convert the character to it's ascii value counterpart
+	return ((_code >= 20 /* " " */ && _code <= 47 /* "/" */) || (_code >= 58 /* ":" */ && _code <= 64 /* "@" */) || (_code >= 91 /* "[" */ && _code <= 96 /* "`" */) || (_code >= 123 /* "{" */ && _code <= 126 /* "~" */));
 }
 
 #endregion
@@ -264,9 +264,9 @@ function is_special_character(_char){
 #region Additional file loading functions
 
 /// @description
-/// @param filepath
-/// @param sampleRate
-/// @param audioChannel
+/// @param {String}	filepath
+/// @param {Real}	sampleRate
+/// @param {Real}	audioChannel
 function load_external_sound_wav(_filepath, _sampleRate, _audioChannel){
 	// 
 	var _file = buffer_load(_filepath);
@@ -292,10 +292,10 @@ function load_external_sound_wav(_filepath, _sampleRate, _audioChannel){
 
 /// @description A simple function that linearly adds or subtracts a given value towards the supplied target
 /// value. The speed that the value reaches said target is determined by the value in the _modifier argument
-/// space--higher values leading to a faster time of the value reaching the target. 
-/// @param value
-/// @param target
-/// @param modifier
+/// space--higher values leading to the value reaching its target at a faster speed.
+/// @param {Real}	value
+/// @param {Real}	target
+/// @param {Real}	modifier
 function value_set_linear(_value, _target, _modifier){
 	if (_value == _target) {return _value;} // The value is already at the target number; simply return that number.
 	
@@ -317,9 +317,9 @@ function value_set_linear(_value, _target, _modifier){
 /// @description A simple function that adds or subtracts a number from a given value towards its target
 /// relative to how far apart the target and original value are. The greater the distance, the faster the
 /// value will be pulled toward the target, and vice versa for smaller distances.
-/// @param value
-/// @param target
-/// @param speed
+/// @param {Real}	value
+/// @param {Real}	target
+/// @param {Real}	speed
 function value_set_relative(_value, _target, _speed){
 	if (_value == _target) {return _target;} // The value is already as the target number; simply return that number.
 	
@@ -345,10 +345,10 @@ function value_set_relative(_value, _target, _speed){
 /// It will look for either an empty slot or a slot containing the matching item; adding whatever quantity
 /// it can from there before moving onto the next available slot. The optional flag "createItem" can be
 /// toggled in order to create an item object within the game world for the excess quantity if it exists.
-/// @param itemName
-/// @param quantity
-/// @param durability
-/// @param createItem
+/// @param {String}	itemName
+/// @param {Real}	quantity
+/// @param {Real}	durability
+/// @param {Bool}	createItem
 function inventory_item_add(_itemName, _quantity, _durability, _createItem = false){
 	// Grab the item's basic data from the master data structure. If the attempt at grabbing this ds_map of
 	// data returns "undefined", it means the item that is being added to the inventory doens't actually
@@ -458,8 +458,8 @@ function inventory_item_add(_itemName, _quantity, _durability, _createItem = fal
 /// for any excess quantity since that doesn't really make much sense with the context of how this function
 /// can remove multiple slots worth of items from the inventory; making it only useful for event-based
 /// inventory item removal. (Ex. Player losing all their items for whatever reason, and can't get them back)
-/// @param itemName
-/// @param quantity
+/// @param {String}	itemName
+/// @param {Real}	quantity
 function inventory_item_remove_amount(_itemName, _quantity){
 	// Loop through the inventory and remove as much of the quantity required of the item from it as possible.
 	// This is done by linearly going through each slot and comparing the name data of the item within the 
@@ -493,8 +493,8 @@ function inventory_item_remove_amount(_itemName, _quantity){
 /// like adding an item to the inventory, an option flag can be flipped to create a physical item in the 
 /// world; only this time for the item that was previously in the slot that was now removed; not for any
 /// excess quantity like the adding function since that isn't possible here.
-/// @param slotIndex
-/// @param createItem
+/// @param {Real}	slotIndex
+/// @param {Bool}	createItem
 function inventory_item_remove_slot(_slotIndex, _createItem = false){
 	// Don't bother attempting to remove an item from a slot where no item struct actually exists; it's
 	// just a waste of processing time.
@@ -519,8 +519,8 @@ function inventory_item_remove_slot(_slotIndex, _createItem = false){
 /// as moving the pointer values around between the two slot indexes. However, if an equipped item was moved,
 /// the player's equipData struct's relavant slot needs to be updated as well, which is what the gross block
 /// of if/else statements is below the pointer swap.
-/// @param firstSlot
-/// @param secondSlot
+/// @param {Real}	firstSlot
+/// @param {Real}	secondSlot
 function inventory_item_swap_slots(_firstSlot, _secondSlot){
 	var _tempSlot = global.items[_firstSlot];
 	global.items[_firstSlot] = global.items[_secondSlot];
@@ -555,7 +555,7 @@ function inventory_item_swap_slots(_firstSlot, _secondSlot){
 
 /// @description A simple function that loops through the entirety of the player's currently available item
 /// inventory space in order to calculate the sum of a given item found within space.
-/// @param itemName
+/// @param {String}	itemName
 function inventory_item_count(_itemName){
 	var _quantity = 0;
 	for (var i = 0; i < global.curItemInvSize; i++){
@@ -583,8 +583,8 @@ function inventory_item_count(_itemName){
 /// crafting recipe; switch the order of the pair to match said recipe's stored order. Then, it will attempt
 /// to call the provided crafting function, which is what will actually process the crafting logic for the
 /// given recipe.
-/// @param firstSlot
-/// @param secondSlot
+/// @param {Real}	firstSlot
+/// @param {Real}	secondSlot
 function inventory_item_combine(_firstSlot, _secondSlot){
 	// First, store some values for easier readability and because Game Maker likes to work with local values
 	// instead of constantly having to jump into struct's and data structures in order to retrieve these
@@ -648,9 +648,9 @@ function inventory_item_combine(_firstSlot, _secondSlot){
 /// quantities within the inventory at the current moment; seeing if the match the required cost for the
 /// crafting recipe. If they do, the required quantities of each will be removed from the inventory and the
 /// resulting item from the recipe will be added to the inventory.
-/// @param craftingData
-/// @param firstItemName
-/// @param secondItemName
+/// @param {Id.DsMap}	craftingData
+/// @param {String}		firstItemName
+/// @param {String}		secondItemName
 function inventory_item_craft_default(_craftingData, _firstItemName, _secondItemName){
 	// First, make sure both items actually meet the criteria for their required costs within the crafting
 	// recipe. If they do, continue with the crafting logic. Otherwise, don't create any item and don't
@@ -688,7 +688,7 @@ function inventory_item_craft_default(_craftingData, _firstItemName, _secondItem
 /// @description A simple function that makes use of the three state variables found within most objects that
 /// use some form of a state machine for their function and logic; updating the function that is called from
 /// the next frame onward within the object.
-/// @param nextState
+/// @param {Function}	nextState
 function object_set_next_state(_nextState){
 	nextState = _nextState;
 	lastState = curState;
@@ -697,7 +697,7 @@ function object_set_next_state(_nextState){
 /// @description A function that performs a room switch with the warp instance that was provided within 
 /// the "warpID" argument parameter. It will take the target room index as well as the target coordinates
 /// for the player in order to properly move into said room.
-/// @param warpID
+/// @param {Asset.GMInstance}	warpID
 function object_perform_room_warp(_warpID){
 	with(_warpID){
 		// First things first, Game Maker will be told to perform its room swapping logic; moving into
@@ -707,9 +707,8 @@ function object_perform_room_warp(_warpID){
 		// Next, the player's position will be snapped to the target position set by the warp object. The
 		// values are floored in order to prevent placing the player at a non-integer position. Doing so 
 		// could cause issues with the player's world collision logic and sprite rendering.
-		var _targetX, _targetY;
-		_targetX = floor(targetX);
-		_targetY = floor(targetY);
+		var _targetX = floor(targetX);
+		var _targetY = floor(targetY);
 		with(PLAYER){
 			x = _targetX;
 			y = _targetY;
@@ -730,10 +729,10 @@ function object_perform_room_warp(_warpID){
 /// global function that both can easily reference instead of having two identical functions found within
 /// both of those parent objects. It allows easy adjustments to an entity's drop shadow; its size, offset,
 /// and whether or not it should actually be rendered or not.
-/// @param displayShadow
-/// @param radius
-/// @param offsetX
-/// @param offsetY
+/// @param {Bool}	displayShadow
+/// @param {Real}	radius
+/// @param {Real}	offsetX
+/// @param {Real}	offsetY
 function object_set_shadow(_displayShadow, _radius = 0, _offsetX = 0, _offsetY = 0){
 	displayShadow = _displayShadow;
 	shadowRadius = _radius;
@@ -749,10 +748,10 @@ function object_set_shadow(_displayShadow, _radius = 0, _offsetX = 0, _offsetY =
 /// wide outline around anything rendered after this shader is initialized for use. A starting color and font
 /// must be supplied in the argument fields, but optionally the shader can be set to not render outlines or
 /// corners of the outline should the program call for that at the time of initialization.
-/// @param color
-/// @param font
-/// @param drawOutline
-/// @param drawCorners
+/// @param {Array<Real>}	color
+/// @param {Asset.GMFont}	font
+/// @param {Bool}			drawOutline
+/// @param {Bool}			drawCorners
 function shader_set_outline(_color, _font, _drawOutline = true, _drawCorners = true){
 	with(global.shaderOutline){
 		// Don't initialize anything if the currently active shader is the outline shader.
@@ -787,7 +786,7 @@ function shader_set_outline(_color, _font, _drawOutline = true, _drawCorners = t
 /// font is different from the one that is currently in use. Otherwise, changing the uniforms to the same 
 /// values as they were previous in the same frame will result in unnecessary batch breaks; slowing the
 /// rendering pipeline down when it can be avoided.
-/// @param font
+/// @param {Asset.GMFont}	font
 function outline_set_font(_font){
 	with(global.shaderOutline){
 		// The same font that was set to change to is currently in use by the program; no uniform updates needed.
@@ -812,7 +811,7 @@ function outline_set_font(_font){
 /// supplied in the argument field doesn't match the one that is currently in use by the shader. This
 /// prevents unnecessary batch breaks as a result of the shader uniform functions being used, and since it
 /// would do nothing and still break the batch this is the bext outcome.
-/// @param color[r/g/b]
+/// @param {Array<Real>}	color[r/g/b]
 function outline_set_color(_color){
 	with(global.shaderOutline){
 		if (array_equals(_color, curOutlineColor)) {return;} // Same color that's in use; no uniform update needed.
@@ -837,14 +836,14 @@ function outline_set_color(_color){
 ///				x3, y3		=		Top-left bounds where the alpha reaches zero
 ///				x4, y4		=		Bottom-right bounds that also makes any pixels beyond invisible
 ///	
-/// @param x1
-/// @param y1
-/// @param x2
-/// @param y2
-/// @param x3
-/// @param y3
-/// @param x4
-/// @param y4
+/// @param {Real}	x1
+/// @param {Real}	y1
+/// @param {Real}	x2
+/// @param {Real}	y2
+/// @param {Real}	x3
+/// @param {Real}	y3
+/// @param {Real}	x4
+/// @param {Real}	y4
 function feathering_set_bounds(_x1, _y1, _x2, _y2, _x3, _y3, _x4, _y4){
 	with(global.shaderFeathering){
 		shader_set_uniform_f(sFadeStart, _x1, _y1, _x2, _y2);
@@ -858,8 +857,8 @@ function feathering_set_bounds(_x1, _y1, _x2, _y2, _x3, _y3, _x4, _y4){
 
 /// @description Simply loads in the supplied JSON file by decrypting the data into a temporary file and then
 /// reading the information from that file; returning a matching data structure once the it is decoded.
-/// @param filename
-/// @param decryptKey
+/// @param {String}	filename
+/// @param {String}	decryptKey
 function encrypted_json_load(_filename, _decryptKey = ""){
 	try{
 		// TODO -- Add decryption stuff here
@@ -886,7 +885,7 @@ function encrypted_json_load(_filename, _decryptKey = ""){
 
 /// @description A simple debugging function that allows the game state snum values to be represented by
 /// entire strings denoting what their values correspond to in the context of the state's purpose.
-/// @param gameState
+/// @param {Enum.GameState}	gameState
 function game_state_get_name(_gameState){
 	switch(_gameState){
 		case GameState.NoState:		return "No State";

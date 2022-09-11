@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMSprite",
+  "resourceVersion": "1.0",
+  "name": "spr_xbox_gamepad_icons",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -24,57 +27,27 @@
   "gridX": 1,
   "gridY": 1,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"334daf77-0cae-411c-bf2a-55800efda440","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"334daf77-0cae-411c-bf2a-55800efda440","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"334daf77-0cae-411c-bf2a-55800efda440","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"c981bc5f-20bc-4993-816d-c956ae0ac144","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"c981bc5f-20bc-4993-816d-c956ae0ac144","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"c981bc5f-20bc-4993-816d-c956ae0ac144","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"43db0207-f0a0-4cae-91a0-4e9cfb62241f","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"43db0207-f0a0-4cae-91a0-4e9cfb62241f","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"43db0207-f0a0-4cae-91a0-4e9cfb62241f","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"da1c40f6-2276-4503-9d3d-0261328fe05f","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"da1c40f6-2276-4503-9d3d-0261328fe05f","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"da1c40f6-2276-4503-9d3d-0261328fe05f","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"cbf94a9c-68ac-4cba-ba20-f986344730c4","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"cbf94a9c-68ac-4cba-ba20-f986344730c4","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"cbf94a9c-68ac-4cba-ba20-f986344730c4","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"b5aec272-17e8-4184-b8e8-98929dc4e639","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"b5aec272-17e8-4184-b8e8-98929dc4e639","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"b5aec272-17e8-4184-b8e8-98929dc4e639","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"49bdd724-e88a-4bba-9929-5776e2b0003a","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"49bdd724-e88a-4bba-9929-5776e2b0003a","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"49bdd724-e88a-4bba-9929-5776e2b0003a","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"f655bc8f-f452-4014-96ee-8d4eed9231ee","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"f655bc8f-f452-4014-96ee-8d4eed9231ee","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"f655bc8f-f452-4014-96ee-8d4eed9231ee","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"bad924de-cc5b-4279-871b-042eed0cdecf","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"bad924de-cc5b-4279-871b-042eed0cdecf","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"bad924de-cc5b-4279-871b-042eed0cdecf","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"70a69b13-7650-4f3b-b33a-ec97e91c5eb9","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"70a69b13-7650-4f3b-b33a-ec97e91c5eb9","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"70a69b13-7650-4f3b-b33a-ec97e91c5eb9","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"9ca5f5f6-2ff3-4203-bc6d-401c0ff9f4d8","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"9ca5f5f6-2ff3-4203-bc6d-401c0ff9f4d8","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"9ca5f5f6-2ff3-4203-bc6d-401c0ff9f4d8","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"cd666a61-f3f1-47de-b606-6f5f65ddb768","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"cd666a61-f3f1-47de-b606-6f5f65ddb768","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"cd666a61-f3f1-47de-b606-6f5f65ddb768","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"08504014-70b3-4d6e-8a03-a79ec624e1a7","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"08504014-70b3-4d6e-8a03-a79ec624e1a7","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"08504014-70b3-4d6e-8a03-a79ec624e1a7","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"8f6f3005-f7af-421f-84d8-8fcf8212ce15","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"8f6f3005-f7af-421f-84d8-8fcf8212ce15","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"8f6f3005-f7af-421f-84d8-8fcf8212ce15","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"eb9b0100-b10c-4918-b8fc-60c7bcf3ea02","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"eb9b0100-b10c-4918-b8fc-60c7bcf3ea02","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"eb9b0100-b10c-4918-b8fc-60c7bcf3ea02","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"191f4c05-977a-481f-bf16-e698ac52de5e","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"191f4c05-977a-481f-bf16-e698ac52de5e","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"LayerId":{"name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","name":"191f4c05-977a-481f-bf16-e698ac52de5e","tags":[],"resourceType":"GMSpriteFrame",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"334daf77-0cae-411c-bf2a-55800efda440",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"c981bc5f-20bc-4993-816d-c956ae0ac144",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"43db0207-f0a0-4cae-91a0-4e9cfb62241f",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"da1c40f6-2276-4503-9d3d-0261328fe05f",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"cbf94a9c-68ac-4cba-ba20-f986344730c4",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"b5aec272-17e8-4184-b8e8-98929dc4e639",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"49bdd724-e88a-4bba-9929-5776e2b0003a",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"f655bc8f-f452-4014-96ee-8d4eed9231ee",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"bad924de-cc5b-4279-871b-042eed0cdecf",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"70a69b13-7650-4f3b-b33a-ec97e91c5eb9",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"9ca5f5f6-2ff3-4203-bc6d-401c0ff9f4d8",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"cd666a61-f3f1-47de-b606-6f5f65ddb768",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"08504014-70b3-4d6e-8a03-a79ec624e1a7",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"8f6f3005-f7af-421f-84d8-8fcf8212ce15",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"eb9b0100-b10c-4918-b8fc-60c7bcf3ea02",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"191f4c05-977a-481f-bf16-e698ac52de5e",},
   ],
   "sequence": {
-    "spriteId": {"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},
+    "resourceType": "GMSequence",
+    "resourceVersion": "1.4",
+    "name": "spr_xbox_gamepad_icons",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 5.0,
@@ -85,7 +58,7 @@
     "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
-      {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
+      {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
             {"id":"89831585-7099-4a6d-9b97-c2230b0f56cf","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"334daf77-0cae-411c-bf2a-55800efda440","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"8d299a01-1f09-48eb-840a-4c00f7d56133","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"c981bc5f-20bc-4993-816d-c956ae0ac144","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"0e47f90d-b289-4d4b-818d-c9e61d1cfdfc","Key":2.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"43db0207-f0a0-4cae-91a0-4e9cfb62241f","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
@@ -102,7 +75,7 @@
             {"id":"c4840342-3ab5-4ae2-a147-2f6092b83fb9","Key":13.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"8f6f3005-f7af-421f-84d8-8fcf8212ce15","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"774df10c-3e7c-4fd8-9459-08f5452396df","Key":14.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"eb9b0100-b10c-4918-b8fc-60c7bcf3ea02","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"39021276-b489-43e5-baf8-c4c67c40e341","Key":15.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"191f4c05-977a-481f-bf16-e698ac52de5e","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
+          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
     "lockOrigin": false,
@@ -118,22 +91,13 @@
     "yorigin": 1,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"spr_xbox_gamepad_icons","path":"sprites/spr_xbox_gamepad_icons/spr_xbox_gamepad_icons.yy",},
-    "resourceVersion": "1.4",
-    "name": "spr_xbox_gamepad_icons",
-    "tags": [],
-    "resourceType": "GMSequence",
   },
   "layers": [
-    {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","tags":[],"resourceType":"GMImageLayer",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"9129f956-29e1-4ab6-97a5-17f477f90eb2","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
     "name": "Xbox",
     "path": "folders/Resources/Graphics/Sprites/UI/Control Icons/Xbox.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "spr_xbox_gamepad_icons",
-  "tags": [],
-  "resourceType": "GMSprite",
 }

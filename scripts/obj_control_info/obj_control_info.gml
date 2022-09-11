@@ -2,10 +2,11 @@
 
 #region Initializing any macros that are useful/related to obj_control_info
 
-// Constants that tell obj_control_info which of the two anchor points the control icon/information can be
-// aligned with (The bottom-left and bottom-right corners of the screen, respectively.
+// 
 #macro	ALIGNMENT_RIGHT				1001
 #macro	ALIGNMENT_LEFT				1002
+#macro	ALIGNMENT_UP				1003
+#macro	ALIGNMENT_DOWN				1004
 
 // Key constants for the "inputIcons" map found within obj_control_info. They point to all inputs that
 // relate to the player character's movement around the game world.
@@ -57,9 +58,26 @@
 #macro	INPUT_ADVANCE				"input_advance"
 #macro	INPUT_LOG					"input_log"
 
+// Macros that store the unique guid value and description for a given controller. In short, all supported
+// controllers will have constants located here.
+#macro	XINPUT_GAMEPAD			"none,XInput STANDARD GAMEPAD"
+#macro	SONY_DUALSHOCK_FOUR		"4c05cc09000000000000504944564944,Sony DualShock 4"
+#macro	SONY_DUALSENSE			"4c05e60c000000000000504944564944,Wireless Controller"
+#macro	SWITCH_PRO_CONTROLLER	""
+
 #endregion
 
 #region Initializing enumerators that are useful/related to obj_music_handler
+
+/// @description
+enum Gamepad{
+	None,
+	Generic,
+	Xbox,
+	PlayStation,
+	Nintendo,
+}
+
 #endregion
 
 #region Initializing any globals that are useful/related to obj_control_info
@@ -176,9 +194,383 @@ if (os_type == os_windows){
 	ds_map_add(global.keyboardIcons, vk_lalt,		{iconSprite : spr_keyboard_icons_large,		imgIndex : 13});
 }
 
+// 
+global.gamepadIcons = ds_map_create();
+
 #endregion
 
-#region The main object code for obj_control_info
+
+function obj_control_info() constructor{
+	// 
+	object_index = obj_control_info;
+	
+	// 
+	inputIcons = ds_map_create();
+	prevGamepad = Gamepad.None;
+	
+	// 
+	anchorPoint = ds_map_create();
+	pointOrder = ds_list_create();
+	
+	/// @description 
+	draw_gui = function(){
+		//
+		var _x = 0;
+		var _y = 0;
+		var _icon = -1;
+		var _totalInputs = 0;
+		var _totalPoints = ds_list_size(pointOrder);
+		for (var i = 0; i < _totalPoints; i++){
+			with(anchorPoint[? pointOrder[| i]]){
+				_x = x;
+				_y = y;
+				_totalInputs = ds_list_size(info);
+				for (var j = 0; j < _totalInputs; j++){
+					with(info[| j]){
+						_icon = inputIcons[? input];
+						draw_sprite_ext(_icon.iconSprite, _icon.imgIndex, _x + iconX, _y + iconY, 1, 1, 0, c_white, 1);
+					}
+				}
+			}
+		}
+		
+		// 
+		shader_set_outline(RGB_GRAY, font_gui_small);
+		for (var ii = 0; ii < _totalPoints; ii++){
+			with(anchorPoint[? pointOrder[| ii]]){
+				_x = x;
+				_y = y;
+				_totalInputs = ds_list_size(info);
+				for (var jj = 0; jj < _totalInputs; jj++){
+					with(info[| jj]) {draw_text_outline(_x + infoX, _y + infoY, info, HEX_WHITE, RGB_GRAY, 1);}
+				}
+			}
+		}
+		shader_reset();
+	}
+	
+	/// @description 
+	cleanup = function(){
+		//
+		var _key = ds_map_find_first(global.keyboardIcons);
+		while(!is_undefined(_key)){
+			delete global.keyboardIcons[? _key];
+			_key = ds_map_find_next(global.keyboardIcons, _key);
+		}
+		ds_map_destroy(global.keyboardIcons);
+
+		// 
+		clear_gamepad_icons();
+		ds_map_destroy(global.gamepadIcons);
+
+		// 
+		ds_map_destroy(inputIcons);
+		
+		// 
+		clear_anchor_data();
+		ds_map_destroy(anchorPoint);
+		ds_list_destroy(pointOrder);
+	}
+	
+	/// @description 
+	initialize_input_icons = function(){
+		if (GAMEPAD_IS_ACTIVE){ // Assigning icons that match the currently active gamepad.
+			var _gamepad = GAMEPAD_DEVICE_ID;
+			get_gamepad_icons(gamepad_get_description(_gamepad));
+			
+			ds_map_clear(inputIcons);
+			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.gamepadIcons[? PAD_GAME_RIGHT]);		// Player movement inputs
+			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.gamepadIcons[? PAD_GAME_LEFT]);
+			ds_map_add(inputIcons, INPUT_GAME_UP,			global.gamepadIcons[? PAD_GAME_UP]);
+			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.gamepadIcons[? PAD_GAME_DOWN]);
+			ds_map_add(inputIcons, INPUT_RUN,				global.gamepadIcons[? PAD_RUN]);
+			
+			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.gamepadIcons[? PAD_READY_WEAPON]);	// Weapon inputs
+			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.gamepadIcons[? PAD_USE_WEAPON]);
+			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.gamepadIcons[? PAD_RELOAD_GUN]);
+			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.gamepadIcons[? PAD_AMMO_SWAP]);
+			
+			ds_map_add(inputIcons, INPUT_INTERACT,			global.gamepadIcons[? PAD_INTERACT]);		// Interaction input
+			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.gamepadIcons[? PAD_FLASHLIGHT]);		// Flashlight inputs
+			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.gamepadIcons[? PAD_LIGHT_SWAP]);
+			
+			ds_map_add(inputIcons, INPUT_ITEMS,				global.gamepadIcons[? PAD_ITEMS]);			// Menu shortcut inputs
+			ds_map_add(inputIcons, INPUT_NOTES,				global.gamepadIcons[? PAD_NOTES]);
+			ds_map_add(inputIcons, INPUT_MAPS,				global.gamepadIcons[? PAD_MAPS]);
+			ds_map_add(inputIcons, INPUT_PAUSE,				global.gamepadIcons[? PAD_PAUSE]);
+			
+			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.gamepadIcons[? PAD_MENU_RIGHT]);		// Menu cursor inputs
+			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.gamepadIcons[? PAD_MENU_LEFT]);
+			ds_map_add(inputIcons, INPUT_MENU_UP,			global.gamepadIcons[? PAD_MENU_UP]);
+			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.gamepadIcons[? PAD_MENU_DOWN]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.gamepadIcons[? PAD_AUX_MENU_RIGHT]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.gamepadIcons[? PAD_AUX_MENU_LEFT]);
+			
+			ds_map_add(inputIcons, INPUT_SELECT,			global.gamepadIcons[? PAD_SELECT]);			// Menu interaction inputs
+			ds_map_add(inputIcons, INPUT_RETURN,			global.gamepadIcons[? PAD_RETURN]);
+			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.gamepadIcons[? PAD_FILE_DELETE]);
+			
+			ds_map_add(inputIcons, INPUT_ADVANCE,			global.gamepadIcons[? PAD_ADVANCE]);		// Textbox inputs
+			ds_map_add(inputIcons, INPUT_LOG,				global.gamepadIcons[? PAD_LOG]);
+		} else{ // Assigning icons for the default input device: the keyboard.
+			ds_map_clear(inputIcons); // Clear out the old struct pointers.
+			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.keyboardIcons[? KEY_GAME_RIGHT]);	// Player movement inputs
+			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.keyboardIcons[? KEY_GAME_LEFT]);
+			ds_map_add(inputIcons, INPUT_GAME_UP,			global.keyboardIcons[? KEY_GAME_UP]);
+			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.keyboardIcons[? KEY_GAME_DOWN]);
+			ds_map_add(inputIcons, INPUT_RUN,				global.keyboardIcons[? KEY_RUN]);
+															
+			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.keyboardIcons[? KEY_READY_WEAPON]);	// Weapon inputs
+			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.keyboardIcons[? KEY_USE_WEAPON]);
+			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.keyboardIcons[? KEY_RELOAD_GUN]);
+			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.keyboardIcons[? KEY_AMMO_SWAP]);
+															
+			ds_map_add(inputIcons, INPUT_INTERACT,			global.keyboardIcons[? KEY_INTERACT]);		// Interaction input
+			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.keyboardIcons[? KEY_FLASHLIGHT]);	// Flashlight inputs
+			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.keyboardIcons[? KEY_LIGHT_SWAP]);
+															
+			ds_map_add(inputIcons, INPUT_ITEMS,				global.keyboardIcons[? KEY_ITEMS]);			// Menu shortcut inputs
+			ds_map_add(inputIcons, INPUT_NOTES,				global.keyboardIcons[? KEY_NOTES]);
+			ds_map_add(inputIcons, INPUT_MAPS,				global.keyboardIcons[? KEY_MAPS]);
+			ds_map_add(inputIcons, INPUT_PAUSE,				global.keyboardIcons[? KEY_PAUSE]);
+			
+			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.keyboardIcons[? KEY_MENU_RIGHT]);	// Menu cursor inputs
+			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.keyboardIcons[? KEY_MENU_LEFT]);
+			ds_map_add(inputIcons, INPUT_MENU_UP,			global.keyboardIcons[? KEY_MENU_UP]);
+			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.keyboardIcons[? KEY_MENU_DOWN]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.keyboardIcons[? KEY_AUX_MENU_RIGHT]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.keyboardIcons[? KEY_AUX_MENU_LEFT]);
+			
+			ds_map_add(inputIcons, INPUT_SELECT,			global.keyboardIcons[? KEY_SELECT]);		// Menu interaction inputs
+			ds_map_add(inputIcons, INPUT_RETURN,			global.keyboardIcons[? KEY_RETURN]);
+			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.keyboardIcons[? KEY_FILE_DELETE]);
+			
+			ds_map_add(inputIcons, INPUT_ADVANCE,			global.keyboardIcons[? KEY_ADVANCE]);		// Textbox inputs
+			ds_map_add(inputIcons, INPUT_LOG,				global.keyboardIcons[? KEY_LOG]);
+		}
+		
+		// 
+		var _length = ds_list_size(pointOrder);
+		for (var i = 0; i < _length; i++) {set_icon_positions(anchorPoint[? pointOrder[| i]]);}
+	}
+	
+	/// @description 
+	/// @param {String}	info
+	get_gamepad_icons = function(_info){
+		// 
+		var _sprite = NO_SPRITE;
+		var _gamepad = Gamepad.None;
+		switch(_info){
+			case XINPUT_GAMEPAD:
+				_sprite = spr_xbox_gamepad_icons;
+				_gamepad = Gamepad.Xbox;
+				break;
+			case SONY_DUALSHOCK_FOUR:
+			case SONY_DUALSENSE:
+				_sprite = spr_dualshock_four_icons;
+				_gamepad = Gamepad.PlayStation;
+				break;
+			default:
+				_sprite = spr_xbox_gamepad_icons;
+				_gamepad = Gamepad.Generic;
+				break;
+		}
+		
+		// 
+		if (_gamepad == prevGamepad) {return;}
+		clear_gamepad_icons();
+		
+		// 
+		var _index = 0;
+		for (var i = gp_face1; i <= gp_padr; i++){
+			ds_map_add(global.gamepadIcons,	i,	{iconSprite : _sprite,	imgIndex : _index});
+			_index++;
+		}
+		prevGamepad = _gamepad;
+	}
+	
+	/// @description 
+	clear_gamepad_icons = function(){
+		var _key = ds_map_find_first(global.gamepadIcons);
+		while(!is_undefined(_key)){
+			delete global.gamepadIcons[? _key];
+			_key = ds_map_find_next(global.gamepadIcons, _key);
+		}
+		ds_map_clear(global.gamepadIcons);
+	}
+	
+	/// @description
+	clear_anchor_data = function(){
+		var _totalInputs = 0;
+		var _totalPoints = ds_list_size(pointOrder);
+		for (var i = 0; i < _totalPoints; i++){
+			with(anchorPoint[? pointOrder[| i]]){
+				_totalInputs = ds_list_size(info);
+				for (var j = 0; j < _totalInputs; j++) {delete info[| i];}
+				ds_list_destroy(info);
+			}
+			delete anchorPoint[? pointOrder[| i]];
+		}
+		ds_map_clear(anchorPoint);
+		ds_list_clear(pointOrder);
+	}
+	
+	/// @description
+	/// @param {Struct} anchor
+	set_icon_positions = function(_anchor){
+		draw_set_font(font_gui_small);
+		with(_anchor){
+			switch(alignment){
+				case ALIGNMENT_LEFT:	calculate_info_offset_horizontal(true);		break;
+				case ALIGNMENT_RIGHT:	calculate_info_offset_horizontal(false);	break;
+				case ALIGNMENT_UP:		calculate_info_offset_vertical(true);		break;
+				case ALIGNMENT_DOWN:	calculate_info_offset_vertical(false);		break;
+			}
+		}
+	}
+}
+
+
+/// @description 
+/// @param {String}	name
+/// @param {Real}	x
+/// @param {Real}	y
+/// @param {Real}	alignment
+function control_info_create_anchor(_name, _x, _y, _alignment){
+	with(CONTROL_INFO){
+		if (!is_undefined(anchorPoint[? _name])) {return;}
+		
+		// 
+		ds_map_add(anchorPoint, _name, {
+			x :				_x,
+			y :				_y,
+			alignment :		_alignment,
+			info :			ds_list_create(),
+			alpha :			0,
+			
+			/// @description 
+			/// @param {Id.DsMap}	inputIcons
+			/// @param {Bool}		isLeftAligned
+			calculate_info_offset_horizontal : function(_isLeftAligned){
+				var _emptyInfo = false;
+				var _xOffset = 0;
+				var _length = ds_list_size(info);
+				for (var i = 0; i < _length; i++){
+					with(info[| i]){
+						infoY = 2;
+						
+						// 
+						_emptyInfo = (info == "");
+						if (_isLeftAligned){
+							// 
+							iconX = _xOffset;
+							_xOffset += sprite_get_width(inputIcons[? input].iconSprite);
+							if (!_emptyInfo) {_xOffset += 2;}
+							else {_xOffset++;}
+							
+							// 
+							infoX = _xOffset;
+							if (!_emptyInfo) {_xOffset += string_width(info) + 3;}
+						} else{
+							// 
+							if (!_emptyInfo) {_xOffset -= string_width(info);}
+							infoX = _xOffset;
+							_xOffset -= sprite_get_width(inputIcons[? input].iconSprite);
+							if (!_emptyInfo) {_xOffset -= 2;}
+							else {_xOffset += 2;}
+							
+							// 
+							iconX = _xOffset;
+							if (!_emptyInfo) {_xOffset -= 3;}
+						}
+					}
+				}
+			},
+			
+			/// @description 
+			/// @param {Id.DsMap}	inputIcons
+			/// @param {Bool}		isTopAligned
+			calculate_info_offset_vertical : function(_isTopAligned){
+				var _yOffset = 0;
+				var _length = ds_list_size(info);
+				for (var i = 0; i < _length; i++){
+					with(info[| i]){
+						if (_isTopAligned) {_yOffset -= sprite_get_height(spr_keyboard_icons_small);}
+						iconY = _yOffset;
+						infoX = sprite_get_width(inputIcons[? input].iconSprite) + 2;
+						infoY = iconY + 2;
+						if (!_isTopAligned) {_yOffset += sprite_get_height(spr_keyboard_icons_small) + 1;}
+						else {_yOffset--;} // Add an addition one pixel spacing between top aligned control info
+					}
+				}
+			}
+		});
+		ds_list_add(pointOrder, _name);
+	}
+}
+
+/// @description 
+/// @param {String}	anchor
+/// @param {Real}	input
+/// @param {String}	info
+function control_info_add_data(_anchor, _input, _info){
+	with(CONTROL_INFO){
+		var _data = anchorPoint[? _anchor];
+		if (is_undefined(_data)) {return;}
+		
+		// 
+		var _inputIcons = inputIcons;
+		ds_list_add(_data.info, {
+			inputIcons :	_inputIcons,
+			input :			_input,
+			iconX :			0,
+			iconY :			0,
+			info :			_info,
+			infoX :			0,
+			infoY :			0,
+		});
+	}
+}
+
+/// @description
+/// @param {String}	anchor
+/// @param {Real}	input
+function control_info_remove_data(_anchor, _input){
+	with(CONTROL_INFO){
+		var _data = anchorPoint[? _anchor];
+		if (is_undefined(_anchor)) {return;}
+		
+		// 
+		with(_data){
+			var _length = ds_list_size(info);
+			for (var i = 0; i < _length; i++){
+				if (info[| i].input == _input){
+					ds_list_delete(info, i);
+					break;
+				}
+			}
+		}
+		set_icon_positions(_data);
+	}
+}
+
+/// @description
+/// @param {String} anchor
+function control_info_initialize_anchor(_anchor){
+	with(CONTROL_INFO){
+		var _data = anchorPoint[? _anchor];
+		if (!is_undefined(_data)) {set_icon_positions(_data);}
+	}
+}
+
+/// @description 
+function control_info_clear_data(){
+	with(CONTROL_INFO){
+		if (ds_map_size(anchorPoint) > 0) {clear_anchor_data();}
+	}
+}
+
+/*#region The main object code for obj_control_info
 
 function obj_control_info() constructor{
 	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this

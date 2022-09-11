@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMSprite",
+  "resourceVersion": "1.0",
+  "name": "spr_apartment_floors",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -24,12 +27,12 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"960f1826-0832-458b-b560-583503ffac27","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"960f1826-0832-458b-b560-583503ffac27","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},"LayerId":{"name":"f005efa1-6a58-4fe2-a108-9b47d7a48241","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_apartment_floors","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},"resourceVersion":"1.0","name":"960f1826-0832-458b-b560-583503ffac27","tags":[],"resourceType":"GMSpriteFrame",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"960f1826-0832-458b-b560-583503ffac27",},
   ],
   "sequence": {
-    "spriteId": {"name":"spr_apartment_floors","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},
+    "resourceType": "GMSequence",
+    "resourceVersion": "1.4",
+    "name": "spr_apartment_floors",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 30.0,
@@ -40,9 +43,9 @@
     "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
-      {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
+      {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
             {"id":"a95d0e7e-c6fa-4b23-89d7-61891af5801b","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"960f1826-0832-458b-b560-583503ffac27","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
+          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
     "lockOrigin": false,
@@ -58,22 +61,13 @@
     "yorigin": 0,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"spr_apartment_floors","path":"sprites/spr_apartment_floors/spr_apartment_floors.yy",},
-    "resourceVersion": "1.4",
-    "name": "spr_apartment_floors",
-    "tags": [],
-    "resourceType": "GMSequence",
   },
   "layers": [
-    {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"f005efa1-6a58-4fe2-a108-9b47d7a48241","tags":[],"resourceType":"GMImageLayer",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"f005efa1-6a58-4fe2-a108-9b47d7a48241","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
     "name": "Floors",
     "path": "folders/Resources/Graphics/Tilesets/Apartments/Floors.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "spr_apartment_floors",
-  "tags": [],
-  "resourceType": "GMSprite",
 }

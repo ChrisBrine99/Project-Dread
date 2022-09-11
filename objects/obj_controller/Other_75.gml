@@ -38,7 +38,7 @@ switch(async_load[? "event_type"]){
 				deviceID = -1;
 				info = "";
 				isActive = false;
-				control_info_set_icons_keyboard();
+				CONTROL_INFO.initialize_input_icons();
 			}
 		}
 		break;

@@ -31,7 +31,7 @@ function obj_effect_handler() constructor{
 	
 	// Stores the surface that has each light source rendered onto it before being blended back onto the
 	// application surface to result in a natural-looking lighting system.
-	surfLight = noone;
+	surfLight = -1;
 	
 	// Grabbing all of the uniform location values from within the light shader; storing their values into
 	// variables that are then referenced whenever rendering needs to be done with the lighting shader.
@@ -50,7 +50,7 @@ function obj_effect_handler() constructor{
 	// Stores a buffer image of the application surface that is used to properly create the blurring effect.
 	// It can either handle the vertical pass or the horizontal pass required for the shader, but the default
 	// application surface cannot be used for both at the same time.
-	surfBlurBuffer = noone;
+	surfBlurBuffer = -1;
 	
 	// Store each of the uniforms required for the blurring shader to their own unique variables, which are
 	// then used again when rendering with the blur shader to apply the correct settings to it; creating
@@ -74,8 +74,8 @@ function obj_effect_handler() constructor{
 	intensityModifier = 0.001;
 	
 	// 
-	surfBloomLum = noone;
-	bloomTextureID = noone;
+	surfBloomLum = -1;
+	bloomTextureID = -1;
 	
 	// 
 	sBloomThreshold =	shader_get_uniform(shd_bloom_luminance, "threshold");
@@ -131,7 +131,7 @@ function obj_effect_handler() constructor{
 	/// application surface AND the game's GUI surface. For example, both the scanlines and noise filter are
 	/// applied here to overlap the entire image.
 	draw_gui_end = function(){
-		if (global.settings.filmGrainEffect)	{render_film_grain();}
+		//if (global.settings.filmGrainEffect)	{render_film_grain();}
 		if (global.settings.scanlineEffect)		{render_scanlines();}
 	}
 	
@@ -161,8 +161,8 @@ function obj_effect_handler() constructor{
 	/// that can be altered; with a relative brightness for it as well. Then, it renders the lights onto
 	/// that initial surface as either point lights or standard lights; blending this onto the application
 	/// surface once they've all be rendered to the lighting surface.
-	/// @param cameraX
-	/// @param cameraY
+	/// @param {Real}	cameraX
+	/// @param {Real}	cameraY
 	render_lights = function(_cameraX, _cameraY){
 		// If the current surface used for rendering light sources isn't currently in VRAM, it needs to be
 		// initialized based on the current width and height of the camera.
@@ -239,9 +239,9 @@ function obj_effect_handler() constructor{
 	/// screen with a blur applied to them. It's a two-pass system that will blur in one direction, then
 	/// take that first pass's result and draw it back to the application surface for the second direction's
 	/// blur; creating an accurate gaussian blur effect in the game.
-	/// @param baseSurface
-	/// @param blurRadius
-	/// @param blurIntensity
+	/// @param {Id.Surface}	baseSurface
+	/// @param {Real}		blurRadius
+	/// @param {Real}		blurIntensity
 	render_screen_blur = function(_baseSurface, _blurRadius, _blurIntensity){
 		// Don't waste time attempting to render the screen blur if there isn't a possibility of it being
 		// visible to the user due to either of these two parameters being zeroed out.

@@ -54,9 +54,9 @@ function interact_item_collect_default(){
 	// an item is picked up by the player: no quantity being picked up, only a portion being picked up, and 
 	// all of the quantity picked up.
 	if (_leftover == _itemQuantity){ // Item couldn't be picked up; let the user know this was the case.
-		textbox_add_text_data("Your item inventory has no free space...");
+		textbox_add_text("Your item inventory has no free space...");
 	} else if (_leftover > 0){ // Only a portion of the item's sum could be picked up.
-		textbox_add_text_data("Only *" + RED + "*" + string(_itemQuantity - _leftover) + "# of the *" + RED + "*" + string(_itemQuantity) + "# *" + YELLOW + "*" + _itemName + "# could be picked up and added to the inventory. The rest just couldn't fit...");
+		textbox_add_text("Only *" + RED + "*" + string(_itemQuantity - _leftover) + "# of the *" + RED + "*" + string(_itemQuantity) + "# *" + YELLOW + "*" + _itemName + "# could be picked up and added to the inventory. The rest just couldn't fit...");
 		textbox_add_sound_effect(_pickupSound); // Add the pickup sound to be played by the textbox.
 	} else{ // The complete quantity of the item was picked up, 
 		// Depending on the type of item that was collected--and how much of an item can fit within a single
@@ -65,16 +65,16 @@ function interact_item_collect_default(){
 		// slot. Otherwise, only the item's name is shown.
 		var _itemData = global.itemData[? KEY_ITEM_LIST][? _itemName];
 		if (_itemData[? ITEM_QUANTITY] == 1 || _itemData[? ITEM_TYPE] == TYPE_WEAPON){ // A single item was picked up; don't display quantity.
-			textbox_add_text_data("Picked up *" + YELLOW + "*" + _itemName + "#.");
+			textbox_add_text("Picked up *" + YELLOW + "*" + _itemName + "#.");
 		} else{ // An item that can hold multiple in a single slot was picked up; display the quantity alongside the item.
-			textbox_add_text_data("Picked up *" + RED + "*" + string(_itemQuantity) + "# *" + YELLOW + "*" + _itemName + "#.");
+			textbox_add_text("Picked up *" + RED + "*" + string(_itemQuantity) + "# *" + YELLOW + "*" + _itemName + "#.");
 		}
 		textbox_add_sound_effect(_pickupSound); // Add the pickup sound to be played by the textbox.
 	}
 	
 	// Since all outcomes for this interaction script create a textbox in some way, the function that sets
 	// the textbox up for executing on the added text information will always run at the end of this function.
-	textbox_begin_execution();
+	textbox_activate();
 }
 
 /// @description A variation on the interaction for collecting an instance of "obj_world_item" wihtin the
@@ -84,7 +84,7 @@ function interact_item_collect_default(){
 function interact_item_collect_pouch(){
 	// Perform the functionality for the item pouch; expanding the size of the inventory by two slots if
 	// the currently difficulty setting allows the item inventory to still be increased in size.
-	if (global.curItemInvSize < global.gameplay.maximumItemInvSize) {global.curItemInvSize += 2;}
+	if (global.curItemInvSize < MAXIMUM_INVENTORY_SIZE) {global.curItemInvSize += 2;}
 	
 	// Jump into scope of the parent of the current interaction component in order to reference its sound
 	// effect for the pickup; destroying the parent instance and subsequently removing its data from the
@@ -93,9 +93,9 @@ function interact_item_collect_pouch(){
 		// Initialize the textbox to display information about what picking up the item pouch does for
 		// them, while also assigning the textbox to play the sound effect for the item pouch being picked
 		// up in the first place.
-		textbox_add_text_data("*" + YELLOW + "*Item Pouch# acquired! The amount of space to carry items has been permanently increased by *" + RED + "*two# slots!");
-		textbox_add_sound_effect(pickupSound);
-		textbox_begin_execution();
+		textbox_add_text("*" + YELLOW + "*Item Pouch# acquired! The amount of space to carry items has been permanently increased by *" + RED + "*two# slots!");
+		textbox_add_sound_effect(pickupSound, 10);
+		textbox_activate();
 		
 		// Finally, destroy this instance and remove its data from the world item data structure.
 		instance_destroy_object(self);
@@ -138,12 +138,12 @@ function interact_door_locked(){
 		// to remove that lock from the door. Each key will have its paired flag in the event data set to
 		// true to signify that this lock 's state is persistent within the game. After that, the key's
 		// data is cleared from the door's required key list.
-		var _length, _key;
-		_length = ds_list_size(requiredKeys);
+		var _key = -1;
+		var _length = ds_list_size(requiredKeys);
 		repeat(_length){
 			_key = requiredKeys[| 0];
 			if (inventory_item_count(_key[DOOR_KEY_NAME]) >= 1){
-				textbox_add_text_data("You used the *" + YELLOW + "*" + _key[DOOR_KEY_NAME] + "#.");
+				textbox_add_text("You used the *" + YELLOW + "*" + _key[DOOR_KEY_NAME] + "#.");
 				textbox_add_sound_effect(snd_player_flashlight);
 				ds_list_delete(requiredKeys, 0);
 				EVENT_SET_FLAG(_key[DOOR_EVENT_ID], true);
@@ -157,8 +157,8 @@ function interact_door_locked(){
 		// door now.
 		_length = ds_list_size(requiredKeys);
 		if (_length == 0){
-			textbox_add_text_data("The door is now unlocked.");
-			textbox_add_sound_effect(unlockSound);
+			textbox_add_text("The door is now unlocked.");
+			textbox_add_sound_effect(unlockSound, 10);
 			doorState = DOOR_UNLOCKED;
 			_doorUnlocked = true;
 		}
@@ -167,13 +167,13 @@ function interact_door_locked(){
 		// the textbox and its locked sound will be played; letting the player know they still can't access
 		// this doorway.
 		else{
-			textbox_add_text_data(doorInfoMessage);
+			textbox_add_text(doorInfoMessage);
 			textbox_add_sound_effect(lockedSound);
 		}
 		
 		// Since both outcomes above require the textbox in some way, the function to begin the execution
 		// of textbox data is always called at the end of this code.
-		textbox_begin_execution();
+		textbox_activate();
 	}
 	
 	// Since the function that determines how an object is interacted with is stored witin the interact
@@ -191,8 +191,8 @@ function interact_door_locked(){
 function interact_door_locked_other_side(){
 	with(parentID){
 		audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
-		textbox_add_text_data("The door is locked from the other side.");
-		textbox_begin_execution();
+		textbox_add_text("The door is locked from the other side.");
+		textbox_activate();
 	}
 }
 
@@ -215,8 +215,8 @@ function interact_door_locked_can_open(){
 		// Finally, the door's unlocking sound effect is played, and the textbox is used to inform the
 		// player that they've opened this once locked door.
 		audio_play_sound_ext(unlockSound, 0, SOUND_VOLUME, 1, false);
-		textbox_add_text_data("The door is now unlocked.");
-		textbox_begin_execution();
+		textbox_add_text("The door is now unlocked.");
+		textbox_activate();
 	}
 	
 	// Update the interact component's function to match the door's now unlocked state; meaning that any
@@ -230,8 +230,8 @@ function interact_door_locked_can_open(){
 function interact_door_broken(){
 	with(parentID){
 		audio_play_sound_ext(lockedSound, 0, SOUND_VOLUME, 1, false);
-		textbox_add_text_data(doorInfoMessage);
-		textbox_begin_execution();
+		textbox_add_text(doorInfoMessage);
+		textbox_activate();
 	}
 }
 

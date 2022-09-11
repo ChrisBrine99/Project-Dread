@@ -15,8 +15,8 @@ global.gameState = {
 	/// "InGame", "InMenu", "Cutscene", and "Paused", respectively. The order of these states determines their
 	/// priority, which means setting the state from "Paused" to "InGame" can only be done if the function's
 	/// "highPriority" flag is set to true.
-	/// @param gameState
-	/// @param highPriority
+	/// @param {Enum.GameState}	gameState
+	/// @param {Bool}			highPriority
 	set_state : function(_gameState, _highPriority = false){
 		if (_highPriority || curState < _gameState){
 			lastState = curState; // Store the previous game state in case it needs to be referenced later.
@@ -54,7 +54,7 @@ global.audioListener = {
 	
 	/// @description A simple function that overwrites what object is currently linked to the audio listener
 	/// struct's positional data. If the object ID wasn't valid, the default value of "noone" will be used.
-	/// @param objectID
+	/// @param {Id.Instance}	objectID
 	set_linked_object : function(_objectID){
 		if (instance_exists(_objectID)) {linkedObject = _objectID;}
 		else							{linkedObject = noone;}
@@ -90,8 +90,8 @@ global.events = {
 	/// @description Creates a new entry into the event flag data map with the given ID value and starting
 	/// state value. However, no event flag is created if there is already an event flag that exists at the
 	/// given ID value.
-	/// @param flagID
-	/// @param startState
+	/// @param {Any}	flagID
+	/// @param {Bool}	startState
 	create_flag : function(_flagID, _startState = false){
 		if (!is_undefined(flags[? _flagID])) {return flags[? _flagID];}
 		ds_map_add(flags, _flagID, _startState);
@@ -101,8 +101,8 @@ global.events = {
 	/// @description A function that sets a given flag's value to the state that was provided to the function's
 	/// given argument parameter. If there is no valid event flag at that ID, the function will simply do
 	/// nothing with any flag data.
-	/// @param flagID
-	/// @param flagState
+	/// @param {Any}	flagID
+	/// @param {Bool}	flagState
 	set_flag : function(_flagID, _flagState){
 		if (is_undefined(flags[? _flagID])) {return;}
 		flags[? _flagID] = _flagState;
@@ -111,7 +111,7 @@ global.events = {
 	/// @description A function that simply returns the current state of the flag in question. However, if
 	/// a flagID was provided to the function that doesn't currently exist within the map, the value -300
 	/// will be returned as a general error value.
-	/// @papram flagID
+	/// @papram {Any}	flagID
 	get_flag : function(_flagID){
 		if (is_undefined(flags[? _flagID])) {return EVENT_FLAG_INVALID;}
 		return flags[? _flagID];
@@ -320,7 +320,7 @@ global.settings = {
 	gpadButtonThreshold :	0.1,
 	
 	// --- Accessibility Settings --- //
-	textSpeed :				1.75,
+	textSpeed :				0.75,
 							
 	objectiveHints :		false,
 	itemHighlighting :		false,
@@ -332,7 +332,7 @@ global.settings = {
 	/// @description Updates the master volume, which affects all volume groups when it is updated; those
 	/// group volumes being the factor of the volume for currently for that group, and the master volume's
 	/// current value--both of which should range between zero and one.
-	/// @param masterVolume
+	/// @param {Real}	masterVolume
 	update_master_volume : function(_masterVolume){
 		masterVolume =		clamp(_masterVolume, 0, 1);
 		trueSoundVolume =	masterVolume * soundVolume;
@@ -348,8 +348,8 @@ global.settings = {
 	/// @description Updates the music volume, specifically, which is unique in the fact that is can have its
 	/// audio group completely disabled from playing at all--doing so by setting the volume to 0 so that
 	/// playback isn't actually halted or reset from disabling/enabling music.
-	/// @param musicVolume
-	/// @param playMusic
+	/// @param {Real}	musicVolume
+	/// @param {Bool}	playMusic
 	update_music_volume : function(_musicVolume, _playMusic){
 		musicVolume =		clamp(_musicVolume, 0, 1);
 		playMusic =			_playMusic;
@@ -359,14 +359,14 @@ global.settings = {
 	
 	/// @description A simple function that updates the playback volume for nearly all sound effects within 
 	/// the game. GUI sounds are excempt since they have their own volume group.
-	/// @param soundVolume
+	/// @param {Real}	soundVolume
 	update_sound_volume : function(_soundVolume){
 		soundVolume =		clamp(_soundVolume, 0, 1);
 		trueSoundVolume =	masterVolume * soundVolume;
 	},
 	
 	/// @description A simple function that updates the playback volume for all menu/ui sound effects.
-	/// @param guiVolume
+	/// @param {Real}	guiVolume
 	update_gui_volume : function(_guiVolume){
 		guiVolume =			clamp(_guiVolume, 0, 1);
 		trueSoundVolume =	masterVolume * guiVolume;
@@ -391,19 +391,15 @@ global.gamepad = {
 	step : function(){
 		if (deviceID == -1) {return;}
 		
-		if (!isActive && gamepad_any_button(deviceID, true)){
-			control_info_set_icons_gamepad(info);
-			isActive = true;
-		} else if (isActive && keyboard_check_pressed(vk_anykey)){
-			control_info_set_icons_keyboard();
-			isActive = false;
-		}
+		var _isActive = isActive;
+		if ((!isActive && gamepad_any_button(deviceID, true)) || (isActive && keyboard_check_pressed(vk_anykey))) {isActive = !isActive;}
+		if (_isActive != isActive) {CONTROL_INFO.initialize_input_icons();}
 	},
 	
 	/// @description A simple function that returns the mapping data used by various support controllers 
 	/// that are of the Direct Input variety. (Ex. Sony Controllers and the Switch Pro Controller) This
 	/// string ensures that SDL will map the input to the correct buttons on the controller.
-	/// @param info
+	/// @param {String}	info
 	get_gamepad_mapping_data : function(_info){
 		switch(_info){
 			case SONY_DUALSHOCK_FOUR:	return info + ",a:b1,b:b2,x:b0,y:b3,leftshoulder:b4,rightshoulder:b5,lefttrigger:a3,righttrigger:a4,guide:b13,start:b9,leftstick:b10,rightstick:b11,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a5,back:b12,";
@@ -451,11 +447,10 @@ global.gameplay = {
 	pOneLifeMode :			false,		// Makes it so saving is completely disabled; with any game over ending the current playthrough.
 	
 	/// @description Initializing the gameplay struct to match what is required for the game's easiest difficulty
-	/// setting, "Forgiving". player damage is heavily amplified; enemy damage is heavily reduced; the player 
+	/// setting, "Forgiving". Player damage is heavily amplified; enemy damage is heavily reduced; the player 
 	/// is granted a starting pistol with infinite ammunition, and they will slowly regenerate their health
-	/// when out of combat. Puzzle difficulty is set independently of this function and the gameplay struct's
-	/// setup.
-	/// @param puzzleDifficulty
+	/// when out of combat.
+	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_forgiving : function(_puzzleDifficulty){
 		// Initialize the combat difficulty to store the numerical index for "Forgiving" difficulty; the
 		// puzzle difficulty setting being determined outside of this function and carried over by the
@@ -483,11 +478,9 @@ global.gameplay = {
 		pRegenHitpoints =		true;
 	},
 	
-	/// @description Initializes the gameplay struct to not affect that gameplay at all. (Aside from how
-	/// many slots are available to the player in their item inventory) This is done because "Standard" 
-	/// difficulty is the base difficulty for the game, and no modifications are necessary to make this 
-	/// difficulty level match that condition.
-	/// @param puzzleDifficulty
+	/// @description Initializes the gameplay struct to not affect gameplay at all (Aside from how many slots 
+	/// are available to the player in their item inventory).
+	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_standard : function(_puzzleDifficulty){
 		// Set the index value for the combat difficulty to be set to "Standard", and set the puzzle difficulty
 		// to be whatever value of the three choices was selected by the player upon starting a new game.
@@ -509,7 +502,7 @@ global.gameplay = {
 	},
 	
 	/// @description 
-	/// @param puzzleDifficulty
+	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_punishing : function(_puzzleDifficulty){
 		// 
 		combatDifficulty =		Difficulty.Punishing;
@@ -533,7 +526,7 @@ global.gameplay = {
 	},
 	
 	/// @description 
-	/// @param puzzleDifficulty
+	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_nightmare : function(_puzzleDifficulty){
 		// 
 		combatDifficulty =		Difficulty.Punishing;
@@ -554,7 +547,7 @@ global.gameplay = {
 	},
 	
 	/// @description
-	/// @param puzzleDifficulty
+	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_one_life_mode : function(_puzzleDifficulty){
 		// Much like the other four difficulty initialization functions, the combat difficulty's value is
 		// implicitly set to the proper value while the puzzle difficulty is one of the three possible

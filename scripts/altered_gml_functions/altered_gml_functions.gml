@@ -8,7 +8,7 @@
 /// or lightweight object instances. In order for a struct to successfully be created, it must not be one that 
 /// exists as a singleton; otherwise that would cause unnecessary duplication of important functions/code 
 /// handled by the respective singleton struct.
-/// @param struct
+/// @param {Function}	struct
 function instance_create_struct(_struct){
 	if (get_singleton_object_key(_struct) == undefined){
 		var _structInstance = new _struct();
@@ -20,7 +20,7 @@ function instance_create_struct(_struct){
 
 /// @description A simple function that reflects the "instance_create_struct" function, but instead of dealing
 /// with the creation of the structs and prevention of singleton creation--it prevents the deletion of them.
-/// @param instanceID
+/// @param {Struct}		instanceID
 function instance_destroy_struct(_structID){
 	if (get_singleton_object_key(_structID.object_index) == undefined){
 		if (variable_struct_exists(_structID, "cleanup")) {_structID.cleanup();}
@@ -31,9 +31,9 @@ function instance_destroy_struct(_structID){
 /// @description A simple function that creates an object at a given position within the room at a constant
 /// depth value of 205. It also prevents the creation of duplicate singleton objects, which are created at
 /// the start of the game much like the singleton struct objects are.
-/// @param x
-/// @param y
-/// @param object
+/// @param {Real}			x
+/// @param {Real}			y
+/// @param {Asset.GMObject}	object
 function instance_create_object(_x, _y, _object){
 	if (get_singleton_object_key(_object) == undefined) {return instance_create_depth(_x, _y, 30, _object);}
 	return noone; // No instance was created; return noone to signify that.
@@ -41,8 +41,8 @@ function instance_create_object(_x, _y, _object){
 
 /// @description A simple function that reflects the "instance_create_object" function, but instead of dealing
 /// with the creation of duplicate singleton objects it prevents the deletion of those singleton objects.
-/// @param instanceID
-/// @param performEvents
+/// @param {Id.Instance}	instanceID
+/// @param {Bool}			performEvents
 function instance_destroy_object(_objectID, _performEvents = true){
 	if (get_singleton_object_key(_objectID.object_index) == undefined){
 		instance_destroy(_objectID, _performEvents);
@@ -56,10 +56,10 @@ function instance_destroy_object(_objectID, _performEvents = true){
 /// @description An extension of the standard "place_meeting" function that allows for three-dimensional
 /// collision checks to occur within a wholly 2D game. It does so by turning the z-axis values into another
 /// rectangle check that is done within the horizontal space, but it will look like 3D exists in the game.
-/// @param x
-/// @param y
-/// @param z
-/// @param object
+/// @param {Real}			x
+/// @param {Real}			y
+/// @param {Real}			z
+/// @param {Asset.GMObject}	object
 function place_meeting_3d(_x, _y, _z, _object){
 	// Create some variables that will be referenced later in the code--for both seeing if a collision has
 	// been detected (This is a combination of both "_xyMeeting" and "_zMeeting"'s results from the function.
@@ -90,12 +90,12 @@ function place_meeting_3d(_x, _y, _z, _object){
 /// @description A simple extension of the standard "audio_play_sound" function that allows the function to
 /// stop any previous instances of a given sound from playing before playing the new instance of it. Also, it
 /// is able to manipulate the volume and pitch of the sound on a per-instance basis.
-/// @param sound
-/// @param priority
-/// @param volume
-/// @param pitch
-/// @param stopPrevious
-/// @param loopSound
+/// @param {Asset.GMSound}	sound
+/// @param {Real}			priority
+/// @param {Real}			volume
+/// @param {Real}			pitch
+/// @param {Bool}			stopPrevious
+/// @param {Bool}			loopSound
 function audio_play_sound_ext(_sound, _priority, _volume, _pitch, _stopPrevious = false, _loopSound = false){
 	if (_stopPrevious && audio_is_playing(_sound)) {audio_stop_sound(_sound);}
 	var _soundID = audio_play_sound(_sound, _priority, _loopSound);
@@ -110,16 +110,16 @@ function audio_play_sound_ext(_sound, _priority, _volume, _pitch, _stopPrevious 
 /// of the sound to be stopped automatically, and the pitch/volume of the sound can be adjusted in the same
 /// function call. On top of that, the fade's starting distance and the maximum distance for the sound to be
 /// audible can also be adjusted.
-/// @param x
-/// @param y
-/// @param sound
-/// @param priority
-/// @param volume
-/// @param pitch
-/// @param refDistance
-/// @param maxDistance
-/// @param falloffFactor
-/// @param stopPrevious
+/// @param {Real}			x
+/// @param {Real}			y
+/// @param {Asset.GMSound}	sound
+/// @param {Real}			priority
+/// @param {Real}			volume
+/// @param {Real}			pitch
+/// @param {Real}			refDistance
+/// @param {Real}			maxDistance
+/// @param {Real}			falloffFactor
+/// @param {Bool}			stopPrevious
 function audio_play_sound_at_ext(_x, _y, _sound, _priority, _volume, _pitch, _refDistance, _maxDistance, _falloffFactor = 1, _stopPrevious = false){
 	if (_stopPrevious && audio_is_playing(_sound)) {audio_stop_sound(_sound);}
 	var _soundID = audio_play_sound_at(_sound, _x, _y, 0, _refDistance, _maxDistance, _falloffFactor, false, _priority);
@@ -134,8 +134,8 @@ function audio_play_sound_at_ext(_x, _y, _sound, _priority, _volume, _pitch, _re
 
 /// @description A simple function that allows both axes of text alignment to be altered with a single line
 /// of code; removing clutter from the already cluttered drawing events that Game Maker inevitably achieves.
-/// @param halign
-/// @param valign
+/// @param {Constant.HAlign}	halign
+/// @param {Constant.VAlign}	valign
 function draw_set_text_align(_hAlign, _vAlign){
 	draw_set_halign(_hAlign);
 	draw_set_valign(_vAlign);
@@ -153,15 +153,15 @@ function draw_reset_text_align(){
 /// "pixel" if for the current string--altered by how large or small the scaling factors on both axes. In
 /// short, it will use the outline shader to render the text with an outline onto the screen at the given
 /// coordinates; scaling and rotating being possible, but optional.
-/// @param x
-/// @param y
-/// @param string
-/// @param innerColor
-/// @param outerColor[r/g/b]
-/// @param alpha
-/// @param xScale
-/// @param yScale
-/// @param angle
+/// @param {Real}			x
+/// @param {Real}			y
+/// @param {String}			string
+/// @param {Constant.Color}	innerColor
+/// @param {Array<Real>}	outerColor[r/g/b]
+/// @param {Real}			alpha
+/// @param {Real}			xScale
+/// @param {Real}			yScale
+/// @param {Real}			angle
 function draw_text_outline(_x, _y, _string, _innerColor, _outerColor, _alpha, _xScale = 1, _yScale = 1, _angle = 0){
 	outline_set_color(_outerColor); // Sets the correct color to be used by the outline shader
 	draw_text_transformed_color(_x, _y, _string, _xScale, _yScale, _angle, _innerColor, _innerColor, _innerColor, _innerColor, _alpha);
@@ -172,17 +172,17 @@ function draw_text_outline(_x, _y, _string, _innerColor, _outerColor, _alpha, _x
 /// and shaking as the number values change since each number has a different width with most fonts. An option
 /// can be toggled to ignore special characters and use their character's spacing instead of the monospacing.
 /// This allows things like timers and other number/special character based values not have odd spacing.
-/// @param x
-/// @param y
-/// @param separation
-/// @param string
-/// @param innerColor
-/// @param outerColor[r/g/b]
-/// @param alpha
-/// @param xScale
-/// @param yScale
-/// @param angle
-/// @param ignoreSpecialCharacters
+/// @param {Real}			x
+/// @param {Real}			y
+/// @param {Real}			separation
+/// @param {String}			string
+/// @param {Constant.Color}	innerColor
+/// @param {Array<Real>}	outerColor[r/g/b]
+/// @param {Real}			alpha
+/// @param {Real}			xScale
+/// @param {Real}			yScale
+/// @param {Real}			angle
+/// @param {Bool}			ignoreSpecialCharacters
 function draw_text_outline_monospaced(_x, _y, _separation, _string, _innerColor, _outerColor, _alpha, _xScale = 1, _yScale = 1, _angle = 0, _ignoreSpecialCharacters = false){
 	// Outside of the loop, set the color for the string since none of the characters can change color
 	// during the rendering loop; saving time instead of placing this within the loop.
@@ -258,19 +258,19 @@ function draw_text_outline_monospaced(_x, _y, _separation, _string, _innerColor,
 /// its edges. On top of that, it also automatically sets the current shader to be the feathering one if that
 /// shader wasn't already applied prior to this function's use. The two XY pairs determines after what region
 /// will the feathering begin on the sprite's texture itself; with its edges being where the alpha is zero.
-/// @param sprite
-/// @param imageIndex
-/// @param xPos
-/// @param yPos
-/// @param width
-/// @param height
-/// @param x1
-/// @param y1
-/// @param x2
-/// @param y2
-/// @param angle
-/// @param color
-/// @param alpha
+/// @param {Asset.GMSprite}	sprite
+/// @param {Real}			imageIndex
+/// @param {Real}			xPos
+/// @param {Real}			yPos
+/// @param {Real}			width
+/// @param {Real}			height
+/// @param {Real}			x1
+/// @param {Real}			y1
+/// @param {Real}			x2
+/// @param {Real}			y2
+/// @param {Real}			angle
+/// @param {Constant.Color}	color
+/// @param {Real}			alpha
 function draw_sprite_feathered(_sprite, _imageIndex, _xPos, _yPos, _width, _height, _x1, _y1, _x2, _y2, _angle, _color, _alpha){
 	// Automatically set the target rendering shader to the feathering shader if it wasn't already done
 	// prior to this function being called; mainly for convenience purposes and cleaning overall code.

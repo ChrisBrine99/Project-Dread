@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMRoom",
+  "resourceVersion": "1.0",
+  "name": "rm_init",
   "isDnd": false,
   "volume": 1.0,
   "parentRoom": null,
@@ -42,8 +45,4 @@
     "name": "Levels",
     "path": "folders/Resources/Levels.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "rm_init",
-  "tags": [],
-  "resourceType": "GMRoom",
 }

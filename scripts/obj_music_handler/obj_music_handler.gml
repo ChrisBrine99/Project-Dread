@@ -56,8 +56,8 @@ function obj_music_handler() constructor{
 	// timings for the song; the loop buffer being there for crossfading during the loop to avoid popping.
 	curSong = {
 		song :			NO_SONG,
-		songID :		noone,
-		streamID :		noone,
+		songID :		-1,
+		streamID :		-1,
 		loopPosition :	0,
 		loopLength :	0,
 		loopBuffer :	NO_SONG,
@@ -68,8 +68,8 @@ function obj_music_handler() constructor{
 	// After that, the information from here is placed in the other struct; clearing it out of this struct.
 	queuedSong = {
 		song :			NO_SONG,
-		songID :		noone,
-		streamID :		noone,
+		songID :		-1,
+		streamID :		-1,
 		loopPosition :	0,
 		loopLength :	0,
 	};
@@ -94,14 +94,14 @@ function obj_music_handler() constructor{
 				
 				// Copy over the data from the queue struct and place it into a temporary array that will
 				// then be used to place that data into the main song struct's respective variables.
-				var _songData = [noone, noone, 0, 0];
+				var _songData = [-1, -1, 0, 0];
 				with(_queuedSong){
 					_songData[0] = songID;
 					_songData[1] = streamID;
 					_songData[2] = loopPosition;
 					_songData[3] = loopLength;
-					songID = noone;
-					streamID = noone;
+					songID = -1;
+					streamID = -1;
 					loopPosition = 0;
 					loopLength = 0;
 				}
@@ -163,7 +163,7 @@ function obj_music_handler() constructor{
 		with(curSong){
 			if (audio_is_playing(song)) {audio_stop_sound(song);}
 			if (audio_is_playing(loopBuffer)) {audio_stop_sound(loopBuffer);}
-			if (streamID != noone) {audio_destroy_stream(streamID);}
+			if (streamID != -1) {audio_destroy_stream(streamID);}
 		}
 		delete curSong;
 		
@@ -171,7 +171,7 @@ function obj_music_handler() constructor{
 		// minus any sound stopping since no audio is ever produced by this struct's data. Once the audio
 		// stream is removed from memory, the outer struct is cleared from memory as well.
 		with(queuedSong){
-			if (streamID != noone) {audio_destroy_stream(streamID);}
+			if (streamID != -1) {audio_destroy_stream(streamID);}
 		}
 		delete queuedSong;
 	}
@@ -179,7 +179,7 @@ function obj_music_handler() constructor{
 	/// @description The function that is responsible for loading in an external music file for playback
 	/// within the game. If there's no looping information for the audio file that is being loaded given
 	/// the provided song's ID, no file will be loaded since it won't be allowed to properly loop.
-	/// @param songID
+	/// @param {Real}	songID
 	load_music_file = function(_songID){
 		// First, check to see if there is loop time data contained at the given ID. If there is, the file
 		// can be loaded since it will be able to loop. Otherwise, the file will not be loaded.
@@ -202,7 +202,7 @@ function obj_music_handler() constructor{
 		// when the currently playing song has finished fading out and thus, the song stored here can play.
 		with(queuedSong){
 			if (songID == _songID) {return;}
-			if (streamID != noone) {audio_destroy_stream(streamID);}
+			if (streamID != -1) {audio_destroy_stream(streamID);}
 			songID = _songID;
 			streamID = audio_create_stream("music/" + _musicData[? SONG_FILEPATH]);
 			loopPosition = _musicData[? LOOP_POSITION];
@@ -217,7 +217,7 @@ function obj_music_handler() constructor{
 
 /// @description A global function to call a song change from within the music handler. It does this by
 /// simply calling its "load_music_file" function using the ID supplied to it by this function call.
-/// @param songID
+/// @param {Real}	songID
 function music_set_next_song(_songID){
 	with(MUSIC_HANDLER) {load_music_file(_songID);}
 }

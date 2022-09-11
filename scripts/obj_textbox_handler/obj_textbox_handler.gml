@@ -2,14 +2,34 @@
 
 #region Initializing any macros that are useful/related to obj_textbox_handler
 
-// Two constants that keep the target and starting position consistent throughout all of the textbox handler's 
-// code. They are used for the opening animation and only that animation; the closing doesn't move the textbox.
-#macro	TEXTBOX_TARGET_Y			(CAM_HEIGHT - 58)
-#macro	TEXTBOX_START_Y				(CAM_HEIGHT + 60)
+// Macros that store the "dimensions" of the textbox, which is actually just the width and height
+// for the surface that all text is rendered onto. The actual background is determined by these
+// values along with adjustments to provide some empty space between the edges and the text.
+#macro	TEXTBOX_WIDTH				280
+#macro	TEXTBOX_HEIGHT				35
 
-// Macros for the color names that can be embedded into a given textbox's text data inside of a pair of
-// asterisks "*" that will alter the text to a pair of colors (both inner and outline, respectively) 
-// matching that given color's name.
+// The first macro determines how many pixels there are on the left and right edges of the surface
+// that the characters are rendered onto. The second one determines how long a single line of text
+// can be on said surface in pixels. These values don't factor in the outlining of the text.
+#macro	TEXT_X_BORDER				2
+#macro	LINE_MAX_WIDTH				276
+
+// Macros used for the opening/actor swap animation. The first value is the position that the textbox
+// will begin at BEFORE any movement has occured, and the second value is the position the textbox
+// wil need to reach in order to complete the movement portion of the animation.
+#macro	TEXTBOX_INITIAL_Y			(CAM_HEIGHT + 60)
+#macro	TEXTBOX_TARGET_Y			(CAM_HEIGHT - 58)
+
+// Macros that contain the characters that are used to determine when line width checks need to occur
+// and when additional data like colors need to be parsed out of the text and applied to the characters
+// after said color data.
+#macro	CHAR_PARSE_COLOR			"*"
+#macro	CHAR_RESET_COLOR			"#"
+#macro	CHAR_SPACE					" "
+#macro	CHAR_HYPHEN					"-"
+
+// Macros that store the names used for each given inner and outer color pairing that can be used to
+// display a given region of text in a color different from the default white and gray.
 #macro	BLUE						"blue"
 #macro	GREEN						"green"
 #macro	RED							"red"
@@ -19,12 +39,12 @@
 
 #region	Initializing any enumerators that are useful/related to obj_textbox_handler
 
-/// @description Stores unqiue ID values for all possible "actors" that can use the textbox and its extended
-/// functionalities. Other than the "NoActor" enum value, the remaining values should all be characters and
-/// other actual "characters" in the actual game world.
+/// @description Stores the ID values for each unique actor in the game, which will then point to a
+/// struct containing the name, color, and portrait data for said actor whenever the values are used
+/// in tandem with the function "actor_get_data".
 enum Actor{
-	NoActor,
-	Test01,
+	None,		// Provides the look for the default textbox.
+	Claire,
 }
 
 #endregion
@@ -35,544 +55,197 @@ enum Actor{
 #region	The main object code for obj_textbox_handler
 
 function obj_textbox_handler() constructor{
-	// Much like Game Maker's own x and y variables, these store the current position of the camera within 
-	// the current room. By default the textbox is set to be centered in the middle of the screen, and its
-	// y-position is set to be locked onto the bottom of the screen.
-	x = CAM_HALF_WIDTH - 140;
-	y = TEXTBOX_TARGET_Y;
-	
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
+	// 
+	x = CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2);
+	y = 0;
 	object_index = obj_textbox_handler;
 	
-	// A map that will store the current states for all entities that currently exist whenever the textbox
-	// is called to run and process all of its stored text data. It will clear all those state variables
-	// to "NO_STATE" for all entities, and then return these state values back to them once the textbox
-	// had finished its execution. HOWEVER, this doesn't happen when a cutscene is currently executing
-	// since the cutscene manager will be handling entity states.
-	entityStates = ds_map_create();
-	
-	// A simple flag that can easily be referenced in code to see if the textbox is currently in its
-	// execution state (Set to true). Otherwise, it will be inactive and set to false.
-	isTextboxActive = false;
-	
-	// Variables that allow the textbox to have its alpha channel altered depending on what the current target
-	// value is. This allows for smooth animations in the opacity to occur on top of whatever other animations
-	// are being played for the textbox during its opening and closing animations.
-	alphaTarget = 0;
-	alpha = 0;
-	
-	// Much like the variable pair above, this pair will handle the alpha for a specific aspect of the 
-	// textbox's rendering, but it will only affect whatever is drawn for the player decision window. This 
-	// window is only ever visible when the textbox needs input from the player to move forward, which is also
-	// known as a decision within the code.
-	decisionAlphaTarget = 0;
-	decisionAlpha = 0;
-	
-	// A variable that stores the color for the feathered background area that goes beneath all of the
-	// textbox decision options that whenever they are being displayed to the player. It is always set to a
-	// darker variation of the main textbox color; much like how the namespace coloring works.
-	decisionBackColor = c_white;
-	
-	// A simple pair of variables that works identically to how the same pair of highlighting variables works
-	// within a given menu struct; flashing the currently highlighted option between the highlight color and
-	// the option's standard color in order to draw attention to it so the player knows which option they have
-	// currently highlighted out of the full list.
-	highlightTimer = 0;
-	highlightOption = false;
-	
-	// Stores the currently highlighted decision index for the player relative to the list of available options
-	// shown to them. When they press the selection input, this number will be used to determine the next index
-	// of textbox to move onto from the overall list. The second variable simply stores the total number of
-	// decisions (The array's length) that the player can choose from for simpler reference.
-	decisionIndex = 0;
-	numDecisions = 0;
-	
-	// Two values that store the "width" and "height" of the textbox, which is actually the exact dimensions
-	// of the surface in which the current text is rendered onto. The actual textbox background's size is
-	// slightly larger than this, but it still uses these dimensions as a base value.
-	textboxWidth = 280;
-	textboxHeight = 35;
-	
-	// The three default state variables that are required for any object/entity/struct that uses states.
-	// The first value is the "current state" which is what is actually called during state execution. The
-	// "next state" is the second variables and causes the current state to be switched to match it at the
-	// end of everyu frame if it doesn't currently match. Finally, the "last state" is stored in the final
-	// variables for easy reference in case the previous state is needed in the new state, and so on.
+	// 
 	curState = NO_STATE;
 	lastState = NO_STATE;
 	nextState = NO_STATE;
 	
-	// Flags that store the states for all necessary inputs for the textbox's functionality. The first 
-	// handles the advancing of the textbox, and the last three are used for when the player is asked to 
-	// make a decision in the dialogue/cutscene.
-	inputAdvance = false;
-	inputUp = false;
-	inputDown =	false;
-	inputSelect = false;
+	// 
+	isTextboxActive = false;
+	alpha = 0;
 	
-	// Creates and stores a surface; a texture that is the exact dimensions of the textbox given its width
-	// and height variables. This surface is then used to render the text onto whenever the textbox is
-	// displaying information to the player. Below that is a buffer that stores a copy of the surface in
-	// memory; restoring the surface to what it was in case it gets randomly freed during gameplay.
-	surfText = surface_create(textboxWidth, textboxHeight);
-	surfTextBuffer = buffer_create(textboxWidth * textboxHeight * 4, buffer_fixed, 4);
-	
-	// All the variables for the textboxes themselves. The first stores a list of textbox structs that contain
-	// the data unique to each textbox: their text, scaling, par-character color data, and so on. The next
-	// variable simply stores the number of textboxes within that list for easy reference in the rest of 
-	// the code.
+	// Important variables for processing and managing the textbox data that will end up displaying
+	// so the user can read what each textbox contains. The first variable stores a list that holds
+	// all the textboxes that are currently queued up; their text and actor data--along with any
+	// optional effects that are active for it. The second variable is a struct that contains the
+	// data for the currently active textbox; allowing for quicker access to the data for rendering.
+	// The third variable is the current index into the textbox list that is being processed, and
+	// the remaining variable stores what index to jump to for the next textbox.
 	textboxData = ds_list_create();
-	totalTextboxes = 0;
+	textbox = {
+		fullText :			"",
+		textSpeed :			1,
+		textScale :			1,
+		actorID :			Actor.None,
+		portraitIndex :		0,
+		
+		soundData :			noone,
+		shakeData :			noone,
+		
+		playerChoices :	   -1,
+		closeTextbox :		false,
+	};
+	index = 0;
+	targetIndex = 0;
 	
-	// Stores the flag that is unique to each textbox struct. If that current textbox struct's flag is set to
-	// true it means that the textbox will close itself when the player next pressed the "advance" input on
-	// their keyboard/gamepad; even if the textbox isn't at its last index.
-	closeTextbox = false;
-	
-	// A map that stores all of the actor data structs, which are then called and used by each textbox that
-	// shares the same "actor ID" value as the key/value pairs in this map. This prevents the actors from
-	// having to be stored on a per-textbox basis, which would be a lot of duplicate data for no real gain
-	// in performance. The flag "actorSwap" will allow the textbox to repeat its opening and closing animation
-	// whenever the next textbox has a different actor than the previous one.
+	// Much like above, these variables all have the role of processing and managing a specific
+	// group of data for the textbox; just for the actor data instead of the textbox data like
+	// said above variables. There is a struct that stores information for the current actor
+	// in use by the textbox handler, and a list storing all the required data. There is also
+	// a boolean that will cause the textbox to perform its opening animation again to mask
+	// the actor data being swapped.
 	actorData = ds_map_create();
+	actor = {
+		nameString :		"",
+		nameWidth :			0,
+		portrait :			NO_SPRITE,
+		backgroundColor :	HEX_WHITE,
+	};
 	actorSwap = false;
 	
-	// These four variables are what can be altered by the current actor's data. The first simply stores
-	// the name for the actor that is then rendered to the textbox over its namespace area. The second 
-	// stores the sprite index forn the portrait. Likewise, the current portrait image is stored within the
-	// third variable. Finally, the color of the textbox's main area is stored within the fourth variable.
-	// All these simply store redundant data from the actor's data to speed up the textbox rendering code.
-	actorName = "";
-	actorPortrait = 0;
-	actorPortraitIndex = 0;
-	textboxColor = c_white;
+	// Variables for the surface that is used as the canvas to render all of the textbox's text
+	// onto. The buffer stores a copy of that texture data in RAM so it can be copied back onto
+	// the surface in the event of it being flushed prematurely from VRAM. The alpha determines
+	// the overall opacity of the surface independent of the textbox's own alpha.
+	surfText = -1;
+	surfTextBuffer = buffer_create(TEXTBOX_WIDTH * TEXTBOX_HEIGHT * 4, buffer_fixed, 4);
+	surfAlpha = 1;
 	
-	// This value works similarly to how the textboxWidth variable does; only with the namespace instead of
-	// the actual textbox. It will accurately size the namespace's width so that the name will be evenly
-	// centered within it.
-	actorNameWidth = 0;
+	// Variables that allow the text to have its "typewriter" effect. The first variable is the
+	// latest character to be rendered from the effect, the second has its value updated relative
+	// to the current text speed--adding a new character to be rendered one it is larger than the
+	// "curChar" value and the final variable just stores the numerical value for how many characters
+	// there are for the current text.
+	curChar = 1;
+	nextChar = 1;
+	finalChar = 1;
 	
-	// Stores the current index out of the group of textboxes that is currently being rendering onto the
-	// screen for the player to view. This value usually increments up by one whenever a previous textbox
-	// is closed, but it can be manipulated to jump around to various indexes for things like branching
-	// decisions or early exits from execution.
-	curTextboxIndex = 0;
+	// Variables that allow for the temporary pause (Or skipping of said pause entirely when toggled)
+	// of the typewriter effect when punctuation is reached in the text.
+	punctuationTimer = 0;
+	processPunctuation = false;
 	
-	// Stores the current colors for a group of given characters that are currently being rendered onto the
-	// textbox. These can be swapped and edited during the rendering process in order to swap colors around
-	// for different words or word groups. The asterisk "*" is used to denote that a color swap is occurring,
-	// and the logic for parsing out the color's name is found below in the actual rendering logic for the
-	// text characters.
-	textColor = HEX_WHITE;
-	textOutlineColor = RGB_GRAY;
-	
-	// The current offset position on the textbox's text rendering surface that the next character should be
-	// placed; relative to the text's starting point. It's reset whenever the text is cleared to make room
-	// for the new textbox data.
-	characterX = 0;
-	characterY = 0;
-	
-	// Two important variables for the text to be properly formatted within the dimensions of the text surface.
-	// The offset variable is used whenever there is a portrait shown on the textbox alongside the text. In
-	// that case this value is altered to move the text out of the way of the portrait sprite. Likewise, the
-	// max line width will prevent the text from overshooting the right edge of the textbox; starting a new
-	// line to prevent it. The value is shrunk when a portrait is being displayed on the textbox.
-	textOffsetX = 0;
-	maxLineWidth = 0;
-	
-	// A variable that simply stores the value of the text speed set by the user; preventing the code from
-	// having to jump into the settings to retrieve this value on a per-frame basis while the text is still
-	// scrolling onto the screen.
-	textSpeed = 0;
-	
-	// The three main variables for rendering the text and also allowing it to have a typewriter animation
-	// effect for rendering the text onto the surface it uses. The first variable is what the index for the
-	// latest to-be-rendered character is, the second is what the next to-be-rendered character should be
-	// and the final variable is the simply length of the string.
-	curCharacter = 1;
-	nextCharacter = 1;
-	finalCharacter = 0;
-	
-	// A simple variable that counts up at a given speed (0.05 per 1/60th of a second) until it reaches a
-	// value of two. After that, it will be reset to 0 and begin the process again. The result is the textbox
-	// having an "advancement" indicator that bobs up and down at a given interval.
-	indicatorOffset = 0;
-	
-	// A slightly simplified variation on the camera's shake effect variables. In short, it allows the
-	// textbox to have a horizontal shaking effect applied when a given textbox is opened; to relay the
-	// intensity of the dialogue within said textbox. 
-	shakeCurStrength = 0;
-	shakeDuration = 0;
-	
-	// Determines the target index for the cutscene relative to decisions made/event flag states if there 
-	// is a textbox currently active. Otherwise, this variable goes unused.
-	cutsceneTargetIndex = -1;
+	// Variables that determine the positional offset on the text surface that the next character
+	// in the typewriter effect will be rendered at, as well as the current colors used for that
+	// character.
+	charOffsetX = 0;
+	charOffsetY = 0;
+	charColor = HEX_WHITE;
+	charOutlineColor = RGB_GRAY;
 	
 	// 
-	textboxSound = NO_SOUND;
-	textboxSoundTimer = 0;
+	indicatorOffset = 0;
 	
-	/// @description Code that should be placed into the "Step event of whatever object is controlling
-	/// obj_textbox_handler. In short, it checks for input from the game's currently active input device
-	/// and then it manipulates the textbox accordingly.
+	// Variables that store the input state for the various actions that can be done through the
+	// textbox by the player; advancing to the next chunk of text, checking previous text through
+	// the "log", and moving the cursor to different decisions when the player is required to make
+	// a decision.
+	inputAdvance = false;
+	inputLog = false;
+	inputSelect = false;
+	inputUp = false;
+	inputDown = false;
+	
+	#region Game Maker events as functions
+	
+	/// @description Code that should be placed into the "Step" event of whatever object is controlling
+	/// obj_textbox_handler. In short, it will simply call the state function for the textbox if it is
+	/// currently active and has a valid function stored within its "curState" variable.
 	step = function(){
-		// Prevent execution of the step event whenever the textbox isn't currently in its active state.
-		if (!isTextboxActive) {return;}
-		
-		// Waiting until the textbox fades away before completing the transition to the new textbox data;
-		// resetting all necessary variables in order to allow this new textbox to display its text properly.
-		if (actorSwap && alpha == 0){
-			// Open up the next textbox now that the current one has fully closed.
-			open_next_textbox(curTextboxIndex + 1);
-			// Set all of the textbox's variables for its animation to what they are when the textbox first
-			// opens; triggering its opening animation once again for the new actor's textbox.
-			y = TEXTBOX_START_Y;
-			alphaTarget = 1;
-			actorSwap = false;
-		}
-		
-		// Only attempt to play the textbox's "text scrolling" sound effect if there isn't a sound being
-		// played by the current textbox and if the textbox still has text to place onto the textbox.
-		if (curCharacter < finalCharacter && (textboxSound == NO_SOUND || !audio_is_playing(textboxSound))){
-			textboxSoundTimer -= DELTA_TIME;
-			if (textboxSoundTimer <= 0){
-				audio_play_sound_ext(snd_textbox_scroll, 100, SOUND_VOLUME * 0.3, 1, true);
-				textboxSoundTimer = global.settings.textSpeed * 2; // Timer is always twice the speed of the text.
-			}
-		}
-		
-		// Make sure the player's sprite is set to their standing animation. Otherwise they'll freeze in
-		// place while still using whatever animation they were in prior to the textbox opening.
-		with(PLAYER) {set_sprite(mainSprite, 1, 0);}
-		
-		// Don't allow any input to be processed by the textbox if it currently isn't actively displaying
-		// text to the player OR while it's animation. Failing to check if there is a state will result
-		// in the game crashing, and the pause for animation stops it from jittering when the player mashes
-		// their "advance" input.
-		if (curState == NO_STATE || alphaTarget != alpha || y != TEXTBOX_TARGET_Y) {return;}
-		curState();
+		if (isTextboxActive && curState != NO_STATE) {curState();}
 	}
 	
 	/// @description Code that should be placed into the "End Step" event of whatever object is controlling
-	/// obj_textbox_handler. In short, it handles updating the current state for the textbox to the new state
-	/// if one was set in the frame.
+	/// obj_textbox_handler. In short, it will update the textbox to its next state if a change between
+	/// states was set to occur during the "step" event. On top of that, all the additional effects that
+	/// occur for a textbox (Sound effect playback/delayed playback, horizontal shaking) will be processed
+	/// in this event.
 	end_step = function(){
 		if (curState != nextState) {curState = nextState;}
+		
+		// In order to allow for a textbox's sound to be delayed, the timer for that delayed
+		// playback is counted down here by access the "soundData" struct that is stored inside
+		// the current textbox's data struct. Once that delay value reaches 0, the sound will be
+		// played and the "index" will be set to NO_SOUND to prevent further playback.
+		with(textbox.soundData){
+			if (index != NO_SOUND){
+				delay -= DELTA_TIME;
+				if (delay <= 0){
+					audio_play_sound_ext(index, 0, volume, pitch);
+					index = NO_SOUND;
+				}
+			}
+		}
+		
+		// Handling the optional horizontal shaking effect that can occur for a given textbox. It
+		// will slowly lose its intensity over the course of its "duration" value (Measured in 1/60th
+		// of every real-world second being equal to a value of 1 for the variable). Once the power
+		// of the shake has reached zero, it will no longer occur and this code will no longer run.
+		with(textbox.shakeData){
+			if (curPower > 0){
+				curPower -= initialPower / duration * DELTA_TIME;
+				other.x = (CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2)) + irandom_range(-curPower, curPower);
+			}
+		}
 	}
 	
 	/// @description Code that should be placed into the "Draw GUI" event of whatever object is controlling
-	/// obj_textbox_handler. In short, it handles generating the texture for the textbox's text as well as
-	/// all the graphical rendering that is necessary for the textbox to look how it does.
+	/// obj_textbox_handler. In short, it will handle the rendering of the components that make up the
+	/// textbox by calling their respective functions if the textbox is currently visible (alpha > 0)
+	/// and toggled to an active state.
 	draw_gui = function(){
-		// Prevents the textbox from rendering whenever it is both invisible to the player and inactive.
-		if (!isTextboxActive) {return;}
+		if (!isTextboxActive || alpha == 0) {return;}
 		
-		// Adjust the two values that are responsible for the textbox's opening and closing animation on a
-		// per-frame basis. This prevents the animation from getting stuck and also minimizes the code needed
-		// for the textbox to perform said animation; given its relative simplicity.
-		y = value_set_relative(y, TEXTBOX_TARGET_Y, 0.25);
-		alpha = value_set_linear(alpha, alphaTarget, 0.075);
-		if (!actorSwap && alpha == 0) {textbox_end_execution();}
+		// Drawing the "background" information for the currently viewable textbox data. The color of
+		// these elements being dictated on a per-actor basis, and things like the portrait area and
+		// namespace only being optional features to include.
+		render_textbox_background(x - 15, y - 8, alpha);
+		render_actor_information(x, y, alpha, textbox.portraitIndex);
 		
-		// Setting the alpha of the control info on the screen ONLY WHEN the textbox is currently the object
-		// in control of that alpha level. Otherwise, it will be managed by another object (Ex. being controlled
-		// by obj_cutscene_manager whenever a cutscene is active) and the alpha code will not be overwritten.
-		var _alpha, _curTextboxIndex, _totalTextboxes, _closeTextbox;
-		_alpha = alpha;
-		_curTextboxIndex = curTextboxIndex;
-		_totalTextboxes = totalTextboxes;
-		_closeTextbox = closeTextbox;
-		with(CONTROL_INFO){
-			if (curController == TEXTBOX_HANDLER && (_closeTextbox || _curTextboxIndex == 0 || _curTextboxIndex == _totalTextboxes)) {alpha = _alpha;}
-		}
-		
-		// Handling the option shake effect that can occur on a per-textbox basis. In short, it will rock
-		// the entire textbox back and forth on the x-axis for a set amount of "frames" and (60 frames being
-		// 1 second of real-time) slowly depleting strength over that time. Since the textbox's state is
-		// temporarily removed during the shake effect, it is re-enabled after the effect has completed.
-		if (shakeCurStrength > 0){
-			shakeCurStrength -= 5 / shakeDuration * DELTA_TIME;
-			x = CAM_HALF_WIDTH - 140 + irandom_range(-shakeCurStrength, shakeCurStrength);
-			if (shakeCurStrength <= 0) {object_set_next_state(lastState);}
-		}
-		
-		// Drawing the textbox's background and advancement indicator // 
-		
-		// Displaying the background of the textbox as a stretched nineslice sprite that spans the entire
-		// width and height set for the textbox. The color that the textbox will become is determined by
-		// whatever the current actor's color data says it should be.
-		draw_sprite_stretched_ext(spr_textbox_background, 0, x - 15, y - 8, textboxWidth + 30, textboxHeight + 17, textboxColor, alpha);
-		
-		// If the textbox has finished displaying all of the required string onto the surface for rendering,
-		// a small downward-facing arrow will be shown bouncing up and down at regular intervals based on
-		// the speed of the indicatorOffset's value change over time. ("Time" being 1/60th of a second)
-		var _decisionState = (curState == state_choose_decision);
-		if (curCharacter > finalCharacter && !_decisionState){
-			indicatorOffset += DELTA_TIME * 0.05;
+		// Displaying the text advancement indicator; letting the player know that there is no more
+		// text to be displayed onto the textbox, so they can safely advance without missing information.
+		if (curChar > finalChar){
+			draw_sprite_ext(spr_advance_indicator, 0, x + TEXTBOX_WIDTH - 2, y + TEXTBOX_HEIGHT - 2 - floor(indicatorOffset), 1, 1, 0, c_white, surfAlpha * alpha);
+			indicatorOffset += 0.05 * DELTA_TIME;
 			if (indicatorOffset >= 2) {indicatorOffset = 0;}
-			draw_sprite_ext(spr_advance_indicator, 0, x + textboxWidth - 2, y + textboxHeight - floor(indicatorOffset), 1, 1, 0, HEX_WHITE, alpha);
 		}
-		
-		// Drawing the background for the decision area of the textbox // 
-		
-		// Only render the background that the options will be displayed on if the current state of the 
-		// textbox is asking the player to make a decision based on what is stored in the decisionData array
-		// of the given textbox.
-		var _decisionElementAlpha = alpha * decisionAlpha;
-		if (_decisionState){
-			var _xx, _yy, _halfHeight; // Store these values in order to prevent the calculations from being duplicated below.
-			_xx = CAM_WIDTH - 160;
-			_yy = y - 8 - ((numDecisions + 1) * 10);
-			_halfHeight = ((numDecisions + 1) * 5) + 2;
-			// Display the background as a feathered rectangle that is attached to the right edge of the screen.
-			// It's height is determined by the number of decisions available to the player, and its vertical
-			// position is determined with that amount as well.
-			draw_sprite_feathered(spr_rectangle, 0, _xx, _yy, 200, _halfHeight * 2, _xx + 140, _yy + _halfHeight, _xx + 140, _yy + _halfHeight, 0, decisionBackColor, _decisionElementAlpha * 0.75);
-			shader_reset(); // Must be somewhere after the "draw_sprite_feathered" since it automatically changes the shader to the feathering one.
-		}
-		
-		// Drawing the namespace's background, it's text, and portrait to the screen //
-		
-		// Only render the portrait image to the textbox IF both the actor portrait and portrait image index
-		// are set to valid values. (Their defaults are both -1) Otherwise, a crash can and will occur.
-		if (actorPortrait != -1 && actorPortraitIndex != -1){
-			draw_sprite_ext(actorPortrait, actorPortraitIndex, x - 2, y - 5, 1, 1, 0, c_white, alpha);
-		}
-		
-		// Only attempt to render the name of the actor and the namespace that goes behind said name if the
-		// actor actually has a name stored within its respective variable. Otherwise, the name will be an
-		// empty string "" and the namespace isn't rendered.
-		if (actorName != ""){
-			draw_sprite_stretched_ext(spr_textbox_namespace, 0, x - 5, y - 19, actorNameWidth, 13, textboxColor, alpha);
-			shader_set_outline(RGB_GRAY, font_gui_small);
-			draw_text_outline(x, y - 15, actorName, HEX_WHITE, RGB_GRAY, alpha);
-			if (!_decisionState) {shader_reset();} // Don't reset the shader if the decision text needs to be rendered
-		}
-		
-		// Drawing the textbox's decision text whenever it needs to be shown to the player //
-		
-		// Only attempt to display the decision data array for the current textbox if the player is being
-		// given the opportunity to make a decision within by the current textbox, which occurs after the
-		// dialogue within said textbox has fully rendered to the screen. Then, this chunk of code will run
-		// and render each of those options onto the screen above the previously rendered background elements.
-		if (_decisionState){
-			shader_set_outline(RGB_GRAY, font_gui_small);
-			draw_set_halign(fa_right);
-			for (var i = 0; i < numDecisions; i++){
-				if (i == decisionIndex){ // Draw the highlighted text and a cursor next to the option.
-					var _yPosition, _decisionText; // Can initialize in the loop since this will only ever run once per loop.
-					_yPosition = y - (10 * (numDecisions - i - 1)) - 20;
-					_decisionText = textboxData[| curTextboxIndex].decisionData[i][0];
-					// Drawing the square cursor that goes next to the highlighted option
-					draw_sprite_ext(spr_rectangle, 0, CAM_WIDTH - 20 - string_width(_decisionText), _yPosition + 2, 4, 4, 0, HEX_DARK_YELLOW, _decisionElementAlpha);
-					draw_sprite_ext(spr_rectangle, 0, CAM_WIDTH - 19 - string_width(_decisionText), _yPosition + 3, 2, 2, 0, HEX_LIGHT_YELLOW, _decisionElementAlpha);
-					// Drawing the option text itself; flashing at regular intervals between the highlight color and normal color
-					if (highlightOption) {draw_text_outline(CAM_WIDTH - 10, _yPosition, _decisionText, HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, _decisionElementAlpha);}
-					else {draw_text_outline(CAM_WIDTH - 10, _yPosition, _decisionText, HEX_WHITE, RGB_GRAY, _decisionElementAlpha);}
-				} else{ // Simply draw the option in the default color/outline color.
-					draw_text_outline(CAM_WIDTH - 10, y - (10 * (numDecisions - i - 1)) - 20, textboxData[| curTextboxIndex].decisionData[i][0], HEX_WHITE, RGB_GRAY, _decisionElementAlpha);
-				}
-			}
-			draw_set_halign(fa_left);
-			
-			// Finally, reset the shader before rendering the textbox's text surface. Otherwise, a second 
-			// outline will appear on each of the surface's characters, since they are rendered onto the
-			// surface with an outline to begin with.
-			shader_reset();
-		}
-		
-		// Drawing to the text surface and rendering it on the textbox //
-		
-		// If the surface is ever randomly flushed out of the current GPU memory, it needs to be reinitialized
-		// and the data contained within its buffer needs to be applied to said surface; restoring what the
-		// previous surface looked like before being flushed out of memory.
+
+		// Drawing the field that contains the current text information for the textbox. First, a 
+		// check is performed to see if the surface used to contain that text exists; it's created if 
+		// it was flushed from the GPU for whatever reason. Then, that surface is updated if there is
+		// still additional text to display. Finally, that surface is rendered at an opacity relative
+		// to the textbox itself and the surface's own alpha value.
 		if (!surface_exists(surfText)){
-			surfText = surface_create(textboxWidth, textboxHeight);
+			surfText = surface_create(TEXTBOX_WIDTH, TEXTBOX_HEIGHT);
 			buffer_set_surface(surfTextBuffer, surfText, 0);
 		}
-		
-		// Only allow the textbox's text-to-surface rendering to occur while there are actually still parts
-		// of the string that haven't been rendered onto said surface AND there isn't a sound effect assigned 
-		// to this textbox that is currently playing. If both are checked, all that needs to be done is 
-		// simply rendering that texture, so this entire chunk will be ignored; saving processing time
-		// that would be useless otherwise.
-		if (nextCharacter < finalCharacter + 1 && (textboxSound == NO_SOUND || !audio_is_playing(textboxSound))){
-			nextCharacter += textSpeed * DELTA_TIME;
-			
-			// If there isn't a possibility to render a new character onto the text surface, don't bother
-			// with any setting of shaders and surface rendering targets since they won't be utilized.
-			// Instead, just render the currently visible text to the screen and exit the drawing function.
-			if (curCharacter >= floor(nextCharacter)){
-				draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, alpha);
-				draw_control_info_background(CAM_WIDTH, CAM_HEIGHT, alpha * 0.75);
-				return; // "Return" can be used here since this are the last things to need rendering.
-			}
-			
-			// Before rendering new characters to the textbox's text surface, data from the current textbox
-			// struct is pulled and stored into local variables for easier access while looping to render
-			// all those needed characters. Specifically, it takes the text scaling attributes and the
-			// full string from that textbox struct.
-			var _xScale, _yScale, _fullText;
-			with(textboxData[| curTextboxIndex]){
-				_xScale = textXScale;
-				_yScale = textYScale;
-				_fullText = fullText;
-			}
-			
-			// Once the necessary data has been grabbed from the current textbox struct, the outline shader
-			// will begin its execution in order to render what would normally be standard text with a one
-			// pixel wide outline of a given color around itself. Also, the rendering target is set to
-			// the text surface since it is what is used to display the text for a given textbox.
-			shader_set_outline(textOutlineColor, font_gui_small);
-			surface_set_target(surfText);
-			
-			// Being looping for however many iterations are needed relative to the difference between the
-			// values of "curCharacter" and the interger representation of "nextCharacter"; parsing any
-			// necessary color data from the string and pulling out the necessary amount of characters
-			// for rendering.
-			var _curChar = "";
-			while(curCharacter < floor(nextCharacter)){
-				_curChar = string_char_at(_fullText, curCharacter);
-				
-				// An asterisk "*" was found, this means that a color code needs to be parsed in order to
-				// set the next chunk of text to the desired colors. It does this by looping again until
-				// a second asterisk character is hit, which ends the parsing process for the required
-				// color.
-				if (_curChar == "*"){
-					// Before starting the color name parsing, some temporary variables must be initialized
-					// to assist with that process. Namely, the string of parsed color name and also a
-					// temporary offset starting from the NEXT possible character after the first asterisk,
-					// since the symbol itself does nothing other than trigger this process.
-					var _colorName, _offset;
-					_colorName = "";
-					_offset = curCharacter + 1;
-					while(_offset <= finalCharacter){
-						_curChar = string_char_at(_fullText, _offset);
-						
-						// That second required asterisk was hit, so the color name will have assumed to
-						// be successfully parsed from the text data. It will then take this parsed string
-						// to attempt to retrieve the matching colors for the next region of text before
-						// exiting this data parsing loop.
-						if (_curChar == "*"){
-							var _colorData = get_text_color_data(_colorName);
-							textColor =			_colorData[0];
-							textOutlineColor =	_colorData[1];
-							curCharacter =		_offset + 1;
-							nextCharacter =		curCharacter;
-							break;
-						}
-						
-						// Keep adding characters and increasing the offset until that next required
-						// asterisk character it hit in order to end the color code parsing.
-						_colorName += _curChar;
-						_offset++;
-					}
-					continue;
-				}
-				// The hashtag "#" characer signifies the end of a region of text that is colored whatever
-				// had been set previously by an asterisk pair plus inner color name. It simply resets
-				// the previous color with the text's default colors of white and gray for the inner and
-				// outline, respectively.
-				else if (_curChar = "#"){
-					textColor =			HEX_WHITE;
-					textOutlineColor =	RGB_GRAY;
-					curCharacter++;
-					nextCharacter++;
-					continue;
-				}
-				// Much like the logic that is used for formatting strings within the custom "string_format_width"
-				// function, this code checks for any spaces or hyphens in the text in order to see if the 
-				// maximum string width will be exceeded by adding the next word to the current line.
-				else if (_curChar == " " || _curChar == "-"){
-					var _nextWordWidth, _skipCharacter, _curCharExt;
-					_nextWordWidth = 0;
-					_skipCharacter = false;
-					for (var i = curCharacter + 1; i <= finalCharacter; i++){
-						// Grab the next available character after the space of the hyphen, but if it is
-						// found to be the initializer character for reading a color code; don't bother
-						// with this loop and simply exit before doing anything.
-						_curCharExt = string_char_at(_fullText, i);
-						if (_curCharExt == "*") {break;}
-						
-						// If the string has hit it's last character OR a space/hypen is the current 
-						// character, perform the check to see if the current word should be placed on 
-						// the current line or if it should be put on a new line instead. If it moves onto
-						// a new line, the character that started this wrapping check will be placed at
-						// the current target position for the character if it was a hyphen and not a
-						// space character.
-						if (i == finalCharacter || _curCharExt == " " || _curCharExt == "-"){
-							if (characterX + _nextWordWidth >= maxLineWidth){
-								if (_curChar == "-") {draw_character(_curChar, textColor, textOutlineColor, _xScale, _yScale);}
-								characterX = 0;
-								characterY += string_height("M") * _yScale;
-								_skipCharacter = true;
-							}
-							break; // Exits out of the current for loop; regardless of it's completed or not.
-						}
-						
-						// Keep adding the "next" character's width to the word's full width until a space,
-						// hyphen OR the end of the string has been reached, which will then use this value
-						// to determine where that word ends up on a line-to-line basis.
-						_nextWordWidth += string_width(_curCharExt) * _xScale;
-					}
-					
-					// If the character was set to skip over itself make sure the value stored within the
-					// "curSharacter" variable is updated to match that skip, and that the rendering for
-					// the character is skipped over through the use of "continue".
-					if (_skipCharacter){
-						curCharacter++;
-						continue;
-					}
-				}
-				
-				// Display the current character with the currently set colors onto the surface of the
-				// textbox's text surface; scaling relative to what is needed from the textbox itself.
-				draw_character(_curChar, textColor, textOutlineColor, _xScale, _yScale);
-				
-				// Make sure to store the current state of the surface into its buffer; preserving it in case
-				// the surface is randomly flushed out of the GPU's memory.
-				buffer_get_surface(surfTextBuffer, surfText, 0);
-				
-				// Finally, offset the character's x position by the last rendered character's width, and move
-				// onto rendering the next character onto the surface if the value for curCharacter is still
-				// lower than what the code thinks the next rendered character should be. (This is all relative
-				// to whatever the current text speed is)
-				characterX += string_width(_curChar) * _xScale;
-				curCharacter++;
-			}
-			
-			// After looping through and adding all of the necessary characters to the surface that will
-			// then be placed onto the textbox itself, reset the rendering target and stop using the 
-			// outline shader while rendering.
-			surface_reset_target();
-			shader_reset();
-		}
-		
-		// Display whatever text is currently on the surface at the end of each draw_gui call for the textbox.
-		// This ensures that it will always be placed above the textbox's background elements.
-		draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, alpha);
-		
-		// Draw the final element (the background that the input control information goes on) of the textbox
-		// af an feathered rectangle that is placed along the bottom of the screen behind said information.
-		draw_control_info_background(CAM_WIDTH, CAM_HEIGHT, alpha * 0.75);
+		if (curChar <= finalChar) {update_text_surface(textbox.fullText);}
+		draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, surfAlpha * alpha);
 	}
 	
-	/// @description Code that should be placed into the "Cleanup" event of whatever object is controlling
-	/// obj_textbox_handler. In short, it will cleanup any data that needs to be freed from memory that isn't 
-	/// collected by Game Maker's built-in garbage collection handler.
+	/// @description Code that should be placed into the "Clean Up" event of whatever object is controlling
+	/// obj_textbox_handler. In short, it will clear out any data structures and struct objects created
+	/// by the textbox handler before itself is removed from memory; preventing any lost pointers and
+	/// memory leaks.
 	cleanup = function(){
-		// Removes the text's surface if it still exists in memory, and also removes the surface's buffer from
-		// memory as well.
-		if (surface_exists(surfText)) {surface_free(surfText);}
-		buffer_delete(surfTextBuffer);
+		// 
+		var _length = ds_list_size(textboxData);
+		for (var i = 0; i < _length; i++){
+			with(textboxData[| i]){
+				delete soundData;
+				delete shakeData;
+				ds_list_destroy(playerChoices);
+			}
+			delete textboxData[| i];
+		}
+		ds_list_destroy(textboxData);
 		
-		// Delete the data structure that is responsible for storing all the existing entity's given states
-		// from BEFORE the textbox was open, since the textbox modifies those states temporarily.
-		ds_map_destroy(entityStates);
-		
-		// Loop through all of the actor data contained within the map to delete each struct pointer from it.
-		// After that, the map itself is destroyed and removed from memory.
+		// 
 		var _key = ds_map_find_first(actorData);
 		while(!is_undefined(_key)){
 			delete actorData[? _key];
@@ -580,317 +253,252 @@ function obj_textbox_handler() constructor{
 		}
 		ds_map_destroy(actorData);
 		
-		// Much like above, remove the structs containing data for each of the remaining textboxes. After that,
-		// destroy the list much like the map above; clearing it from memory.
-		for (var i = 0; i < totalTextboxes; i++) {delete textboxData[| i];}
-		ds_list_destroy(textboxData);
-	}
-	
-	/// @description Gathers input for the textbox's input variables from either the keyboard or the gamepad
-	/// depending on which one is considered the active controller by the game.
-	get_input = function(){
-		if (!global.gamepad.isActive){ // Gathering Keyboard Input
-			inputAdvance =	keyboard_check_pressed(global.settings.keyAdvance);
-			inputUp =		keyboard_check_pressed(global.settings.keyMenuUp);
-			inputDown =		keyboard_check_pressed(global.settings.keyMenuDown);
-			inputSelect =	keyboard_check_pressed(global.settings.keySelect);
-		} else{ // Gathering Controller Input
-			var _deviceID = global.gamepad.deviceID;
-			inputAdvance =	gamepad_button_check_pressed(_deviceID, global.settings.gpadAdvance);
-			inputUp =		gamepad_button_check_pressed(_deviceID, global.settings.gpadMenuUp);
-			inputDown =		gamepad_button_check_pressed(_deviceID, global.settings.gpadMenuDown);
-			inputSelect =	gamepad_button_check_pressed(_deviceID, global.settings.gpadSelect);
-		}
-	}
-	
-	/// @description A simple default state for the textbox. It gathers input from the user and then sees
-	/// whether or not the textbox should autofill its text/advance, or open the text log for the player
-	/// to view all previous textboxes for the current string of textboxes OR full cutscene.
-	state_default = function(){
-		// First, gather input from the currently active control method through the function below.
-		get_input();
+		// 
+		delete textbox;
+		delete actor;
 		
-		// Whenever the advancing text input has been detected, the textbox handler will check if the text
-		// has been fully displayed by the typewriter effect. If not, it will skip the animation. Otherwise,
-		// it will check if there is a decision list that needs to be shown to the player. If so, the textbox
-		// will have its state set to choose a decision. Otherwise, the textbox will automatically advance to
-		// the next available textbox; closing itself out if there are no more textboxes after the current one.
-		if (inputAdvance){
-			if (nextCharacter > finalCharacter){ // Opening the next textbox OR allowing the player to make a decision
-				var _numDecisions = array_length(textboxData[| curTextboxIndex].decisionData);
-				if (_numDecisions <= 1){ // No decision list or it has only one option; open next textbox
-					open_next_textbox(curTextboxIndex + 1);
-				} else{ // A decision needs to be made by the player for the current textbox
-					// First, jump into the state that allows the player to make a decision based on the 
-					// available options; pausing the textbox until they do so.
-					object_set_next_state(state_choose_decision);
-					// Next, set the alpha value for this section to transition to fully opaque in a simple
-					// fading animation; also get the total number of options for the player to choose from
-					// for later use in the code.
-					decisionAlphaTarget = 1;
-					decisionIndex = 0;
-					numDecisions = _numDecisions;
-					// Finally, update the control information that is currently being displayed on the bottom
-					// of the screen to show the player what inputs allow them to move the cursor to other
-					// options and what input allows them to select said option.
-					control_info_add_displayed_icon(INPUT_MENU_UP, "", ALIGNMENT_LEFT);
-					control_info_add_displayed_icon(INPUT_MENU_DOWN, "Choose Option", ALIGNMENT_LEFT);
-					control_info_edit_displayed_icon(0, INPUT_SELECT, "Select", ALIGNMENT_RIGHT);
-				}
-			} else{ // Filling out the textbox's text instantly
-				nextCharacter = finalCharacter;
-				textboxSoundTimer = 0;
-			}
-		}
-	}
-	
-	/// @description A state that the textbox is run in whenever it needs to get a decision from the player
-	/// based on a list of options provided by the currently viewed textbox. After the player presses the
-	/// select input the state will parse what to do based on the decision index and then return the textbox
-	/// back to its normal state.
-	state_choose_decision = function(){
-		// Before any input logic can be processed, the highlight timer that will flash the highlighted option
-		// at regular intervals until it is no longer being highlighted, will be decremented based on delta
-		// time until the flag needs to be flipped and the timer needs to be reset.
-		highlightTimer -= DELTA_TIME;
-		if (highlightTimer <= 0){ // Flip the flag for flashing the option and reset the timer
-			highlightTimer += OPTION_FLASH_INTERVAL;
-			highlightOption = !highlightOption;
-		}
-		
-		// Much like the highlight timer, the alpha level needs to be updated before the input can be processed
-		// by the state. However, unlike the above chunk of code, this code will actually prevent the input
-		// processing below it from being ran until the alpha level matches whatever the target value is.
-		if (decisionAlpha != decisionAlphaTarget){
-			decisionAlpha = value_set_linear(decisionAlpha, decisionAlphaTarget, 0.1);
-			
-			// Closing out the state if the target alpha and current alpha of the decision area of the
-			// textbox are both set to 0. In this case, the state will be reset to the default state and
-			// the index of current textbox will be set to whatever is stored in the decision data array.
-			if (decisionAlpha == 0 && decisionAlphaTarget == 0){
-				// First, change the state back to the default state in order to restore normal textbox 
-				// functionality; changing the "curState" value instantly to avoid weird issues.
-				object_set_next_state(state_default);
-				curState = state_default; // Prevents accidental overwriting if the next textbox has a shake applied to it
-				
-				// Reset the control information to remove the "Up" and "Down" inputs from it and reset the
-				// right-aligned input to show the advancement input for the textbox.
-				control_info_remove_displayed_icon(1); // Deletes the "Menu Up" display data
-				control_info_remove_displayed_icon(1); // Deletes the "Menu Down" display data
-				control_info_edit_displayed_icon(0, INPUT_SELECT, "Next", ALIGNMENT_RIGHT);
-				
-				// Assign the target index that the cutscene's current instruction index will be assigned
-				// to once said textbox has finished its execution. If this is any value other than -1
-				// it will manipulate that scene instruction value. Otherwise, nothing will happen.
-				var _data = textboxData[| curTextboxIndex];
-				if (CUTSCENE_MANAGER.isCutsceneActive) {cutsceneTargetIndex = _data.decisionData[decisionIndex][2];}
-				
-				// Move onto whatever textbox the stored index within the decision data contains. This allows
-				// for branching dialogue and different outcomes based on decisions chosen. A value of "-1"
-				// will simply make the textbox move onto the next available index by default.
-				var _outcomeTextboxIndex = _data.decisionData[decisionIndex][1];
-				if (_outcomeTextboxIndex == -1) {_outcomeTextboxIndex = curTextboxIndex + 1;}
-				open_next_textbox(_outcomeTextboxIndex);
-			}
-			return; // Don't allow player input during the opening/closing animation
-		}
-		
-		// First, gather input from the currently active control method through the function below.
-		get_input();
-		
-		// If the selection input has been pressed by the user, the processing for fading out the display
-		// before processing the decision chosen and returning to the default state, will begin.
-		if (inputSelect){
-			decisionAlphaTarget = 0;
-			return; // Exit early to prevent the decision index from updating
-		}
-		
-		// Handling menu cursor movement in a simple way--having no automatic scrolling since there won't
-		// ever be too many options to choose from. In short, it stores the value based on the up and down
-		// inputs; resulting in a -1 if the up key is pressed, 1 for the down key, and 0 if both or none
-		// are pressed. After that, the value is wrapped around if it exceeds the bounds of the list.
-		var _input = (inputDown - inputUp);
-		decisionIndex += _input;
-		if (decisionIndex < 0) {decisionIndex = numDecisions - 1;}
-		else if (decisionIndex >= numDecisions) {decisionIndex = 0;}
-		
-		// Resetting the highligting variables to ensure that the newly selected option is always set to
-		// highlight itself initially. Otherwise, there's a chance that an option change can occur while
-		// the flag is set to false; not converying the change properly without audio if that's the case.
-		if (_input != 0){
-			highlightTimer = OPTION_FLASH_INTERVAL;
-			highlightOption = true;
-		}
-	}
-	
-	/// @description A simple function that draws a character onto the textbox's surface at a given position.
-	/// The position can be horiztonally offset whether or not a portrait image is visible, and the color and
-	/// outline color's are set based on their respecitve argument fields.
-	/// @param character
-	/// @param color
-	/// @param outlineColor
-	/// @param xScale
-	/// @param yScale
-	draw_character = function(_character, _color = HEX_WHITE, _outlineColor = RGB_GRAY, _xScale = 1, _yScale = 1){
-		//if (characterX == 0 && _character == " ") {return;}
-		draw_text_outline((2 * _xScale) + characterX + textOffsetX, 1 + characterY, _character, _color, _outlineColor, 1, _xScale, _yScale);
-	}
-	
-	/// @description Another realtively simple drawing function that will render a background for the
-	/// current control information to be placed upon; that background being a black rectangle that is
-	/// feathered on the left, top, and right sides.
-	/// @param camWidth
-	/// @param camHeight
-	/// @param alpha
-	draw_control_info_background = function(_camWidth, _camHeight, _alpha){
-		shader_set(shd_feathering);
-		with(global.shaderFeathering){
-			shader_set_uniform_f(sFadeStart, 60, _camHeight - 5, _camWidth - 60, _camHeight);
-			shader_set_uniform_f(sFadeEnd, -30, _camHeight - 20, _camWidth + 30, _camHeight);
-			draw_sprite_ext(spr_rectangle, 0, 0, _camHeight - 20, _camWidth, 20, 0, HEX_BLACK, _alpha);
-		}
-		shader_reset();
-	}
-	
-	/// @description A simple fucntion that returns a struct containing data unique to each of the game's
-	/// actors. An actor is simply an enumerator value that relates to a character or type of textbox for
-	/// actors that aren't tied to actual game characters. The structs contain the following:
-	///
-	///		actorName		--		Stores a string that is placed within the textbox's namespace area.
-	///		portraitSprite	--		Stores the index for the sprite that is the actor's portrait.
-	///		textboxColor	--		Stores a unique color for the textbox when the actor is active.
-	///
-	/// @param actor
-	get_actor_data = function(_actor){
-		switch(_actor){
-			case Actor.NoActor: // The default actor, which is a dummy for just displaying simple textboxes and the like.
-				return {
-					actorName : "",
-					portraitSprite : -1,
-					textboxColor : HEX_BLUE,
-				};
-			case Actor.Test01:
-				return {
-					actorName : "Claire",
-					portraitSprite : spr_claire_portraits,
-					textboxColor : make_color_rgb(68, 0, 188),
-				};
-		}
-	}
-	
-	/// @description Retrieves a pre-set pair of colors for text within the textbox given the color code
-	/// that was provided to the function. If no valid color is found with the argument, the default
-	/// colors of white and gray will be set, instead.
-	/// @param colorName
-	get_text_color_data = function(_colorName){
-		switch(_colorName){
-			case RED:			return [HEX_RED, RGB_DARK_RED];
-			case GREEN:			return [HEX_GREEN, RGB_DARK_GREEN];
-			case BLUE:			return [HEX_LIGHT_BLUE, RGB_DARK_BLUE];
-			case YELLOW:		return [HEX_LIGHT_YELLOW, RGB_DARK_YELLOW];
-			default:			return [HEX_WHITE, RGB_GRAY];
-		}
-	}
-	
-	/// @description A function that resets the necessary variables and calls the required functions to
-	/// update the data shown by the textbox to match the newly assigned index determined by the argument
-	/// value for this function. If that index is out of the valid range and values or the previous index
-	/// had called for the textbox to close, it will also automatically perform that closing setup.
-	/// @param nextIndex
-	open_next_textbox = function(_nextIndex){
-		// Store the previous index (Used for determining if an actor swap is necessary) for the textbox
-		// and then assign the new index to replace that value. Then, check if the textbox needs to be
-		// closed given that index value or the value in the "closeTextbox" flag.
-		var _previousIndex = curTextboxIndex;
-		curTextboxIndex = _nextIndex;
-		if (curTextboxIndex < 0 || curTextboxIndex >= totalTextboxes || closeTextbox){
-			alphaTarget = 0;
-			actorSwap = false;
-			return; // Exit the event since the textbox is now closed.
-		}
-		
-		// Check if an actor swap is required. If so, the rest of this function is skipped until the
-		// "closing" animation has played for the textbox box. Only after that will the data for the
-		// textbox will be updated.
-		actorSwap = (textboxData[| _previousIndex].actorID != textboxData[| curTextboxIndex].actorID);
-		if (actorSwap){
-			alphaTarget = 0;
-			return;
-		}
-		
-		// Reset the variables that are responsible for determining the position and color of the current 
-		// character on the textbox.
-		characterX = 0;
-		characterY = 0;
-		curCharacter = 1;
-		nextCharacter = 1;
-		textColor = HEX_WHITE;
-		textOutlineColor = RGB_GRAY;
-		
-		// Call the functions that update and apply extra textbox effects (The final character's index, 
-		// textbox shaking, or a sound effect to play) and the function that updates the current actor's
-		// displayed information. (Portrait image, textbox color, etc.)
-		apply_extra_textbox_effects(curTextboxIndex);
-		update_current_actor_info(actorSwap);
-		
-		// Finall, reset the text surface by clearing out the buffer of any data and applying that cleared
-		// out data to the surface, which should set every pixel to (0, 0, 0, 0).
-		if (!surface_exists(surfText)) {surfText = surface_create(textboxWidth, textboxHeight);}
-		buffer_fill(surfTextBuffer, 0, buffer_u32, 0, textboxWidth * textboxHeight * 4);
-		buffer_set_surface(surfTextBuffer, surfText, 0);
-	}
-	
-	/// @description A simple function that sets the variables responsible for showing the actor's name and
-	/// portrait--along with the textbox color required for said actor; to the actual variables that will
-	/// be used in the textbox rendering code to display all this information. Optionally, the actor data
-	/// can be skipped over so that only the portrait's image index is updated; saving on a bit of code
-	/// execution.
-	update_current_actor_info = function(_updateActorVariables){
-		if (_updateActorVariables){
-			var _actor = actorData[? textboxData[| curTextboxIndex].actorID]; // This keeps the code looking nicer
-			actorName =				_actor.actorName;
-			actorPortrait =			_actor.portraitSprite;
-			textboxColor =			_actor.textboxColor;
-			
-			// Create the backing color for the decision display area, which is a slightly darker variation
-			// of the textbox's main color. It's created here in order to prevent the draw event from having
-			// to create this color every frame using what this variable stores; saving processing time.
-			decisionBackColor =		make_color_rgb(color_get_red(textboxColor) * 0.25, 
-												   color_get_green(textboxColor) * 0.25,
-												   color_get_blue(textboxColor) * 0.25);
-			
-			// Store the width of the actor's name so that it evenly fits within the textbox's namespace.
-			draw_set_font(font_gui_small); // Set the font for an accurate calculation.
-			actorNameWidth =		string_width(actorName) + 9;
-			
-			// Determine if the text needs to be offset in order to make room for a portrait image. If that is
-			// the case, an offset of 50 pixels will be added in order to allow enough room for it. The images 
-			// are 46 by 46 pixels, so the additional 4 pixels replicates the offest without the portrait nicely.
-			if (actorPortrait != -1){
-				textOffsetX = 50;
-				maxLineWidth = textboxWidth - 58;
-			} else{ // No portrait exists; clear out any text offset values.
-				textOffsetX = 0;
-				maxLineWidth = textboxWidth - 8;
-			}
-		}
-		// The only value that is stored on a per-textbox basis; not per-actor. So, it is always updated when
-		// this function gets called.
-		actorPortraitIndex =		textboxData[| curTextboxIndex].actorPortraitIndex;
-	}
-	
-	/// @description Ends the execution for the textbox by cleaning up all the memory and data that is no 
-	/// longer in use now that the textbox is closed. Also, set the active state of textbox to false and
-	/// reset the game's state back to what it was previously.
-	textbox_end_execution = function(){
-		// Clear out the buffer by writing all 0s to it, and then free the surface from memory for the time
-		// being since it's no longer being used to render text onto the screen.
-		buffer_fill(surfTextBuffer, 0, buffer_u32, 0, textboxWidth * textboxHeight * 4);
+		// 
 		if (surface_exists(surfText)) {surface_free(surfText);}
+		buffer_delete(surfTextBuffer);
+	}
 	
-		// Run through each of the actors that were required for the current chunk of textboxes and delete
-		// their pointers from memory; signaling to Game Maker to unload the struct data found within each
-		// pointer.
+	#endregion
+	
+	#region Player input function
+	
+	/// @description Gathers input from the player's currently active input method (A supported gamepad or 
+	/// the computer's keyboard by default) and stores the states for all the required inputs into boolean
+	/// variables, which are then referenced throughout the textbox's state logic to determine what needs
+	/// to be processed for the current frame.
+	get_input = function(){
+		if (GAMEPAD_IS_ACTIVE){ // Getting input from the detected and in-use gamepad.
+			var _gamepadID =	GAMEPAD_DEVICE_ID;
+			inputAdvance =		gamepad_button_check_pressed(_gamepadID, PAD_ADVANCE);
+			inputLog =			gamepad_button_check_pressed(_gamepadID, PAD_LOG);
+			inputSelect =		gamepad_button_check_pressed(_gamepadID, PAD_SELECT);
+			inputUp =			gamepad_button_check(_gamepadID, PAD_MENU_UP);
+			inputDown =			gamepad_button_check(_gamepadID, PAD_MENU_DOWN);
+			// TODO -- Add ability to select options by using the left or right thumbsticks.
+		} else{ // Getting input from the default device keyboard.
+			inputAdvance =		keyboard_check_pressed(KEY_ADVANCE);
+			inputLog =			keyboard_check_pressed(KEY_LOG);
+			inputSelect =		keyboard_check_pressed(KEY_SELECT);
+			inputUp =			keyboard_check(KEY_MENU_UP);
+			inputDown =			keyboard_check(KEY_MENU_DOWN);
+		}
+	}
+	
+	#endregion
+	
+	#region Main textbox states (Advancing through text, player choice logic, etc.) 
+	
+	/// @description The textbox's "default" state, where the player is able to advance onto the next
+	/// textbox OR completely skip over the typerwriter effect by pressing that same "advance" key before
+	/// the effect has been completed. From there, it is determined whether the next textbox in the list
+	/// will be used, if there needs to be a choice by the player, of if the textbox should close outright.
+	state_default = function(){
+		get_input(); // Before any logic is processed, get input from the user.
+		
+		// Pressing the textbox advance key, which can cause two different outcomes to occur: skipping the
+		// typewriter animation effect for the text OR closing the current textbox in order to open the next
+		// one; closing the textbox if no more remain or the textbox was signaled to close prematurely by
+		// the current index of textbox data.
+		if (inputAdvance){
+			if (nextChar <= finalChar){ // Skipping the typewriter animation.
+				processPunctuation = false;
+				nextChar = finalChar + 1;
+			} else{ // Determine what to do for closing the current textbox.
+				if (textbox.closeTextbox || index == ds_list_size(textboxData) - 1){
+					object_set_next_state(state_closing_animation);
+					targetIndex = -1; // Tells the textbox that it should close after completing the animation.
+				} else{
+					// UNIQUE CASE -- If there is player choice data found within the list for such data
+					// that exists within each textbox data struct, the textbox will enter its decision
+					// state; having the next index determined relative to the choice made by the player.
+					if (ds_list_size(textbox.playerChoices) > 1){
+						//object_set_next_state(state_fade_in_decision_data);
+						return;
+					}
+					
+					// STANDARD CASE -- Check if an actor swap needs to occur between the current and the
+					// next textbox. An actor swap will play the closing animation without actually closing
+					// the textbox. Meanwhile, the non-actor swap will fade out the old text before moving
+					// onto the next textbox data is displayed.
+					actorSwap = (textbox.actorID != textboxData[| index + 1].actorID);
+					if (!actorSwap) {object_set_next_state(state_fade_out_previous_text);}
+					else {object_set_next_state(state_closing_animation);}
+					targetIndex = index + 1;
+				}
+			}
+		}
+	}
+	
+	/// @description
+	state_select_decision = function(){
+		
+	}
+	
+	#endregion
+	
+	#region Animation states (Opening, closing, fading out old text, changing actors, etc.) 
+	
+	/// @description The textbox's opening animation, which causes it to slide onto the screen from the
+	/// bottom; fading itself in as that position translation occurs. Once the animation has been finished,
+	/// the textbox's state is set to its "default" where player input can be processed.
+	state_opening_animation = function(){
+		alpha = value_set_linear(alpha, 1, 0.05);
+		y = value_set_relative(y, TEXTBOX_TARGET_Y, 0.15);
+		if (alpha == 1 && y < TEXTBOX_TARGET_Y + 0.5){
+			object_set_next_state(state_default);
+			y = TEXTBOX_TARGET_Y;
+		}
+	}
+	
+	/// @description The textbox's closing animation, which simply fades the textbox and all of its contents
+	/// out of visibility. Once that is done, one of two different things can occur: the textbox can be
+	/// deactivated or the opening animation can be performed again. These outcomes can occurs when the
+	/// textbox is set to be closed or if an actor swap has occurred between this and the previous textbox,
+	/// respectively.
+	state_closing_animation = function(){
+		alpha = value_set_linear(alpha, 0, 0.075);
+		if (alpha == 0){
+			if (targetIndex == -1){ // Closes the textbox.
+				textbox_deactivate();
+			} else{ // Prepares the next textbox; playing the opening animation again.
+				object_set_next_state(state_opening_animation);
+				prepare_next_textbox(targetIndex);
+				y = TEXTBOX_INITIAL_Y;
+			}
+		}
+	}
+	
+	/// @description A simplified transition animation that fades out the old textbox text before any new
+	/// text is rendered onto the screen. It can only occur when a textbox change has occurred, but an
+	/// actor swap didn't happen during that change.
+	state_fade_out_previous_text = function(){
+		surfAlpha = value_set_linear(surfAlpha, 0, 0.1);
+		if (surfAlpha == 0){
+			object_set_next_state(state_fade_in_new_text);
+			prepare_next_textbox(targetIndex);
+		}
+	}
+	
+	/// @description A reverse process compared to the state function above this one; it will fade in the
+	/// surface that is responsible for displaying the text contents for the textbox into visibility so it
+	/// smoothly transitions between the two textboxes.
+	state_fade_in_new_text = function(){
+		surfAlpha = value_set_linear(surfAlpha, 1, 0.1);
+		if (surfAlpha == 1) {object_set_next_state(state_default);}
+	}
+	
+	#endregion
+	
+	#region Textbox struct list management functions
+	
+	/// @description Swaps the data used for the "old" textbox with data found at the new index value;
+	/// text data, actor data, new portraits, and so on. It will also clear out the buffer that stored
+	/// the characters that are rendered onto the textbox so the new text can be rendered onto it.
+	/// @param {Real}	index
+	prepare_next_textbox = function(_index){
+		// Completely clear the surface of the old text by writing nothing but zeroes to the surface
+		// buffer. Then, copy the new zeroed out buffer to the surface, which completely clears out any
+		// previously existing graphical data.
+		buffer_fill(surfTextBuffer, 0, buffer_u32, 0, TEXTBOX_WIDTH * TEXTBOX_HEIGHT * 4);
+		if (surface_exists(surfText)) {buffer_set_surface(surfTextBuffer, surfText, 0);}
+		
+		// Assign the new index value to the variable that determines which textbox struct to pull its
+		// data from; allowing new data to be used instead of the old textbox's data.
+		index = _index;
+		
+		// Update the "current textbox" struct with the data that is found in the struct at the current
+		// index within the "textboxData" ds_list. Set all of the redundant values to their counterparts
+		// for easier access during code execution.
+		var _text = textboxData[| index];
+		with(textbox){
+			fullText =			_text.fullText;
+			textSpeed =			_text.textSpeed;
+			textScale =			_text.textScale;
+			actorID =			_text.actorID;
+			portraitIndex =		_text.portraitIndex;
+			
+			soundData =			_text.soundData;
+			shakeData =			_text.shakeData;
+			
+			playerChoices =		_text.playerChoices;
+			closeTextbox =		_text.closeTextbox;
+		}
+		
+		// Only bother updating the current actor data if an actor swap occurred between this and the
+		// previous textbox. Otherwise, it would be a waste to fill the struct with the same data it
+		// already had for use with the previous textbox.
+		if (actorSwap){
+			var _actor = actorData[? _text.actorID];
+			with(actor){
+				nameString =		_actor.nameString;
+				portrait =			_actor.portrait;
+				backgroundColor =	_actor.backgroundColor;
+				
+				draw_set_font(font_gui_small); // Ensures string width calculations are correct.
+				nameWidth =			string_width(nameString) + 20;
+			}
+		}
+		
+		// Reset the character variables that cause the typewriter text effects to even function to begin
+		// with. The final character's value for the new text is stored within the "finalChar" variable,
+		// so the typerwriter effect knows when it has been completed.
+		curChar = 1;
+		nextChar = 1;
+		finalChar = string_length(_text.fullText);
+		
+		// Reset the punctuation timer variables to enable punctuation to actually be processed for the
+		// new textbox (This is only a possibility if the player skips the typewriter animation).
+		punctuationTimer = 0;
+		processPunctuation = true;
+		
+		// Reset the indicator offset so it always starts at the same position when it shows up.
+		indicatorOffset = 0;
+		
+		// Reset character position and color data to their defaults so the new text doesn't begin where
+		// the character offset was after the previous textbox's text completed its rendering.
+		charOffsetX = 0;
+		charOffsetY = 0;
+		charColor = HEX_WHITE;
+		charOutlineColor = RGB_GRAY;
+	}
+	
+	/// @description Removes all textbox, actor, and surface data from the textbox handler's respective
+	/// variables. After cleaning out all that old data, the flag for the textbox's "state" is set to false
+	/// and whatever state was currently given to the textbox will be reset to NO_STATE; preventing any
+	/// textbox code from running without conversation/actor data available for use.
+	textbox_deactivate = function(){
+		object_set_next_state(NO_STATE);
+		
+		// Loop through each textbox data struct; cleaning out the structs and other data within that needs
+		// to be freed from memory before said struct's pointer is lost by the "ds_list_clear" function.
+		var _length, _cLength;
+		_length = ds_list_size(textboxData);
+		for (var i = 0; i < _length; i++){
+			with(textboxData[| i]){
+				delete soundData;
+				delete shakeData;
+				
+				_cLength = ds_list_size(playerChoices);
+				for (var j = 0; j < _cLength; j++){delete playerChoices[| j];}
+				ds_list_destroy(playerChoices);
+			}
+		}
+		ds_list_clear(textboxData);
+		
+		// Removes the now invalid pointers that once pointed to the last textbox's sound and shake structs.
+		// Done so GameMaker's garbage collector doesn't see the unused pointer values and think the structs 
+		// themselves should still exist as a result.
+		with(textbox){
+			soundData = noone;
+			shakeData = noone;
+		}
+		
+		// Delete all structs created and stored within the "actorData" ds_map; freeing them from memory
+		// before their pointers are lost by the "ds_map_clear" function call.
 		var _key = ds_map_find_first(actorData);
 		while(!is_undefined(_key)){
 			delete actorData[? _key];
@@ -898,267 +506,427 @@ function obj_textbox_handler() constructor{
 		}
 		ds_map_clear(actorData);
 		
-		// Create a local variable that allows for easy accessing of the three state indexes from the array
-		// that is stored within each of the map indexes of the entityStates ds_map.
-		var _states = noone;
-		
-		// Loop through all of the stores entity state data and bring the states back to each of the entities
-		// that still exist within the current room; clearing that entire list out after the fact. However,
-		// this will only occur when a textbox has been created outside of a cutscene.
-		if (!CUTSCENE_MANAGER.isCutsceneActive){
-			_key = ds_map_find_first(entityStates);
-			while(!is_undefined(_key)){
-				_states = entityStates[? _key];
-				with(_key){ // Jumps into the entity instance to restore its state variables.
-					curState =		_states[0];
-					nextState =		_states[1];
-					lastState =		_states[2];
-				}
-				_key = ds_map_find_next(entityStates, _key);
-			}
-			ds_map_clear(entityStates);
-			
-			// The game state will also only be reset if the game isn't already within a cutscene when the
-			// textbox has completed its execution. Otherwise, it will restore the previous game state on
-			// its own since it also sets it to the "cutscene" state upon its execution starting when
-			// there is no cutscene playing.
-			GAME_SET_STATE(GAME_STATE_PREVIOUS, true);
-		}
-	
-		// Run through the list and delete all the structs found within it. After that, clear out the list
-		// so it becomes completely empty of data; ready for new textbox data to be added in.
-		for (var i = 0; i < totalTextboxes; i++) {delete textboxData[| i];}
-		ds_list_clear(textboxData);
-		totalTextboxes = 0; // Reset this value so it can be used accurately on subsequent textbox groups.
-		
-		// If the textbox was in control of the textbox during its execution it needs to clean out the input
-		// display data before fully ending its own execution. To do this, the controller variable is reset,
-		// the alpha is set to fully opaque, and the displayed icon list is cleared from memory.
-		with(CONTROL_INFO){
-			if (curController == TEXTBOX_HANDLER){
-				control_info_clear_displayed_icons();
-				curController = noone;
-				alpha = 0;
-			}
-		}
-	
-		// Finally, set the textbox's state to NO_STATE, set its activity flag to false to halt its 
-		// updating and rendering logic.
-		object_set_next_state(NO_STATE);
+		// Finally, free the surface from VRAM if it hasn't be prematurely flushed and set the main state
+		// of the textbox to false, so it no longer processes state or rendering logic.
+		surface_free(surfText);
 		isTextboxActive = false;
 	}
 	
-	/// @description A function that condenses all of the additional textbox effect logic into a function.
-	/// In short, it updates the value for the final character, checks if there are any shake effects or
-	/// sounds to execute, and finally if the current textbox should close the handler early or not.
-	/// @param index
-	apply_extra_textbox_effects = function(_index){
-		// First, attempt to grab the data struct found at the current index within the data for the
-		// current textboxes. If there isn't any valid data stored at the given index within the list,
-		// the function will exit and no variables will be updated.
-		var _textbox = textboxData[| _index];
-		if (is_undefined(_textbox)) {return;}
-		
-		// Grab the numerical index for the final character's position within the string that is stored
-		// in the current textbox struct.
-		finalCharacter =	string_length(_textbox.fullText);
-		
-		// Next, apply the values for the shake data for the current textbox to the handler's variables,
-		// which are then used to execute the optional shaking effect for the current textbox. The state
-		// for the textbox is paused for the duration of shaking effect.
-		shakeCurStrength =	_textbox.shakeData[0];
-		shakeDuration =		_textbox.shakeData[1];
-		if (shakeCurStrength != 0 && shakeDuration != 0) {object_set_next_state(NO_STATE);}
-		
-		// After that, check if there is a sound effect that needs to be played by the textbox handler.
-		// If there is a valid sound effect, it will be played and the textbox will be paused until the
-		// sound has finished playing.
-		var _soundEffect = _textbox.soundEffect;
-		if (_soundEffect[0] != NO_SOUND){
-			audio_play_sound_ext(_soundEffect[0], 0, _soundEffect[1], _soundEffect[2], false);
-			textboxSound = _soundEffect[0];
-		}
+	#endregion
 	
-		// Store the boolean value that each textbox struct contains to determine whether or not it
-		// should close early or not; a value of "true" meaning the textbox will close regardless of if
-		// it's the final textbox index or not.
-		closeTextbox =		_textbox.closeTextbox;
+	#region Textbox rendering functions
+	
+	/// @description Renders the background elements for the textbox. (Excluding the background elements required 
+	/// for the "textbox decision" section; those elements being contained in their own function) The color of 
+	/// these elements are dictacted by the actor that is currently using the textbox to speak. As such the
+	/// rendering occurs within the scope of that current actor struct. Note that the namespace and portrait area
+	/// backgrounds are only displayed if there is a name or portrait image to display, respectively.
+	/// @param {Real}	x
+	/// @param {Real}	y
+	/// @param {Real}	alpha
+	render_textbox_background = function(_x, _y, _alpha){
+		with(actor){
+			draw_sprite_stretched_ext(spr_textbox_background, 0, _x, _y, TEXTBOX_WIDTH + 30, TEXTBOX_HEIGHT + 17, backgroundColor, _alpha);
+			if (nameString != "") {draw_sprite_stretched_ext(spr_textbox_namespace, 0, _x + 10, _y - 11, nameWidth, 13, backgroundColor, _alpha);}
+			if (portrait != NO_SPRITE) {draw_sprite_stretched_ext(spr_textbox_portrait, 0, _x + TEXTBOX_WIDTH - 70, _y - 45, 86, 47, backgroundColor, _alpha);}
+		}
 	}
+	
+	/// @description Renders the additional information that can exist alongside the standard text field that
+	/// is always shown to the player on each textbox; the actor's name and their current portrait image. Much
+	/// like the background graphics for the data, the name and portraits aren't rendered if there is no valid
+	/// data to display or the actor doesn't required them.
+	/// @param {Real}	x
+	/// @param {Real}	y
+	/// @param {Real}	alpha
+	/// @param {Real}	portraitIndex
+	render_actor_information = function(_x, _y, _alpha, _portraitIndex){
+		with(actor){
+			// Drawing the name of the currently speaking "actor" onto the area meant to display the name
+			// for the current speaker (If they have a name). If there is no name, this code is ignored
+			// and no namespace is rendered for the textbox.
+			if (nameString != ""){
+				shader_set_outline(RGB_GRAY, font_gui_small);
+				draw_set_halign(fa_center);
+				draw_text_outline(_x - 5 + round(nameWidth / 2), _y - 15, nameString, HEX_WHITE, RGB_GRAY, _alpha);
+				draw_set_halign(fa_left);
+				shader_reset();
+			}
+			
+			// Drawing the current portrait sprite (the given frame for that sprite is determined by the
+			// value of "_portraitIndex" on the screen at a set position. If no portrait sprite exists for
+			// the actor, no rendering is done.
+			if (portrait != NO_SPRITE){
+				draw_sprite_ext(portrait, _portraitIndex, _x + TEXTBOX_WIDTH - 64, _y - 52, 1, 1, 0, c_white, _alpha);
+			}
+		}
+	}
+	
+	/// @description The function that handles the typewriter effect when text is actively being rendered
+	/// onto the surface that is then drawn onto the textbox's background to display said text. It will
+	/// also handle briefly stopping that effect when it comes to valid puncuation. (AKA "it has a space
+	/// after it")
+	/// @param {String}	text
+	update_text_surface = function(_text){
+		// Pause any processing of the textbox's typewriter effect until the punctuation timer runs out
+		// if the textbox hasn't been set to ignore said timer.
+		if (processPunctuation && punctuationTimer > 0){
+			punctuationTimer -= global.settings.textSpeed * DELTA_TIME * textbox.textSpeed;
+			nextChar = curChar; // Stops the "nextChar" value from going too high when delta time is too large.
+			return;
+		}
+		
+		// Increment the value for "nextChar" until it exceeds the value for "curChar". Once this occurs,
+		// it means that more characters must be rendered to the surface as is required by the text's
+		// typewriter effect. To do this, it will loop; rendering each new character until the value for
+		// "curChar" is finally greater than "nextChar" or the final character in the string has been hit.
+		nextChar += global.settings.textSpeed * DELTA_TIME * textbox.textSpeed;
+		if (nextChar > curChar){
+			// Render the required characters to the text surface. Also, copy that surface data into a
+			// buffer so it doesn't get lost if the surface is freed for whatever reason.
+			shader_set_outline(charOutlineColor, font_gui_small);
+			surface_set_target(surfText);
+			
+			var _scale, _charString;
+			_scale = textbox.textScale;
+			while(nextChar > curChar){
+				_charString = string_char_at(_text, curChar);
+				
+				// Check for punctuation, which simply means it's one of six unique characters (? , . ; : !) that 
+				// will temporarily pause the typewriter effect for the textbox for a duration that is unique to
+				// each character. However, multiple simultaneous punctuation characters in a row will ignore all
+				// but the final one when it comes to the pause effect, and the final character won't be considered
+				// since a pause is unnecessary in that context.
+				var _isValidPunctuation = (curChar != finalChar && (is_character_punctuation(_charString) && !is_character_punctuation(string_char_at(_text, curChar + 1))));
+				if (processPunctuation && _isValidPunctuation) {punctuationTimer = get_punctuation_time(_charString);}
+				
+				// Call the function that will render the required character onto the textbox at the proper
+				// coordinates. If the value for "curChar" exceeds "finalChar", the loop will exit since
+				// no more characters are left to render.
+				render_character_to_surface(_charString, _text, _scale);
+				if (curChar > finalChar || (processPunctuation && punctuationTimer > 0)) {break;}
+			}
+			
+			surface_reset_target();
+			shader_reset();
+			buffer_get_surface(surfTextBuffer, surfText, 0);
+		}
+	}
+	
+	/// @description Attempts to draw a character to the text surface that will be rendered onto the
+	/// textbox's background. There are a few exception to this rendering process, however. For example,
+	/// the "parse color" character (*) will cause the next chunk in the string to be read as a color code
+	/// that will then be used to draw the next character(s) as said color. Other than that, the "reset
+	/// color" character (#) is used to reset back to the default text color, and a space/hyphen character
+	/// will cause the rendering system to check if the next word exceeds the width limit for a line on
+	/// the textbox. A separate function is used to handle the length limit check.
+	/// @param {String}	charString
+	/// @param {String}	text
+	/// @param {Real}	scale
+	render_character_to_surface = function(_charString, _text, _scale){
+		if (_charString == CHAR_PARSE_COLOR){ // Begin parsing color data from the string.
+			parse_character_color_data(_text, _scale);
+			return;
+		} else if (_charString == CHAR_RESET_COLOR){ // Reset the current text color data.
+			reset_character_color_data();
+			return;
+		} else if ((_charString == CHAR_SPACE || _charString == CHAR_HYPHEN) && does_next_word_exceed_line_width(_text, _scale)){
+			if (_charString == CHAR_HYPHEN) {draw_text_outline(TEXT_X_BORDER + charOffsetX, charOffsetY, _charString, charColor, charOutlineColor, 1, _scale, _scale);}
+			charOffsetX = 0;
+			charOffsetY += floor((string_height("M") + 1) * _scale);
+			return;
+		}
+		
+		// Render the character before adding its width to the next character's rendering position. Update
+		// the value for "curChar" so it will attempt to render the next available character in the string.
+		draw_text_outline(TEXT_X_BORDER + charOffsetX, charOffsetY, _charString, charColor, charOutlineColor, 1, _scale, _scale);
+		charOffsetX += floor(string_width(_charString) * _scale);
+		curChar++;
+	}
+	
+	#endregion
+	
+	#region Textbox formatting functions
+	
+	/// @description Attempts to parse out the data within the textbox's displayed text that is found 
+	/// between any two asterisk (*) symbols. It does this by first searching through the string to find
+	/// the next asterisk. (The first one is what triggered the call to this function in the first place)
+	/// Once it finds said symbol, it will get the "color" by copying the characters found between the
+	/// pair of symbols. Then, the color is updated to match the color string found in the data.
+	/// @param {String}	text
+	/// @param {Real}	scale
+	parse_character_color_data = function(_text, _scale){
+		var _color, _endCharPos;
+		_endCharPos = string_pos_ext(CHAR_PARSE_COLOR, _text, curChar + 1);
+		_color = string_copy(_text, curChar + 1, _endCharPos - curChar - 1);
+		
+		// Attempt to grab an inner color and outer color pair for the text that matches the string found
+		// within the text. If no valid color exists for the string that was found, the default text color
+		// will be used instead.
+		switch(_color){
+			case BLUE:		charColor = HEX_LIGHT_BLUE;		charOutlineColor = RGB_DARK_BLUE;		break;
+			case GREEN:		charColor = HEX_GREEN;			charOutlineColor = RGB_DARK_GREEN;		break;
+			case RED:		charColor = HEX_RED;			charOutlineColor = RGB_DARK_RED;		break;
+			case YELLOW:	charColor = HEX_LIGHT_YELLOW;	charOutlineColor = RGB_DARK_YELLOW;		break;
+			default:		charColor = HEX_WHITE;			charOutlineColor = RGB_GRAY;			break;
+		}
+		
+		// Advance the character parsing index to skip over the data found between the two "*" symbols.
+		nextChar = max(nextChar, _endCharPos + 2);
+		curChar = _endCharPos + 1;
+	}
+	
+	/// @description Automatically resets the text's inner and outer colors back to their default values.
+	reset_character_color_data = function(){
+		charColor = HEX_WHITE;
+		charOutlineColor = RGB_GRAY;
+		nextChar++;
+		curChar++;
+	}
+	
+	/// @description Performs a check to see if the next word that will be added to the textbox is too
+	/// long to fit onto the current line that is being rendered. If that happens to be the case, the 
+	/// current line will be ended, and a new line of characters will begin to be rendered, instead.
+	/// @param {String}	text
+	/// @param {Real}	scale
+	does_next_word_exceed_line_width = function(_text, _scale){
+		var _wordWidth, _curChar, _charString;
+		_wordWidth = 0;
+		_curChar = curChar + 1;
+		_charString = string_char_at(_text, _curChar);
+		
+		// Loop through the string until the next space or hyphen character is reached. Once that
+		// occurs, the "word" that was being built here will be completed and a check for the line width
+		// plus the new word being larger than the maximum possible width is performed.
+		while(_charString != CHAR_SPACE && _charString != CHAR_HYPHEN && _curChar <= finalChar){
+			_curChar++;
+			_charString = string_char_at(_text, _curChar);
+			
+			// Ignore unique code characters so they don't make the word sizes inaccurate to what is
+			// shown to the user after the text is parsed and drawn onto its surface.
+			if (_charString == CHAR_PARSE_COLOR)		{break;}
+			else if (_charString == CHAR_RESET_COLOR)	{continue;}
+			
+			_wordWidth += string_width(_charString);
+		}
+
+		// Add the word onto the current line and see if that value exceeds the maximum width of a
+		// line given the textbox's dimensions. If the value is greater, a new line is created, but
+		// nothing additional is performed if the word can fit on the current line.
+		if (charOffsetX + ((string_width(" ") + _wordWidth) * _scale) >= LINE_MAX_WIDTH){
+			nextChar++;
+			curChar++;
+			return true;
+		}
+		return false;
+	}
+	
+	/// @description Determines if the current character is "valid punctuation", which simply means that 
+	/// it is one of the six unique characters seen in the below "return" statement.
+	/// @param {String}	charString
+	is_character_punctuation = function(_charString){
+		return ((_charString == "!") || (_charString == ",") || (_charString == ".") || 
+				(_charString == ":") || (_charString == ";") || (_charString == "?"));
+	}
+	
+	/// @description Returns a unique value that will be used to pause the textbox's stypewriter effect for
+	/// the desired duration given the current puncuation character that was found. Once second of pausing
+	/// is equal to a value of 60, so these numbers are calculated relative to that full second value.
+	/// @param {String}	charString
+	get_punctuation_time = function(_charString){
+		switch(_charString){
+			case "!":	return 18;
+			case ",":	return 12;
+			case ".":	return 21;
+			case ":":	return 15;
+			case ";":	return 15;
+			case "?":	return 18;
+			default:	return 0;
+		}
+	}
+	
+	#endregion
+	
+	/// @description Returns a struct that contains information about the actor relative to the ID value
+	/// that was passed into the function. By default, a textbox will be given the "Actor.None" (0) ID,
+	/// which is the default composition for a textbox. Otherwise, a unique ID can be provided which 
+	/// changes the color, adds a visible name, and even a visible sprite for the actor speaking.
+	/// @param {Enum.Actor}	actorID
+	actor_get_data = function(_actorID){
+		switch(_actorID){
+			case Actor.None:
+				return {
+					nameString :		"",
+					portrait :			NO_SPRITE,
+					backgroundColor :	make_color_rgb(0, 0, 188),
+				};
+			case Actor.Claire:
+				return {
+					nameString :		"Claire",
+					portrait :			spr_claire_portraits,
+					backgroundColor :	make_color_rgb(88, 0, 188),
+				};
+		}
+	}
+	// TODO -- Potentially change this to a JSON file of data to simplify the code.
 }
 
 #endregion
 
 #region Global functions related to obj_textbox_handler
 
-/// @description A simple function that prepares the textbox to begin displaying its data to the player on
-/// a per-page basis until it runs out of pages. It does so by resetting any necessary variables to their
-/// defaults and setting others to their required values.
-function textbox_begin_execution(){
+/// @description Adds a new textbox data struct to the end of the list that stores said data. From here,
+/// all the data required by the textbox (Even the optional stuff like sound and shake effect structs) are
+/// initialized and have their data set accordingly; either to what is provided in the arguments or with
+/// defaults since they aren't altered through this function. After this function, all textbox manipulation
+/// function will reference the struct created here since it will be the latest one in the list.
+/// @param {String}		text
+/// @param {Real}		speed
+/// @param {Real}		scale
+/// @param {Enum.Actor}	actorID
+/// @param {Real}		portraitIndex
+function textbox_add_text(_text, _speed = 1, _scale = 1, _actorID = Actor.None, _portraitIndex = 0){
 	with(TEXTBOX_HANDLER){
-		// Don't bother reinitializing the textbox if it's currently in an active state.
 		if (isTextboxActive) {return;}
 		
-		// Always make sure the textbox's index is set to the first in the list of textbox data.
-		curTextboxIndex = 0;
-		
-		// Reset the offset position values that will be used for rendering the next character onto the
-		// textbox's text surface with a smooth typewriter-like scrolling effect.
-		characterX = 0;
-		characterY = 0;
-		
-		// Next, reset the variables responsible for the typerwriter text scrolling effect and also set the
-		// final character's value to the length of the 0th textbox data's text data. Set the text speed
-		// variable to match the settings' "text speed" option value as well.
-		curCharacter = 1;
-		nextCharacter = 1;
-		textSpeed = global.settings.textSpeed;
-		
-		// Reset the color data to the standard of white and gray in case it wasn't reset by the closing
-		// of the previous textbox. (Meaning a "#" wasn't found in the last textbox's text data)
-		textColor = HEX_WHITE;
-		textOutlineColor = RGB_GRAY;
-		
-		// After all the text variables have been set to their desired values, set the textbox's animation
-		// variables by placing the textbox temporarily off screen and setting its alpha target to full
-		// opacity.
-		y = TEXTBOX_START_Y;
-		alphaTarget = 1;
-		
-		// Assign the textbox's state to its default and flip the "active" flag to true to signify to
-		// other objects that the textbox is currently moving through the data that has been loaded into
-		// the text data structure.
-		object_set_next_state(state_default);
-		isTextboxActive = true;
-		
-		// Call the two functions that will apply additional effects that could be contained within the
-		// textbox's struct (shaking effect, unique starting sound effect, etc.) and actor information,
-		// (textbox color, name, portrait, etc.) respectively.
-		apply_extra_textbox_effects(0);
-		update_current_actor_info(true);
-		
-		// When the game isn't currently within a cutscene already, the states of all of the entities will
-		// be stored while they are cleared out from the entity objects themselves; restoring those states
-		// after the textbox has finished its execution. HOWEVER, this doesn't need to occur when a true
-		// cutscene is being executed since the cutscene handler will perform all this on its own.
-		if (!CUTSCENE_MANAGER.isCutsceneActive){
-			// Loop through every currently existing entity and add their three state variables to an
-			// array that is then stored within the textbox's entity state storage map.
-			var _entityStates = entityStates;
-			with(par_dynamic_entity){
-				ds_map_add(_entityStates, id, [curState, nextState, lastState]);
-				// After adding the state values to the storage map, set all the state variables to NO_STATE to
-				// halt any execution of current states for the duration of the textbox's execution.
-				curState = NO_STATE;
-				nextState = NO_STATE;
-				lastState = NO_STATE;
-			}
-			
-			// Since a textbox existing alone technically works much like how a cutscene would within the
-			// game world, the state of the game will be set to Cutscene to apply all those same effects
-			// for the textbox's execution duration.
-			GAME_SET_STATE(GameState.Cutscene);
-		}
-		
-		// Display the textbox's controls at the bottom of the screen; right below the actual textbox. If the
-		// textbox isn't currently set to log text, that input will not be shown; only the "next" input will
-		// be shown to the player.
-		if (CONTROL_INFO.curController == noone){
-			control_info_clear_displayed_icons(); // Always clear in case there is leftover data
-			control_info_add_displayed_icon(INPUT_ADVANCE, "Next", ALIGNMENT_RIGHT, true);
-			CONTROL_INFO.curController = TEXTBOX_HANDLER;
-		}
-	}
-}
-
-/// @description A simple function that adds text to the textbox's data list. Optionally, an actor can be
-/// supplied in order to display a name and also a portrait if a valid index is provided within either of
-/// the two argument fields. Color data isn't added within this function to allow for better readability and
-/// flexibility when coding textbox stuff.
-/// @param text
-/// @param actor
-/// @param portraitIndex
-/// @param textXScale
-/// @param textYScale
-function textbox_add_text_data(_text, _actor = Actor.NoActor, _portraitIndex = -1, _textXScale = 1, _textYScale = 1){
-	with(TEXTBOX_HANDLER){
-		// Only add the actor's information to the actor map if it doesn't exist already. This prevents code
-		// from being duplicated if each actor was stored within each textbox.
-		if (is_undefined(actorData[? _actor])) {ds_map_add(actorData, _actor, get_actor_data(_actor));}
-		
-		// Add the data as a struct into the list of currently existing textbox data. It contains the full
-		// string of text to display, the color data for changing text colors mid-string, the actor's ID
-		// index for easy reference, and the portrait sprite's image index if one should be displayed.
+		// Creates the struct containing all the data that is unique to this textbox and stores its
+		// pointer within the "textboxData" list found in the textbox handler.
 		ds_list_add(textboxData, {
-			fullText :				_text,
-			textXScale :			_textXScale,
-			textYScale :			_textYScale,
-			decisionData :			array_create(0, 0),
-			shakeData :				array_create(2, 0),
-			soundEffect :			[NO_SOUND, SOUND_VOLUME, 1],
-			actorID :				_actor,
-			actorPortraitIndex :	_portraitIndex,
-			closeTextbox :			false, // Can be altered when calling the function "textbox_set_to_close"
+			// The main data for the textbox that determines what is rendered to the screen for 
+			// the player to see and how it'll be rendered (Ex. scaled text).
+			fullText :			_text,
+			textSpeed :			_speed,
+			textScale :			_scale,
+			actorID :			_actorID,
+			portraitIndex :		_portraitIndex,
+			
+			// A struct that stores data about the optional sound effect that can exist within each
+			// textbox. This sound can have a unique playback delay relative to its textbox being
+			// reached, volume, and pitch.
+			soundData :	{
+				index :			NO_SOUND,
+				delay :			0,
+				volume :		SOUND_VOLUME,
+				pitch :			1,
+			},
+			
+			// Another struct that stores data about the horizontal shake that can be applied to a
+			// textbox as an optional effect whenever required. Simply stores the current strength
+			// and remaining duration of the effect.
+			shakeData : {
+				initialPower :	0,
+				curPower :		0,
+				duration :		0,
+			},
+			
+			// The remaining variables that will be responsible for two very different tasks; the first
+			// storing all the structs containing information about a given choice available to the player
+			// by this textbox, and a flag that can signal the handler to close itself prematurely. Both
+			// are useful for branching dialogue.
+			playerChoices :		ds_list_create(),
+			closeTextbox :		false,
 		});
 		
-		// Finally, increment the total number of textboxes by one. This value is used to determine when to
-		// fade the control information at the bottom of the screen in and out of visibility. Otherwise, it
-		// will keep doing so on a per-textbox basis, which looks wrong.
-		totalTextboxes++;
+		// Add actor data into the map containing all currently available actor structs if the one
+		// required for this newly created textbox isn't already found within this map.
+		if (is_undefined(actorData[? _actorID])) {ds_map_add(actorData, _actorID, actor_get_data(_actorID));}
 	}
 }
 
-/// @description A simple function that adds a option to the decision data found within the most recently
-/// created textbox. Each index of the decision data array contains another array that has two values:
-///		Index		Data
-///			0	=		Decision's Descriptor
-///			1	=		Outcome Textbox Index
-///			2	=		Target Instruction Index (ONLY FOR CUTSCENES)
-/// @param optionText
-/// @param outcomeIndex
-function textbox_add_decision_data(_optionText, _outcomeIndex, _cutsceneOutcomeIndex = -1){
+/// @description Stores the provided power and duration values into the most recently created textbox
+/// struct's shake effect data struct. This data is then used to cause the entire textbox to shake randomly
+/// from left to right over the course of time determined by the "duration" value.
+/// @param {Real}	power
+/// @param {Real}	duration
+function textbox_add_shake_effect(_power, _duration){
 	with(TEXTBOX_HANDLER){
-		with(textboxData[| totalTextboxes - 1]){
-			decisionData[array_length(decisionData)] = [
-				_optionText,
-				_outcomeIndex,
-				_cutsceneOutcomeIndex
-			];
+		var _index = ds_list_size(textboxData) - 1;
+		if (_index >= 0){ // Only attempt to add data with a valid index.
+			with(textboxData[| _index].shakeData){
+				initialPower = _power;
+				curPower = _power;
+				duration = _duration;
+			}
 		}
 	}
 }
 
-/// @description A simple function that adds a shaking effect to a most recently created textbox; putting a 
-/// -1 instead to signify the most recently added textbox data. In short, it will add an array of size two 
-/// to the textbox's "shake data" which will then be referenced and applied to the opening animation of that 
-/// textbox.
-/// @param shakeStrength
-/// @param shakeDuration
-function textbox_add_shake_effect(_shakeStrength, _shakeDuration){
-	with(TEXTBOX_HANDLER) {textboxData[| totalTextboxes - 1].shakeData = [_shakeStrength, _shakeDuration];}
-}
-
-/// @description Adds a sound effect that will be queued up to play when the textbox index it is contained
-/// within has been reached by the taxtbox handler. The sound's volume and pitch can be altered if needed,
-/// but the sound isn't able to loop.
-/// @param sound
-/// @param volume
-/// @param pitch
-function textbox_add_sound_effect(_sound, _volume = SOUND_VOLUME, _pitch = 1){
+/// @description Adds data for a sound effect to the most recently created textbox struct. The 
+/// sound can have an option delay added to it that pauses its playback for a given amount of time
+/// relative to when the textbox is first displayed, and its volume/pitch can be adjusted, too.
+/// @param {Asset.GMSound}	sound
+/// @param {Real}			delay
+/// @param {Real}			volume
+/// @param {Real}			pitch
+function textbox_add_sound_effect(_sound, _delay = 0, _volume = SOUND_VOLUME, _pitch = 1){
 	with(TEXTBOX_HANDLER){
-		with(textboxData[| totalTextboxes - 1]){
-			array_set(soundEffect, 0, _sound);
-			array_set(soundEffect, 1, _volume);
-			array_set(soundEffect, 2, _pitch);
+		var _index = ds_list_size(textboxData) - 1;
+		if (_index >= 0){ // Only attempt to add data with a valid index.
+			with(textboxData[| _index].soundData){
+				index = _sound;
+				delay = _delay;
+				volume = _volume;
+				pitch = _pitch;
+			}
 		}
 	}
 }
 
-/// @description An extremely simple function that will set a textbox to signal to the textbox handler that
-/// it will need to close itself after the player attempts to advance the "next" textbox, if there is one.
-/// It's used exclusively for whenever there is branching dialogue for a textbox; allowing different dialogue
-/// to occur for each unique decision.
+/// @description Adds a player choice struct to the list of player choices stored within the most recently
+/// created textbox struct. This choice data will store the text used for when the option is displayed to
+/// the player, the outcome index of the textbox handler after the choice is chosen, and optionally a
+/// paired flag that will set to a given state when said choice is selected by the player.
+/// @param {String}			text
+/// @param {Real}			outcomeIndex
+/// @param {Real}			eventFlag
+/// @param {Bool}			flagState
+function textbox_add_player_choice(_text, _outcomeIndex, _eventFlag = EVENT_FLAG_INVALID, _flagState = false){
+	with(TEXTBOX_HANDLER){ // Only attempt to add data with a valid index.
+		var _index = ds_list_size(textboxData) - 1;
+		if (_index >= 0){
+			with(textboxData[| _index]){
+				// Ensures that the event flag for the newly added decision being selected is 
+				// actually created and ready for use by the game.
+				if (_eventFlag != EVENT_FLAG_INVALID) {EVENT_CREATE_FLAG(_eventFlag);}
+			
+				// Create the struct for the player choice data and store it within the list
+				// of current player choices stored within this most recent textbox struct.
+				ds_list_add(playerChoices, {
+					text :			_text,
+					outcomeIndex :	_outcomeIndex,
+					eventFlag :		_eventFlag,
+					flagState :		_flagState,
+				});
+			}
+		}
+	}
+}
+
+/// @description Sets the flag within the textbox data struct that causes the textbox itself to
+/// close before reaching the final index of the textbox struct list to true. Meaning, at this
+/// index the textbox will close regardless of if there is more data contained after it in the
+/// list.
 function textbox_set_to_close(){
-	with(TEXTBOX_HANDLER) {textboxData[| totalTextboxes - 1].closeTextbox = true;}
+	with(TEXTBOX_HANDLER){
+		var _index = ds_list_size(textboxData) - 1;
+		if (_index >= 0) {textboxData[| _index].closeTextbox = true;}
+	}
+}
+
+/// @description Signals to the textbox object that it can begin rendering and processing the data
+/// that was loaded into it before this function call. If no data was loaded into the textbox prior
+/// to this function call, nothing will occur since there is no data to process. The starting index
+/// into the list can be altered if required.
+/// @param {Real}	startingIndex
+function textbox_activate(_startingIndex = 0){
+	with(TEXTBOX_HANDLER){
+		if (ds_list_size(textboxData) == 0) {return;}
+		y = TEXTBOX_INITIAL_Y;
+		isTextboxActive = true;
+		actorSwap = true; // Allows the first textbox to actually initialize its actor data.
+		prepare_next_textbox(_startingIndex);
+		object_set_next_state(state_opening_animation);
+	}
 }
 
 #endregion

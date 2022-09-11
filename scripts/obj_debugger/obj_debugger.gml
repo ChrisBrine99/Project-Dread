@@ -199,9 +199,8 @@ function obj_debugger() constructor{
 		// Loop through all of the currently available debug messages and display them to the screen in the
 		// order of their creation, which is the newest (index 0) to the oldest message. (index "n")
 		draw_set_valign(fa_bottom);
-		var _yOffset, _length;
-		_yOffset = 0;
-		_length = ds_list_size(debugMessages);
+		var _yOffset = 0;
+		var _length = ds_list_size(debugMessages);
 		for (var i = 0; i < _length; i++){
 			with(debugMessages[| i]){
 				draw_text_outline(CAM_WIDTH - 5, CAM_HEIGHT - 12 - _yOffset, debugMessage, HEX_WHITE, RGB_GRAY, messageAlpha);
@@ -239,7 +238,7 @@ function obj_debugger() constructor{
 		}
 		
 		with(PLAYER){
-			var _length, _key;
+			var _key = -1;
 			_length = ds_map_size(additionalEffects);
 			for (var i = 0; i < _length; i++){
 				_key = effectKeys[| i];
@@ -276,12 +275,12 @@ function obj_debugger() constructor{
 	/// be shown to the user for before it begins fading out of visibility. This is mostly useful for
 	/// debugging collisions that use some form of hitscan style collision detection, and can also be used
 	/// to track the path of an object between two distinct points if necessary.
-	/// @param startX
-	/// @param startY
-	/// @param endX
-	/// @param endY
-	/// @param color
-	/// @param lifespan
+	/// @param {Real}			startX
+	/// @param {Real}			startY
+	/// @param {Real}			endX
+	/// @param {Real}			endY
+	/// @param {Constant.Color}	color
+	/// @param {Real}			lifespan
 	debug_add_line = function(_startX, _startY, _endX, _endY, _color, _lifespan){
 		ds_list_add(linesToDraw, {
 			// Create two variables that use the "x" and "y" syntax that Game Maker uses within its own
@@ -310,8 +309,8 @@ function obj_debugger() constructor{
 	/// for debugging purposes. This message will be visible for 5 seconds until it slowly fades out of
 	/// visibility. The object that created the message will have its name and ID displayed prior to said
 	/// message so it's easier to know where the message came from whilst debugging.
-	/// @param objectID
-	/// @param message
+	/// @param {Id.Instance}	objectID
+	/// @param {String}			message
 	debug_add_message = function(_objectID, _message){
 		// There will only ever be five messages max that can be seen at any given time through this debug
 		// tool, so the oldest message currently is removed in order to make room for this newly created

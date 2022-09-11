@@ -73,7 +73,7 @@ global.menuInstances = ds_list_create();
 /// @description A simple function that checks the object provided (Its GML-generated index) against a list
 /// of valid signleton objects. If it finds the matching object index, the singleton's key is returned.
 /// Otherwise, the value "undefined" is returned to signify the object provided isn't a singleton.
-/// @param object
+/// @param {Asset.GMObject}	object
 function get_singleton_object_key(_object){
 	switch(_object){
 		case obj_camera:			return KEY_CAMERA;
@@ -100,7 +100,7 @@ function get_singleton_object_key(_object){
 /// menu at any given time to prevent accidental duplication. It initializes the newly created menu, adds it
 /// to the list of existing menu structs, and the returns the new struct's ID for any use that is required
 /// after this function is called by whatever had called it.
-/// @param struct
+/// @param {Function}	struct
 function instance_create_menu_struct(_struct){
 	// Prevent the menu from being created if it already exists in the menu instance list OR if the struct
 	// provided to the function isn't a valid menu struct.
@@ -120,7 +120,7 @@ function instance_create_menu_struct(_struct){
 /// @description A simple function that destroys a menu struct; clearing it from memory and also removing its
 /// instance ID from the menu management list. However, it will only perform these actions if the supplied
 /// struct was found within that list to begin with.
-/// @param struct
+/// @param {Function}	struct
 function instance_destroy_menu_struct(_struct){
 	var _structIndex = get_menu_struct(_struct);
 	if (_structIndex != undefined){
@@ -133,7 +133,7 @@ function instance_destroy_menu_struct(_struct){
 /// struct index doesn't already currently exist. This is done by linearly going through said list to see
 /// if one of the menu object's object_index variable matches up with the provided struct's index. If so,
 /// the function returns true. Otherwise, it will return false.
-/// @param struct
+/// @param {Function}	struct
 function get_menu_struct(_struct){
 	var _length = ds_list_size(global.menuInstances);
 	for (var i = 0; i < _length; i++){
@@ -146,7 +146,7 @@ function get_menu_struct(_struct){
 /// meaning that it inherits from the "par_menu" constructor. OR actually is that "par_menu" struct. In 
 /// short, if it is  found in the switch/case statement, the function will return true, and by default it 
 /// will return false.
-/// @param struct
+/// @param {Function}	struct
 function is_menu_struct(_struct){
 	switch(_struct){
 		case par_menu:				return true;

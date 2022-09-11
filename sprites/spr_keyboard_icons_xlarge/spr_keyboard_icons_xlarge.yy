@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMSprite",
+  "resourceVersion": "1.0",
+  "name": "spr_keyboard_icons_xlarge",
   "bboxMode": 0,
   "collisionKind": 1,
   "type": 0,
@@ -24,15 +27,13 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"a77bb8fc-dcc0-474b-bd28-d7861dec3130","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"a77bb8fc-dcc0-474b-bd28-d7861dec3130","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"LayerId":{"name":"e9decd67-e29d-4a7e-bfce-65b8ba9f4ff7","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_xlarge","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"resourceVersion":"1.0","name":"a77bb8fc-dcc0-474b-bd28-d7861dec3130","tags":[],"resourceType":"GMSpriteFrame",},
-    {"compositeImage":{"FrameId":{"name":"9a5e641b-3ca1-4ca6-aca6-b8e9688ab704","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"9a5e641b-3ca1-4ca6-aca6-b8e9688ab704","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"LayerId":{"name":"e9decd67-e29d-4a7e-bfce-65b8ba9f4ff7","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"spr_keyboard_icons_xlarge","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"resourceVersion":"1.0","name":"9a5e641b-3ca1-4ca6-aca6-b8e9688ab704","tags":[],"resourceType":"GMSpriteFrame",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"a77bb8fc-dcc0-474b-bd28-d7861dec3130",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"9a5e641b-3ca1-4ca6-aca6-b8e9688ab704",},
   ],
   "sequence": {
-    "spriteId": {"name":"spr_keyboard_icons_xlarge","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},
+    "resourceType": "GMSequence",
+    "resourceVersion": "1.4",
+    "name": "spr_keyboard_icons_xlarge",
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 30.0,
@@ -43,10 +44,10 @@
     "events": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MessageEventKeyframe>",},
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
-      {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
+      {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
             {"id":"20783ea1-03a4-4e99-b661-08102f8d4063","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"a77bb8fc-dcc0-474b-bd28-d7861dec3130","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
             {"id":"a7cca19b-df11-496f-a922-7bd268d09f74","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"9a5e641b-3ca1-4ca6-aca6-b8e9688ab704","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
+          ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
     "lockOrigin": false,
@@ -62,22 +63,13 @@
     "yorigin": 0,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"spr_keyboard_icons_xlarge","path":"sprites/spr_keyboard_icons_xlarge/spr_keyboard_icons_xlarge.yy",},
-    "resourceVersion": "1.4",
-    "name": "spr_keyboard_icons_xlarge",
-    "tags": [],
-    "resourceType": "GMSequence",
   },
   "layers": [
-    {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"e9decd67-e29d-4a7e-bfce-65b8ba9f4ff7","tags":[],"resourceType":"GMImageLayer",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"e9decd67-e29d-4a7e-bfce-65b8ba9f4ff7","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
     "name": "Keyboard",
     "path": "folders/Resources/Graphics/Sprites/UI/Control Icons/Keyboard.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "spr_keyboard_icons_xlarge",
-  "tags": [],
-  "resourceType": "GMSprite",
 }
