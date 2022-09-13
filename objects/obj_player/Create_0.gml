@@ -1156,7 +1156,7 @@ update_additional_effect_timers = function(){
 initialize = function(){
 	// 
 	x = 160;
-	y = 150;
+	y = 100;
 	
 	// 
 	camera_set_state(STATE_FOLLOW_OBJECT, [id, 8]);

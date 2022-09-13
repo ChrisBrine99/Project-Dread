@@ -5,7 +5,7 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Interactables",
-    "path": "folders/Resources/Core/Entities/Static/Interactables.yy",
+    "name": "Static",
+    "path": "folders/Resources/Core/Entities/Static.yy",
   },
 }

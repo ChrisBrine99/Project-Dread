@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMObject",
+  "resourceVersion": "1.0",
+  "name": "obj_tree_medium_1",
   "spriteId": {
     "name": "spr_tree_medium_1",
     "path": "sprites/spr_tree_medium_1/spr_tree_medium_1.yy",
@@ -25,7 +28,7 @@
   "physicsKinematic": false,
   "physicsShapePoints": [],
   "eventList": [
-    {"isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
+    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,},
   ],
   "properties": [],
   "overriddenProperties": [],
@@ -33,8 +36,4 @@
     "name": "Trees",
     "path": "folders/Resources/Core/Entities/Static/Decorations/Exterior/Trees.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "obj_tree_medium_1",
-  "tags": [],
-  "resourceType": "GMObject",
 }

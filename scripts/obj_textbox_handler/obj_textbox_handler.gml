@@ -6,13 +6,13 @@
 // for the surface that all text is rendered onto. The actual background is determined by these
 // values along with adjustments to provide some empty space between the edges and the text.
 #macro	TEXTBOX_WIDTH				280
-#macro	TEXTBOX_HEIGHT				35
+#macro	TEXTBOX_HEIGHT				36
 
 // The first macro determines how many pixels there are on the left and right edges of the surface
 // that the characters are rendered onto. The second one determines how long a single line of text
 // can be on said surface in pixels. These values don't factor in the outlining of the text.
 #macro	TEXT_X_BORDER				2
-#macro	LINE_MAX_WIDTH				276
+#macro	LINE_MAX_WIDTH				274
 
 // Macros used for the opening/actor swap animation. The first value is the position that the textbox
 // will begin at BEFORE any movement has occured, and the second value is the position the textbox
@@ -34,6 +34,9 @@
 #macro	GREEN						"green"
 #macro	RED							"red"
 #macro	YELLOW						"yellow"
+
+// 
+#macro	TEXT_LOG_LIMIT				50
 
 #endregion
 
@@ -68,6 +71,10 @@ function obj_textbox_handler() constructor{
 	// 
 	isTextboxActive = false;
 	alpha = 0;
+	
+	// 
+	isAutoScrolling = false;
+	cursorTimer = 0;
 	
 	// Important variables for processing and managing the textbox data that will end up displaying
 	// so the user can read what each textbox contains. The first variable stores a list that holds
@@ -108,6 +115,149 @@ function obj_textbox_handler() constructor{
 	};
 	actorSwap = false;
 	
+	// 
+	logger = {
+		// 
+		savedText : ds_list_create(),
+		actorData : ds_list_create(),
+		surfTextLogs : array_create(3, -1),
+		
+		// 
+		viewOffset : 0,
+		alpha : 0,
+		
+		/// @description 
+		draw_gui : function(){
+			if (alpha == 0) {return;}
+			
+			// 
+			if (ds_list_size(savedText) == 0){
+				draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_black, alpha * 0.75);
+				
+				shader_set_outline(RGB_DARK_GRAY, font_gui_medium);
+				draw_set_text_align(fa_center, fa_middle);
+				draw_text_outline(CAM_HALF_WIDTH, CAM_HALF_HEIGHT, "No Logged Text", HEX_GRAY, RGB_DARK_GRAY, alpha);
+				draw_reset_text_align();
+				shader_reset();
+				return;
+			}
+			
+			// 
+			var _numberDrawn = min(3, ds_list_size(savedText));
+			var _spacing = (TEXTBOX_HEIGHT + 18);
+			
+			// 
+			draw_log_background(_numberDrawn, CAM_HEIGHT - 15, _spacing);
+			draw_logged_surfaces(_numberDrawn, CAM_HEIGHT - 55, _spacing);
+			draw_logged_actor_names(_numberDrawn, CAM_HEIGHT - 55, _spacing);
+		},
+		
+		/// @description 
+		cleanup : function(){
+			// 
+			var _length = ds_list_size(savedText);
+			for (var i = 0; i < _length; i++) {buffer_delete(savedText[| i]);}
+			ds_list_destroy(savedText);
+			ds_list_destroy(actorData);
+			
+			// 
+			for (var j = 0; j < 3; j++){
+				if (surface_exists(surfTextLogs[j])) {surface_free(surfTextLogs[j]);}
+			}
+		},
+		
+		/// @description 
+		/// @param {Real}	numberDrawn
+		/// @param {Real}	startY
+		/// @param {Real}	spacing
+		draw_log_background : function(_numberDrawn, _startY, _spacing){
+			draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_black, alpha * 0.75);
+			
+			// 
+			shader_set(shd_feathering);
+			feathering_set_bounds(120, 0, CAM_WIDTH - 120, CAM_HEIGHT, 10, 0, CAM_WIDTH - 10, CAM_HEIGHT);
+			var _offsetY = _startY;
+			repeat(_numberDrawn + 1){
+				draw_sprite_ext(spr_rectangle, 0, 10, _offsetY, CAM_WIDTH - 20, 1, 0, c_white, alpha);
+				_offsetY -= _spacing;
+			}
+			
+			// 
+			_offsetY = _startY - _spacing + 5;
+			for (var i = 0; i < _numberDrawn; i++){
+				feathering_set_bounds(100, _offsetY + (_spacing / 2), CAM_WIDTH - 100, _offsetY + (_spacing / 2), 0, _offsetY, CAM_WIDTH, _offsetY + _spacing);
+				draw_sprite_ext(spr_rectangle, 0, 0, _offsetY, CAM_WIDTH, _spacing, 0, actorData[| i + viewOffset].backgroundColor, alpha * 0.75);
+				_offsetY -= _spacing;
+			}
+			shader_reset();
+		},
+		
+		/// @description Draw the three visible text logs onto the screen; from bottom to top based 
+		/// on the newest to oldest logged text, respectively.
+		/// @param {Real}	numberDrawn
+		/// @param {Real}	startY
+		/// @param {Real}	spacing
+		draw_logged_surfaces : function(_numberDrawn, _startY, _spacing){
+			for (var i = 0; i < _numberDrawn; i++){
+				if (!surface_exists(surfTextLogs[i])){
+					surfTextLogs[i] = surface_create(TEXTBOX_WIDTH, TEXTBOX_HEIGHT);
+					buffer_set_surface(savedText[| i + viewOffset], surfTextLogs[i], 0);
+				}
+
+				draw_surface_ext(surfTextLogs[i], 20, _startY, 1, 1, 0, c_white, alpha);
+				_startY -= _spacing;
+			}
+		},
+		
+		/// @description 
+		/// @param {Real}	numberDrawn
+		/// @param {Real}	startY
+		/// @param {Real}	spacing
+		draw_logged_actor_names : function(_numberDrawn, _startY, _spacing){
+			shader_set_outline(RGB_GRAY, font_gui_small);
+			var _name = "";	// Stores the name being processed so the list and struct only needs to be accessed once per loop.
+			for (var i = 0; i < _numberDrawn; i++){
+				_name = actorData[| i + viewOffset].nameString;
+				if (_name != "") {draw_text_outline(25, _startY - 10, "-- " + _name + " --", HEX_WHITE, RGB_GRAY, alpha);}
+				_startY -= _spacing;
+			}
+			shader_reset();
+		},
+		
+		/// @description Stores a copy of the text that was being displayed on the textbox so the 
+		/// player can optionally view that text again (If it hasn't been too long) by accessing the
+		/// textbox log. Also stores a pointer to the actor paired with the newly logged textbox.
+		/// @param {Id.Buffer}	buffer
+		/// @param {Struct}		actor
+		log_text_data : function(_buffer, _actor){
+			var _index = ds_list_size(savedText);
+			if (_index == TEXT_LOG_LIMIT){ // Remove the oldest logged text when the limit has been reached.
+				buffer_delete(savedText[| _index - 1]);
+				ds_list_delete(savedText, _index - 1);
+			}
+			
+			// Insert the most recently logged text into the 0th index of the list; pushing 
+			// the rest of the data back by one index until whatever was in the 49th element
+			// is discarded from memory.
+			ds_list_insert(actorData, 0, _actor);
+			ds_list_insert(savedText, 0, buffer_create(TEXTBOX_WIDTH * TEXTBOX_HEIGHT * 4, buffer_fixed, 4));
+			buffer_copy(_buffer, 0, TEXTBOX_WIDTH * TEXTBOX_HEIGHT * 4, savedText[| 0], 0);
+			
+			// Copies the buffers at the indexes within the log's view onto the surfaces that
+			// show the data stored in said buffers to the player. If this wasn't done, nothing
+			// would be update for the player to see unless the surfaces got flushed from memory.
+			var _length = min(3, ds_list_size(savedText));
+			for (var i = 0; i < _length; i++){
+				if (surface_exists(surfTextLogs[i])) {buffer_set_surface(savedText[| i + viewOffset], surfTextLogs[i], 0);}
+			}
+		}
+	};
+	
+	// Stores either the default or decision state, so the textbox can return to it once the
+	// textbox log is closed by the user (Since the textbox can access the log regardless of
+	// the state).
+	lastStateExt = NO_STATE; 
+	
 	// Variables for the surface that is used as the canvas to render all of the textbox's text
 	// onto. The buffer stores a copy of that texture data in RAM so it can be copied back onto
 	// the surface in the event of it being flushed prematurely from VRAM. The alpha determines
@@ -138,7 +288,9 @@ function obj_textbox_handler() constructor{
 	charColor = HEX_WHITE;
 	charOutlineColor = RGB_GRAY;
 	
-	// 
+	// Causes the up and down motion of the little "advancement" indicator located in the bottom-right
+	// corner of the textbox when it is safe to advance to the next one. I will increase until it hits
+	// or surpasses a value of 2; resetting back to zero after that happens.
 	indicatorOffset = 0;
 	
 	// Variables that store the input state for the various actions that can be done through the
@@ -148,8 +300,12 @@ function obj_textbox_handler() constructor{
 	inputAdvance = false;
 	inputLog = false;
 	inputSelect = false;
+	inputReturn = false;
 	inputUp = false;
 	inputDown = false;
+	
+	// 
+	prevEntityStates = ds_map_create();
 	
 	#region Game Maker events as functions
 	
@@ -197,10 +353,10 @@ function obj_textbox_handler() constructor{
 	/// @description Code that should be placed into the "Draw GUI" event of whatever object is controlling
 	/// obj_textbox_handler. In short, it will handle the rendering of the components that make up the
 	/// textbox by calling their respective functions if the textbox is currently visible (alpha > 0)
-	/// and toggled to an active state.
+	/// or toggled to an active state.
 	draw_gui = function(){
 		if (!isTextboxActive || alpha == 0) {return;}
-		
+
 		// Drawing the "background" information for the currently viewable textbox data. The color of
 		// these elements being dictated on a per-actor basis, and things like the portrait area and
 		// namespace only being optional features to include.
@@ -224,8 +380,12 @@ function obj_textbox_handler() constructor{
 			surfText = surface_create(TEXTBOX_WIDTH, TEXTBOX_HEIGHT);
 			buffer_set_surface(surfTextBuffer, surfText, 0);
 		}
-		if (curChar <= finalChar) {update_text_surface(textbox.fullText);}
+		if (curChar <= finalChar && logger.alpha == 0) {update_text_surface(textbox.fullText);}
 		draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, surfAlpha * alpha);
+		
+		// Draw the textbox log. If it has an alpha value of zero it will automatically have its
+		// rendering skipped. Otherwise, it will be drawn overtop of the rest of the textbox.
+		with(logger) {draw_gui();}
 	}
 	
 	/// @description Code that should be placed into the "Clean Up" event of whatever object is controlling
@@ -233,7 +393,9 @@ function obj_textbox_handler() constructor{
 	/// by the textbox handler before itself is removed from memory; preventing any lost pointers and
 	/// memory leaks.
 	cleanup = function(){
-		// 
+		// Remove all the structs from within the list storing currently existing textbox data; deleting the
+		// structs contained within each of those structs before clearing out that main struct. After that,
+		// the list is cleared from memory.
 		var _length = ds_list_size(textboxData);
 		for (var i = 0; i < _length; i++){
 			with(textboxData[| i]){
@@ -245,7 +407,8 @@ function obj_textbox_handler() constructor{
 		}
 		ds_list_destroy(textboxData);
 		
-		// 
+		// Much like above, the actor data will have its structs cleared from memory before the data structure
+		// storing those structs is cleared from memory.
 		var _key = ds_map_find_first(actorData);
 		while(!is_undefined(_key)){
 			delete actorData[? _key];
@@ -253,11 +416,23 @@ function obj_textbox_handler() constructor{
 		}
 		ds_map_destroy(actorData);
 		
-		// 
+		// Delete both structs that stored redundant data from the current textbox and actor that were
+		// being utilized by the handler for rendering and processing.
 		delete textbox;
 		delete actor;
 		
-		// 
+		// Call the cleanup method found inside the logger struct, which will handle the cleaning up of
+		// allocated memory for buffers and surfaces automatically. Then, delete that struct after the
+		// cleaning has been executed.
+		with(logger) {cleanup();}
+		delete logger;
+		
+		// Clears out any control data and anchors that were added in by the textbox handler.
+		control_info_clear_data();
+		
+		// Finally, free the surface if it still exists, (If it doesn't exist it has already been flushed
+		// from memory, so freeing it will cause a crash) and delete the buffer that stored an identical
+		// copy to use in the case of the surface being freed prematurely.
 		if (surface_exists(surfText)) {surface_free(surfText);}
 		buffer_delete(surfTextBuffer);
 	}
@@ -276,6 +451,7 @@ function obj_textbox_handler() constructor{
 			inputAdvance =		gamepad_button_check_pressed(_gamepadID, PAD_ADVANCE);
 			inputLog =			gamepad_button_check_pressed(_gamepadID, PAD_LOG);
 			inputSelect =		gamepad_button_check_pressed(_gamepadID, PAD_SELECT);
+			inputReturn =		gamepad_button_check_pressed(_gamepadID, PAD_RETURN);
 			inputUp =			gamepad_button_check(_gamepadID, PAD_MENU_UP);
 			inputDown =			gamepad_button_check(_gamepadID, PAD_MENU_DOWN);
 			// TODO -- Add ability to select options by using the left or right thumbsticks.
@@ -283,6 +459,7 @@ function obj_textbox_handler() constructor{
 			inputAdvance =		keyboard_check_pressed(KEY_ADVANCE);
 			inputLog =			keyboard_check_pressed(KEY_LOG);
 			inputSelect =		keyboard_check_pressed(KEY_SELECT);
+			inputReturn =		keyboard_check_pressed(KEY_RETURN);
 			inputUp =			keyboard_check(KEY_MENU_UP);
 			inputDown =			keyboard_check(KEY_MENU_DOWN);
 		}
@@ -299,6 +476,15 @@ function obj_textbox_handler() constructor{
 	state_default = function(){
 		get_input(); // Before any logic is processed, get input from the user.
 		
+		// Showing the textbox log, which will allow the player to see text that was previously shown on 
+		// the textbox. Pressing the input to view said log will cause its opening animation to play and
+		// whatever state the log was opened from to be stored in a variable for use when closing the log.
+		if (inputLog){
+			object_set_next_state(state_animation_open_text_log);
+			lastStateExt = state_default;
+			return; // Exit the state function early.
+		}
+		
 		// Pressing the textbox advance key, which can cause two different outcomes to occur: skipping the
 		// typewriter animation effect for the text OR closing the current textbox in order to open the next
 		// one; closing the textbox if no more remain or the textbox was signaled to close prematurely by
@@ -309,7 +495,8 @@ function obj_textbox_handler() constructor{
 				nextChar = finalChar + 1;
 			} else{ // Determine what to do for closing the current textbox.
 				if (textbox.closeTextbox || index == ds_list_size(textboxData) - 1){
-					object_set_next_state(state_closing_animation);
+					object_set_next_state(state_animation_close_textbox);
+					control_info_set_alpha_target(0, 0.075);
 					targetIndex = -1; // Tells the textbox that it should close after completing the animation.
 				} else{
 					// UNIQUE CASE -- If there is player choice data found within the list for such data
@@ -325,17 +512,73 @@ function obj_textbox_handler() constructor{
 					// the textbox. Meanwhile, the non-actor swap will fade out the old text before moving
 					// onto the next textbox data is displayed.
 					actorSwap = (textbox.actorID != textboxData[| index + 1].actorID);
-					if (!actorSwap) {object_set_next_state(state_fade_out_previous_text);}
-					else {object_set_next_state(state_closing_animation);}
+					if (!actorSwap) {object_set_next_state(state_animation_fade_previous_text);}
+					else {object_set_next_state(state_animation_close_textbox);}
 					targetIndex = index + 1;
 				}
 			}
 		}
 	}
 	
-	/// @description
+	/// @description 
 	state_select_decision = function(){
 		
+	}
+	
+	/// @description The state for the textbox whenever the player is looking at the previous textbox
+	/// text that was stored within the logger object struct. It handles exiting the state by pressing
+	/// the "return" input, and shifting through the logged text with the "up" and "down" menu inputs.
+	state_textbox_log = function(){
+		get_input();
+		
+		// Exit the textbox log state to return to whatever the previous state the textbox was in. This
+		// could be one of two outcomes: the default textbox state OR the player choice state.
+		if (inputReturn){
+			object_set_next_state(state_animation_close_text_log);
+			logger.viewOffset = 0; // Reset the offset to show the most recent logged text.
+			return;
+		}
+		
+		// Handling cursor movement, which can occur automatically in either direction if said direction
+		// is held down. If that occurs, the view offset of the text log will update until it reaches
+		// the upper limit or a value of zero; with no rollover like how a menu's cursor functions.
+		var _movement = (inputDown - inputUp);
+		if (_movement != 0){
+			cursorTimer -= DELTA_TIME;
+			if (cursorTimer <= 0){
+				if (!isAutoScrolling){ // Initial button hold has a longer interval between option switches.
+					isAutoScrolling = true;
+					cursorTimer = 30;
+				} else{ // Shorten the timer between option switches when the cursor is held.
+					cursorTimer = 10;
+				}
+				
+				// Jump into scope of the logger struct, which is responsible for processing the cursor input
+				// into moving and updating the currently in-view text logs.
+				with(logger){
+					// Lock the view offset within the range of 0 to however many text logs currently exist
+					// (Up to a limit of 50 elements). Movement is inverted to match how the log is shown.
+					var _viewOffset = viewOffset;
+					var _size = ds_list_size(actorData);
+					if (_movement == -1 && viewOffset < _size - 3) {viewOffset++;}
+					else if (_movement == 1 && viewOffset > 0) {viewOffset--;}
+					
+					// Refresh the surfaces that display the currently in-view logged text if the view offset 
+					// changed because of player input. If no view offset change happened, no surfaces will
+					// be updated.
+					if (_viewOffset != viewOffset){
+						var _length = min(3, _size);
+						for (var i = 0; i < _length; i++){
+							if (!surface_exists(surfTextLogs[i])) {surfTextLogs[i] = surface_create(TEXTBOX_WIDTH, TEXTBOX_HEIGHT);}
+							buffer_set_surface(savedText[| i + viewOffset], surfTextLogs[i], 0); 
+						}
+					}
+				}
+			}
+		} else{ // Reset the cursor timer back down to zero if the movement buttons are released before it hits zero again.
+			isAutoScrolling = false;
+			cursorTimer = 0;
+		}
 	}
 	
 	#endregion
@@ -345,7 +588,7 @@ function obj_textbox_handler() constructor{
 	/// @description The textbox's opening animation, which causes it to slide onto the screen from the
 	/// bottom; fading itself in as that position translation occurs. Once the animation has been finished,
 	/// the textbox's state is set to its "default" where player input can be processed.
-	state_opening_animation = function(){
+	state_animation_open_textbox = function(){
 		alpha = value_set_linear(alpha, 1, 0.05);
 		y = value_set_relative(y, TEXTBOX_TARGET_Y, 0.15);
 		if (alpha == 1 && y < TEXTBOX_TARGET_Y + 0.5){
@@ -359,14 +602,14 @@ function obj_textbox_handler() constructor{
 	/// deactivated or the opening animation can be performed again. These outcomes can occurs when the
 	/// textbox is set to be closed or if an actor swap has occurred between this and the previous textbox,
 	/// respectively.
-	state_closing_animation = function(){
+	state_animation_close_textbox = function(){
 		alpha = value_set_linear(alpha, 0, 0.075);
 		if (alpha == 0){
 			if (targetIndex == -1){ // Closes the textbox.
 				textbox_deactivate();
 			} else{ // Prepares the next textbox; playing the opening animation again.
-				object_set_next_state(state_opening_animation);
-				prepare_next_textbox(targetIndex);
+				object_set_next_state(state_animation_open_textbox);
+				prepare_next_textbox(targetIndex, true);
 				y = TEXTBOX_INITIAL_Y;
 			}
 		}
@@ -375,20 +618,57 @@ function obj_textbox_handler() constructor{
 	/// @description A simplified transition animation that fades out the old textbox text before any new
 	/// text is rendered onto the screen. It can only occur when a textbox change has occurred, but an
 	/// actor swap didn't happen during that change.
-	state_fade_out_previous_text = function(){
+	state_animation_fade_previous_text = function(){
 		surfAlpha = value_set_linear(surfAlpha, 0, 0.1);
 		if (surfAlpha == 0){
-			object_set_next_state(state_fade_in_new_text);
-			prepare_next_textbox(targetIndex);
+			object_set_next_state(state_animation_fade_new_text);
+			prepare_next_textbox(targetIndex, true);
 		}
 	}
 	
 	/// @description A reverse process compared to the state function above this one; it will fade in the
 	/// surface that is responsible for displaying the text contents for the textbox into visibility so it
 	/// smoothly transitions between the two textboxes.
-	state_fade_in_new_text = function(){
+	state_animation_fade_new_text = function(){
 		surfAlpha = value_set_linear(surfAlpha, 1, 0.1);
 		if (surfAlpha == 1) {object_set_next_state(state_default);}
+	}
+	
+	/// @description
+	state_animation_open_decision_window = function(){
+		
+	}
+	
+	/// @description
+	state_animation_close_decision_window = function(){
+		
+	}
+	
+	/// @description A transition animation for opening the textbox's log. It will smoothly fade it into
+	/// visibility until its alpha reaches a value of 1. Once that occurs, the textbox state will switch
+	/// to the log state so the player can use inputs to view/close it.
+	state_animation_open_text_log = function(){
+		var _animationComplete = false;
+		with(logger){
+			alpha = value_set_linear(alpha, 1, 0.075);
+			_animationComplete = (alpha == 1);
+		}
+		
+		if (_animationComplete) {object_set_next_state(state_textbox_log);}
+	}
+	
+	/// @description A reverse process of the textbox log's opening function. It will reduce the alpha
+	/// level of said log's graphical interface until it reaches zero. Once that happens, the textbox
+	/// will be returned to the state it was in before the log was first opened (Stored within the
+	/// "lastStateExt" variable).
+	state_animation_close_text_log = function(){
+		var _animationComplete = false;
+		with(logger){
+			alpha = value_set_linear(alpha, 0, 0.075);
+			_animationComplete = (alpha == 0);
+		}
+		
+		if (_animationComplete) {object_set_next_state(lastStateExt);}
 	}
 	
 	#endregion
@@ -399,10 +679,10 @@ function obj_textbox_handler() constructor{
 	/// text data, actor data, new portraits, and so on. It will also clear out the buffer that stored
 	/// the characters that are rendered onto the textbox so the new text can be rendered onto it.
 	/// @param {Real}	index
-	prepare_next_textbox = function(_index){
-		// Completely clear the surface of the old text by writing nothing but zeroes to the surface
-		// buffer. Then, copy the new zeroed out buffer to the surface, which completely clears out any
-		// previously existing graphical data.
+	/// @param {Bool}	logText
+	prepare_next_textbox = function(_index, _logText = false){
+		// 
+		if (_logText) {logger.log_text_data(surfTextBuffer, actorData[? textbox.actorID]);}
 		buffer_fill(surfTextBuffer, 0, buffer_u32, 0, TEXTBOX_WIDTH * TEXTBOX_HEIGHT * 4);
 		if (surface_exists(surfText)) {buffer_set_surface(surfTextBuffer, surfText, 0);}
 		
@@ -475,8 +755,8 @@ function obj_textbox_handler() constructor{
 		
 		// Loop through each textbox data struct; cleaning out the structs and other data within that needs
 		// to be freed from memory before said struct's pointer is lost by the "ds_list_clear" function.
-		var _length, _cLength;
-		_length = ds_list_size(textboxData);
+		var _cLength = 0;
+		var _length = ds_list_size(textboxData);
 		for (var i = 0; i < _length; i++){
 			with(textboxData[| i]){
 				delete soundData;
@@ -497,6 +777,15 @@ function obj_textbox_handler() constructor{
 			shakeData = noone;
 		}
 		
+		// Destroy any existing buffers, and then clear out the list that stored said buffers and also clear
+		// the list that stored pointers to actor data structs. The logger's surfaces don't need to be touched.
+		with(logger){
+			_length = ds_list_size(savedText);
+			for (var i = 0; i < _length; i++) {buffer_delete(savedText[| i]);}
+			ds_list_clear(savedText);
+			ds_list_clear(actorData);
+		}
+		
 		// Delete all structs created and stored within the "actorData" ds_map; freeing them from memory
 		// before their pointers are lost by the "ds_map_clear" function call.
 		var _key = ds_map_find_first(actorData);
@@ -506,10 +795,24 @@ function obj_textbox_handler() constructor{
 		}
 		ds_map_clear(actorData);
 		
-		// Finally, free the surface from VRAM if it hasn't be prematurely flushed and set the main state
-		// of the textbox to false, so it no longer processes state or rendering logic.
+		// Clear out control information that existed for the textbox, and also reset all alpha variables
+		// within that control information object back to the default values of zero.
+		control_info_clear_data();
+		control_info_reset_alpha();
+		
+		// Free the surface from VRAM if it hasn't be prematurely flushed and set the main state of the 
+		// textbox to false, so it no longer processes state or rendering logic.
 		surface_free(surfText);
 		isTextboxActive = false;
+		
+		// 
+		var _prevEntityStates = prevEntityStates;
+		with(par_dynamic_entity){
+			curState =		_prevEntityStates[? id][0];
+			nextState =		_prevEntityStates[? id][1];
+			lastState =		_prevEntityStates[? id][2];
+		}
+		ds_map_clear(prevEntityStates);
 	}
 	
 	#endregion
@@ -526,7 +829,7 @@ function obj_textbox_handler() constructor{
 	/// @param {Real}	alpha
 	render_textbox_background = function(_x, _y, _alpha){
 		with(actor){
-			draw_sprite_stretched_ext(spr_textbox_background, 0, _x, _y, TEXTBOX_WIDTH + 30, TEXTBOX_HEIGHT + 17, backgroundColor, _alpha);
+			draw_sprite_stretched_ext(spr_textbox_background, 0, _x, _y, TEXTBOX_WIDTH + 30, TEXTBOX_HEIGHT + 16, backgroundColor, _alpha);
 			if (nameString != "") {draw_sprite_stretched_ext(spr_textbox_namespace, 0, _x + 10, _y - 11, nameWidth, 13, backgroundColor, _alpha);}
 			if (portrait != NO_SPRITE) {draw_sprite_stretched_ext(spr_textbox_portrait, 0, _x + TEXTBOX_WIDTH - 70, _y - 45, 86, 47, backgroundColor, _alpha);}
 		}
@@ -747,6 +1050,8 @@ function obj_textbox_handler() constructor{
 	
 	#endregion
 	
+	#region Miscellaneous functions
+	
 	/// @description Returns a struct that contains information about the actor relative to the ID value
 	/// that was passed into the function. By default, a textbox will be given the "Actor.None" (0) ID,
 	/// which is the default composition for a textbox. Otherwise, a unique ID can be provided which 
@@ -769,6 +1074,27 @@ function obj_textbox_handler() constructor{
 		}
 	}
 	// TODO -- Potentially change this to a JSON file of data to simplify the code.
+	
+	/// @description 
+	initialize_default_controls = function(){
+		control_info_create_anchor("controls", CAM_WIDTH - 5, CAM_HEIGHT - 12, ALIGNMENT_RIGHT);
+		control_info_add_data("controls", INPUT_ADVANCE, "Next");
+		control_info_add_data("controls", INPUT_LOG, "Log");
+		control_info_initialize_anchor("controls");
+	}
+	
+	/// @description 
+	initialize_decision_controls = function(){
+		control_info_remove_data("controls", INPUT_LOG);
+		
+		// 
+		control_info_create_anchor("move", 5, CAM_HEIGHT - 12, ALIGNMENT_LEFT);
+		control_info_add_data("move", INPUT_MENU_DOWN, "");
+		control_info_add_data("move", INPUT_MENU_UP, "Move Cursor");
+		control_info_initialize_anchor("move");
+	}
+	
+	#endregion
 }
 
 #endregion
@@ -920,12 +1246,31 @@ function textbox_set_to_close(){
 /// @param {Real}	startingIndex
 function textbox_activate(_startingIndex = 0){
 	with(TEXTBOX_HANDLER){
-		if (ds_list_size(textboxData) == 0) {return;}
+		if (ds_list_size(textboxData) == 0 || isTextboxActive) {return;}
+		
+		// Set the textbox's relevant variables to their proper values upon the textbox's start.
+		// Also, set the state to the opening animation for the textbox and prepare the initial
+		// textbox data for displaying.
 		y = TEXTBOX_INITIAL_Y;
 		isTextboxActive = true;
 		actorSwap = true; // Allows the first textbox to actually initialize its actor data.
 		prepare_next_textbox(_startingIndex);
-		object_set_next_state(state_opening_animation);
+		object_set_next_state(state_animation_open_textbox);
+		
+		// Set up the controls to show the two main inputs for the textbox; the advancement input,
+		// and the input to open the log that displays previous textboxes. Then, fade that info
+		// in alongside the textbox opening animation.
+		initialize_default_controls();
+		control_info_set_alpha_target(1, 0.075);
+		
+		// 
+		var _prevEntityStates = prevEntityStates;
+		with(par_dynamic_entity){
+			ds_map_add(_prevEntityStates, id, [curState, nextState, lastState]);
+			curState = NO_STATE;
+			nextState = NO_STATE;
+			lastState = NO_STATE;
+		}
 	}
 }
 

@@ -105,7 +105,7 @@ draw_interact_prompt = function(){
 	// If the current alpha level of the prompt is set to a value greater than zero, the rendering process
 	// will actually begin for said prompt and its information. Otherwise, the rendering code will be
 	// skipped over since it wouldn't be visible to the user, anyway.
-	if (interactPromptAlpha > 0){		
+	if (interactPromptAlpha > 0){
 		// First, grab the proper icon for the prompt's displayed control input, which can be either the
 		// keyboard key or the currently connected gamepad's interact button; depending on the currently
 		// active control input.

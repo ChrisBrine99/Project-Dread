@@ -5,15 +5,18 @@
 //						+ GREEN + "*green, *" + BLUE + "*blue.");
 //textbox_begin_execution();
 
-/*textbox_add_text("This is a*" + YELLOW + "* test# to see if the new textbox works. Can you believe that it actually works; even the pauses for*" + GREEN + "* punctuation#?");
-textbox_add_sound_effect(snd_player_hurt0);
+textbox_add_text("This is a*" + YELLOW + "* test# to see if the new textbox works. Can you believe that it actually works; even the pauses for*" + GREEN + "* punctuation#?");
 textbox_add_text("*" + RED + "*Mommy#?! Sorry.*" + YELLOW + "* Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.*" + RED + "* Mommy#? Sorry. *" + YELLOW + "*Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.*" + RED + "* Mommy#? Sorry. *" + YELLOW + "*Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.*" + RED + "* Mommy#? Sorry. *" + YELLOW + "*Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.", 1, 1, Actor.Claire, 3);
-textbox_add_sound_effect(snd_player_hurt0, 60);
 textbox_add_text("More irrelevent text here. Something, something, penis music!?", 1, 1, Actor.Claire, 0);
-textbox_add_shake_effect(5, 60);
-textbox_activate();*/
+textbox_add_text("More text here.");
+textbox_add_text("Some more shit here.");
+textbox_add_text("Even more text here.");
+textbox_add_text("Keep the text coming.");
+textbox_add_text("Almost there...");
+textbox_add_text("THERE YOU GO!");
+textbox_activate();
 
-control_info_clear_data();
+/*control_info_clear_data();
 
 control_info_create_anchor("Test", 5, 100, ALIGNMENT_LEFT);
 control_info_add_data("Test", INPUT_RUN, "");
@@ -33,7 +36,7 @@ control_info_initialize_anchor("Test3");
 control_info_create_anchor("Test4", 200, CAM_HEIGHT - 5, ALIGNMENT_UP);
 control_info_add_data("Test4", INPUT_READY_WEAPON, "Ready Weapon");
 control_info_add_data("Test4", INPUT_PAUSE, "Pause");
-control_info_initialize_anchor("Test4");
+control_info_initialize_anchor("Test4");*/
 
 
 

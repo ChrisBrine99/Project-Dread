@@ -23,6 +23,7 @@ function interact_item_collect_default(){
 		_pickupSound = pickupSound;
 		_index = index;
 	}
+	if (is_undefined(_itemName)) {return;}
 	
 	// Perform the attempt of adding the item to the inventory relative to the provided quantity from the
 	// world item object's data. Then, see if the item was successfully collected, (The variable "_leftover"
@@ -144,7 +145,7 @@ function interact_door_locked(){
 			_key = requiredKeys[| 0];
 			if (inventory_item_count(_key[DOOR_KEY_NAME]) >= 1){
 				textbox_add_text("You used the *" + YELLOW + "*" + _key[DOOR_KEY_NAME] + "#.");
-				textbox_add_sound_effect(snd_player_flashlight);
+				textbox_add_sound_effect(unlockSound);
 				ds_list_delete(requiredKeys, 0);
 				EVENT_SET_FLAG(_key[DOOR_EVENT_ID], true);
 			}
@@ -158,7 +159,6 @@ function interact_door_locked(){
 		_length = ds_list_size(requiredKeys);
 		if (_length == 0){
 			textbox_add_text("The door is now unlocked.");
-			textbox_add_sound_effect(unlockSound, 10);
 			doorState = DOOR_UNLOCKED;
 			_doorUnlocked = true;
 		}
@@ -233,6 +233,38 @@ function interact_door_broken(){
 		textbox_add_text(doorInfoMessage);
 		textbox_activate();
 	}
+}
+
+#endregion
+
+#region Key item interaction functions
+
+/// @description Gives the player the key they need to exit the first test room.
+function interact_bookshelf_key(){
+	textbox_add_text("Hmm... There's something between two of the books on the shelf.", 1, 1, Actor.Claire, 0);
+	textbox_add_text("It's a *" + YELLOW + "*grimy key#.", 1, 1, Actor.Claire, 0);
+	textbox_add_text("Hopefully it'll open my only way out of here...", 1, 1, Actor.Claire, 1);
+	textbox_activate();
+	
+	inventory_item_add(RIFLE_ROUNDS, 1, 0, true);
+	interactFunction = interact_bookshelf_key_collected;
+	EVENT_SET_FLAG("FirstKey", true);
+}
+
+/// @description
+function interact_bookshelf_key_collected(){
+	textbox_add_text("There's nothing else of importance on the bookshelf.", 1, 1, Actor.Claire, 0);
+	textbox_activate();
+}
+
+#endregion
+
+#region Generic interaction functions
+
+/// @description Inspecting a bookshelf that has nothing of note for the player to find.
+function inspect_bookshelf(){
+	textbox_add_text("Just a regular old bookshelf.");
+	textbox_activate();
 }
 
 #endregion
