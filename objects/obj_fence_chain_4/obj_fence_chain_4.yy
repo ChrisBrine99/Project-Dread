@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMObject",
+  "resourceVersion": "1.0",
+  "name": "obj_fence_chain_4",
   "spriteId": {
     "name": "spr_fence_chain_4",
     "path": "sprites/spr_fence_chain_4/spr_fence_chain_4.yy",
@@ -25,16 +28,12 @@
   "physicsKinematic": false,
   "physicsShapePoints": [],
   "eventList": [
-    {"isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
+    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,},
   ],
   "properties": [],
   "overriddenProperties": [],
   "parent": {
     "name": "Fences",
-    "path": "folders/Resources/Core/Entities/Static/Decorations/Exterior/Fences.yy",
+    "path": "folders/Resources/Core/Entities/Static/Exterior/Fences.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "obj_fence_chain_4",
-  "tags": [],
-  "resourceType": "GMObject",
 }

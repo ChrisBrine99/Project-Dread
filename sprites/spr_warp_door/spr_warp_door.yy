@@ -67,7 +67,7 @@
   ],
   "nineSlice": null,
   "parent": {
-    "name": "Interactables",
-    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Interactables.yy",
+    "name": "General",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/General.yy",
   },
 }

@@ -34,6 +34,6 @@
   "overriddenProperties": [],
   "parent": {
     "name": "Trees",
-    "path": "folders/Resources/Core/Entities/Static/Decorations/Exterior/Trees.yy",
+    "path": "folders/Resources/Core/Entities/Static/Exterior/Trees.yy",
   },
 }
