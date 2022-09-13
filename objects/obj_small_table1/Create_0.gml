@@ -1,2 +1,2 @@
 event_inherited(); 
-zHeight = 24;
+zHeight = 8;

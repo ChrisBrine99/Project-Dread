@@ -14,10 +14,10 @@
     "name": "audiogroup_default",
     "path": "audiogroups/audiogroup_default",
   },
-  "soundFile": "snd_door_close.wav",
-  "duration": 0.753855,
+  "soundFile": "snd_door_close",
+  "duration": 0.0,
   "parent": {
-    "name": "General",
-    "path": "folders/Resources/Audio/Entities/Static/General.yy",
+    "name": "Doors",
+    "path": "folders/Resources/Audio/Entities/Static/Doors.yy",
   },
 }

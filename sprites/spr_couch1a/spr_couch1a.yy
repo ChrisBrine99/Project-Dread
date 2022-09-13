@@ -27,8 +27,8 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"35f2f2b3-cb3c-4784-882d-886c25d4dee6",},
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"9c79f381-0ca8-4599-b72f-68cd610eda4c",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"d8075c1f-45ee-44a7-a72a-6a89457e17a1",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"d00c2e9e-f23d-4c43-a2a3-2ab777c37419",},
   ],
   "sequence": {
     "resourceType": "GMSequence",
@@ -45,8 +45,8 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"9490e699-c4bc-46d5-a480-4b5ad2fa9bbb","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"35f2f2b3-cb3c-4784-882d-886c25d4dee6","path":"sprites/spr_couch1a/spr_couch1a.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
-            {"id":"fdcfe6a7-106c-477c-b812-f48f6ab662bb","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"9c79f381-0ca8-4599-b72f-68cd610eda4c","path":"sprites/spr_couch1a/spr_couch1a.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"ad895fa7-d2a4-4579-90f3-910b9329e29d","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"d8075c1f-45ee-44a7-a72a-6a89457e17a1","path":"sprites/spr_couch1a/spr_couch1a.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"b030ffa1-de5d-4057-b4a7-d68a50d3b041","Key":1.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"d00c2e9e-f23d-4c43-a2a3-2ab777c37419","path":"sprites/spr_couch1a/spr_couch1a.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
@@ -60,16 +60,16 @@
     "backdropXOffset": 0.0,
     "backdropYOffset": 0.0,
     "xorigin": 16,
-    "yorigin": 14,
+    "yorigin": 16,
     "eventToFunction": {},
     "eventStubScript": null,
   },
   "layers": [
-    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"b2e25c8d-9480-44c3-8365-3d883a0d0723","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"598a048f-9e02-4b05-9cad-b85e03677d69","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
-    "name": "Project-Dread-V3",
-    "path": "Project-Dread-V3.yyp",
+    "name": "Furniture",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Interior/Furniture.yy",
   },
 }

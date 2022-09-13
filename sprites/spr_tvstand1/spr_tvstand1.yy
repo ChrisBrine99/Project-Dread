@@ -12,7 +12,7 @@
   "swfPrecision": 2.525,
   "bbox_left": 1,
   "bbox_right": 31,
-  "bbox_top": 26,
+  "bbox_top": 27,
   "bbox_bottom": 40,
   "HTile": false,
   "VTile": false,
@@ -27,7 +27,7 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"7f7f8f9d-2593-4824-ba17-eeeacc1d244a",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"ebda92b3-ab30-4d34-9c84-b02e9135974e",},
   ],
   "sequence": {
     "resourceType": "GMSequence",
@@ -44,11 +44,11 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"80d26607-e45a-4ea4-a528-0f5fe5eb25ed","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"7f7f8f9d-2593-4824-ba17-eeeacc1d244a","path":"sprites/spr_tvstand1/spr_tvstand1.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"49d4a778-7272-431f-a347-48e6c619aa97","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"ebda92b3-ab30-4d34-9c84-b02e9135974e","path":"sprites/spr_tvstand1/spr_tvstand1.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
-    "lockOrigin": true,
+    "lockOrigin": false,
     "showBackdrop": true,
     "showBackdropImage": false,
     "backdropImagePath": "",
@@ -63,11 +63,11 @@
     "eventStubScript": null,
   },
   "layers": [
-    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"042a3e0b-a2f9-498f-b883-17ca67ae6a84","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"27ca97da-271d-4ce1-96e2-50a9392ba3b8","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
-    "name": "Project-Dread-V3",
-    "path": "Project-Dread-V3.yyp",
+    "name": "Furniture",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Interior/Furniture.yy",
   },
 }

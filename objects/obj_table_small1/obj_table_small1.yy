@@ -2,10 +2,7 @@
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
   "name": "obj_table_small1",
-  "spriteId": {
-    "name": "spr_table_small1",
-    "path": "sprites/spr_table_small1/spr_table_small1.yy",
-  },
+  "spriteId": null,
   "solid": false,
   "visible": false,
   "managed": true,

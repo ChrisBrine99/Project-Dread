@@ -68,6 +68,6 @@
   "nineSlice": null,
   "parent": {
     "name": "Fences",
-    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Decorations/Exterior/Fences.yy",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Exterior/Fences.yy",
   },
 }

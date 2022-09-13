@@ -12,8 +12,8 @@
   "swfPrecision": 2.525,
   "bbox_left": 1,
   "bbox_right": 30,
-  "bbox_top": 11,
-  "bbox_bottom": 20,
+  "bbox_top": 10,
+  "bbox_bottom": 21,
   "HTile": false,
   "VTile": false,
   "For3D": false,
@@ -27,7 +27,7 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"763e6e35-9312-4c5a-bd5a-71168c83e964",},
+    {"resourceType":"GMSpriteFrame","resourceVersion":"1.1","name":"ed56280b-032f-4549-8863-ac4cc54f765e",},
   ],
   "sequence": {
     "resourceType": "GMSequence",
@@ -44,7 +44,7 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"resourceType":"GMSpriteFramesTrack","resourceVersion":"1.0","name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"c61adc3e-317b-426d-98e7-31574da3c872","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"763e6e35-9312-4c5a-bd5a-71168c83e964","path":"sprites/spr_drawer1/spr_drawer1.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"f1c27959-f01a-4284-95d1-61ceb3c9470d","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"ed56280b-032f-4549-8863-ac4cc54f765e","path":"sprites/spr_drawer1/spr_drawer1.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"modifiers":[],},
     ],
     "visibleRange": null,
@@ -58,16 +58,16 @@
     "backdropXOffset": 0.0,
     "backdropYOffset": 0.0,
     "xorigin": 16,
-    "yorigin": 13,
+    "yorigin": 16,
     "eventToFunction": {},
     "eventStubScript": null,
   },
   "layers": [
-    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"b26132e9-5317-4977-9999-ed6551af12ce","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
+    {"resourceType":"GMImageLayer","resourceVersion":"1.0","name":"7bc7956f-54cd-41dd-9538-f1bfe47b3369","visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default",},
   ],
   "nineSlice": null,
   "parent": {
-    "name": "Project-Dread-V3",
-    "path": "Project-Dread-V3.yyp",
+    "name": "Furniture",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Interior/Furniture.yy",
   },
 }

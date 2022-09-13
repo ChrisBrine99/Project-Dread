@@ -1,18 +1,15 @@
 {
   "resourceType": "GMObject",
   "resourceVersion": "1.0",
-  "name": "obj_world_item",
+  "name": "obj_small_table1",
   "spriteId": {
-    "name": "spr_world_items",
-    "path": "sprites/spr_world_items/spr_world_items.yy",
+    "name": "spr_small_table1",
+    "path": "sprites/spr_small_table1/spr_small_table1.yy",
   },
   "solid": false,
   "visible": false,
   "managed": true,
-  "spriteMaskId": {
-    "name": "spr_empty_mask",
-    "path": "sprites/spr_empty_mask/spr_empty_mask.yy",
-  },
+  "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": {
     "name": "par_static_entity",
@@ -32,12 +29,11 @@
   "physicsShapePoints": [],
   "eventList": [
     {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,},
-    {"resourceType":"GMEvent","resourceVersion":"1.0","name":"","isDnD":false,"eventNum":4,"eventType":7,"collisionObjectId":null,},
   ],
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "World Item",
-    "path": "folders/Resources/Core/Entities/Static/General/World Item.yy",
+    "name": "Furniture",
+    "path": "folders/Resources/Core/Entities/Static/Interior/Furniture.yy",
   },
 }

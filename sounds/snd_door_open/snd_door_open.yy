@@ -17,7 +17,7 @@
   "soundFile": "snd_door_open.wav",
   "duration": 0.68263,
   "parent": {
-    "name": "General",
-    "path": "folders/Resources/Audio/Entities/Static/General.yy",
+    "name": "Doors",
+    "path": "folders/Resources/Audio/Entities/Static/Doors.yy",
   },
 }

@@ -70,6 +70,6 @@
   "nineSlice": null,
   "parent": {
     "name": "Trees",
-    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Decorations/Exterior/Trees.yy",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Exterior/Trees.yy",
   },
 }

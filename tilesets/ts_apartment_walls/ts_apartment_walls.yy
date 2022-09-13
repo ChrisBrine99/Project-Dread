@@ -1,4 +1,7 @@
 {
+  "resourceType": "GMTileSet",
+  "resourceVersion": "1.0",
+  "name": "ts_apartment_walls",
   "spriteId": {
     "name": "spr_apartment_walls",
     "path": "sprites/spr_apartment_walls/spr_apartment_walls.yy",
@@ -467,8 +470,4 @@
     "name": "Walls",
     "path": "folders/Resources/Graphics/Tilesets/Apartments/Walls.yy",
   },
-  "resourceVersion": "1.0",
-  "name": "ts_apartment_walls",
-  "tags": [],
-  "resourceType": "GMTileSet",
 }

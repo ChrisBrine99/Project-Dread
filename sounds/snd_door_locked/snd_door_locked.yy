@@ -17,7 +17,7 @@
   "soundFile": "snd_door_locked.wav",
   "duration": 0.616281,
   "parent": {
-    "name": "General",
-    "path": "folders/Resources/Audio/Entities/Static/General.yy",
+    "name": "Doors",
+    "path": "folders/Resources/Audio/Entities/Static/Doors.yy",
   },
 }

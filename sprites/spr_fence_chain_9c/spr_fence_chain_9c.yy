@@ -68,6 +68,6 @@
   "nineSlice": null,
   "parent": {
     "name": "Collision Masks",
-    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Decorations/Exterior/Fences/Collision Masks.yy",
+    "path": "folders/Resources/Graphics/Sprites/Entities/Static/Exterior/Fences/Collision Masks.yy",
   },
 }

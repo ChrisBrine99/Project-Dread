@@ -34,6 +34,6 @@
   "overriddenProperties": [],
   "parent": {
     "name": "Furniture",
-    "path": "folders/Resources/Core/Entities/Static/Decorations/Interior/Furniture.yy",
+    "path": "folders/Resources/Core/Entities/Static/Interior/Furniture.yy",
   },
 }
