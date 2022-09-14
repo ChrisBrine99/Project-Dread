@@ -34,8 +34,11 @@
 #macro	GREEN						"green"
 #macro	RED							"red"
 #macro	YELLOW						"yellow"
+#macro	GRAY						"gray"
 
-// 
+// The limit of stored buffers for text that had been displayed previously on the textbox. Once this limit
+// is reached, the oldest text buffer log is removed from memory to make room for each subsequently added 
+// text log buffer.
 #macro	TEXT_LOG_LIMIT				50
 
 #endregion
@@ -58,21 +61,32 @@ enum Actor{
 #region	The main object code for obj_textbox_handler
 
 function obj_textbox_handler() constructor{
-	// 
+	// Much like Game Maker's own x and y variables, these store the current position of the camera within 
+	// the current room. By default they are always set to a value of zero.
 	x = CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2);
 	y = 0;
+	
+	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
+	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_textbox_handler;
 	
-	// 
+	// Borrows the same three variables that the dynamic entities use for their state machines to
+	// mimic that state machine system, but for the textbox instead of an object in the world. The
+	// "curState" is updated at the end of the frame to whatever the value of the "nextState" variable
+	// is set to during that frame.
 	curState = NO_STATE;
 	lastState = NO_STATE;
 	nextState = NO_STATE;
 	
-	// 
+	// A flag that can easily be used to determine if the textbox is actively processing data or
+	// not. The second variable simply determines the overall opacity of the textbox relative to
+	// their own alpha values (If they have unique alpha values).
 	isTextboxActive = false;
 	alpha = 0;
 	
-	// 
+	// Handles the auto scrolling of the various menu-like elements of the textbox: the log and
+	// the player decision window. Holding down one of the cursor movement keys will cause the
+	// position of said cursor to update at regular intervals based on the "cursorTimer" variable.
 	isAutoScrolling = false;
 	cursorTimer = 0;
 	
@@ -115,22 +129,33 @@ function obj_textbox_handler() constructor{
 	};
 	actorSwap = false;
 	
-	// 
+	// Struct that handles the processing and rendering of the textbox's logging system. It will
+	// store the surfaces that held the old text for each textbox in its own ds_list, so it can be
+	// retrieved again for the player to view if they desire.
 	logger = {
-		// 
+		// The variables that handle the displaying and storing of all currently logged text. The
+		// first list will store the buffers containing that old text data, the second will hold
+		// pointers to the required actor data assocaiated with those text logs, and the final
+		// variable stores the 3 surfaces that are used to render the currently viewable logged
+		// text.
 		savedText : ds_list_create(),
 		actorData : ds_list_create(),
 		surfTextLogs : array_create(3, -1),
 		
-		// 
+		// The view offset referes to what three pieces of logged text are currently on-screen for the
+		// player to view. They can change this viewable region by using the "menu up" and "menu down"
+		// inputs. The alpha is the current opacity for the text log itself.
 		viewOffset : 0,
 		alpha : 0,
 		
-		/// @description 
+		/// @description Code that is called from the "draw_gui" function of obj_textbox_handler. 
+		/// It is responsible for displaying the currently viewable region of the textbox log; along
+		/// with any background elements for the log area.
 		draw_gui : function(){
 			if (alpha == 0) {return;}
 			
-			// 
+			// If there is no logged text currently, text will be displayed telling the player that
+			// and no other elements will be shown due to the "return" statement at the branch.
 			if (ds_list_size(savedText) == 0){
 				draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_black, alpha * 0.75);
 				
@@ -142,38 +167,51 @@ function obj_textbox_handler() constructor{
 				return;
 			}
 			
-			// 
+			// The rendering functions for the background, surfaces, and actor data all use these
+			// pieces of data, so they'll be stored in local variables to allow easy adjustment of
+			// the values.
 			var _numberDrawn = min(3, ds_list_size(savedText));
 			var _spacing = (TEXTBOX_HEIGHT + 18);
 			
-			// 
+			// Call the functions that are responsible for rendering the background, logged text
+			// surfaces, and actor names, respectively.
 			draw_log_background(_numberDrawn, CAM_HEIGHT - 15, _spacing);
 			draw_logged_surfaces(_numberDrawn, CAM_HEIGHT - 55, _spacing);
 			draw_logged_actor_names(_numberDrawn, CAM_HEIGHT - 55, _spacing);
 		},
 		
-		/// @description 
+		/// @description Code that is called from the "cleanup" function of obj_textbox_handler. 
+		/// If is responsible for displaying the currently viewable region of the textbox log; along
+		/// with any background elements for the log area.
 		cleanup : function(){
-			// 
+			// Delete all the existing log text buffers from memory before destroy the list that stored
+			// the pointers to those buffers. Otherwise, the memory will remain allocated until the game
+			// is closed or crashed from the leak. The actor data doesn't need its pointers handled since
+			// the textbox itself manages those.
 			var _length = ds_list_size(savedText);
 			for (var i = 0; i < _length; i++) {buffer_delete(savedText[| i]);}
 			ds_list_destroy(savedText);
 			ds_list_destroy(actorData);
 			
-			// 
+			// Free the surfaces if they still exist within VRAM. If they happened to have already been
+			// flushed from memory before this code is executed, the non-existent surface(s) are skipped.
 			for (var j = 0; j < 3; j++){
 				if (surface_exists(surfTextLogs[j])) {surface_free(surfTextLogs[j]);}
 			}
 		},
 		
-		/// @description 
+		/// @description Handles drawing the background elements for the text log's background. It handles
+		/// the black translucent backing, the feathered lines seperating the text logs, and the original
+		/// background colors for the viewable textbox logs that is feathered as well.
 		/// @param {Real}	numberDrawn
 		/// @param {Real}	startY
 		/// @param {Real}	spacing
 		draw_log_background : function(_numberDrawn, _startY, _spacing){
 			draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_black, alpha * 0.75);
 			
-			// 
+			// Displaying the white dividing lines between the viewable textbox logs. There will always be
+			// one more line than there is viewable text because there needs to be a divider between the
+			// first text log and the control information at the bottom of the screen.
 			shader_set(shd_feathering);
 			feathering_set_bounds(120, 0, CAM_WIDTH - 120, CAM_HEIGHT, 10, 0, CAM_WIDTH - 10, CAM_HEIGHT);
 			var _offsetY = _startY;
@@ -182,7 +220,8 @@ function obj_textbox_handler() constructor{
 				_offsetY -= _spacing;
 			}
 			
-			// 
+			// After all the required dividing lines have been rendered, the backgrounds for each of the
+			// viewable text logs will be rendered using their original textbox colors.
 			_offsetY = _startY - _spacing + 5;
 			for (var i = 0; i < _numberDrawn; i++){
 				feathering_set_bounds(100, _offsetY + (_spacing / 2), CAM_WIDTH - 100, _offsetY + (_spacing / 2), 0, _offsetY, CAM_WIDTH, _offsetY + _spacing);
@@ -192,7 +231,7 @@ function obj_textbox_handler() constructor{
 			shader_reset();
 		},
 		
-		/// @description Draw the three visible text logs onto the screen; from bottom to top based 
+		/// @description Draw the three visible text logs onto the screen; from bottom-to-top based 
 		/// on the newest to oldest logged text, respectively.
 		/// @param {Real}	numberDrawn
 		/// @param {Real}	startY
@@ -209,7 +248,9 @@ function obj_textbox_handler() constructor{
 			}
 		},
 		
-		/// @description 
+		/// @description Much like above, the three curruently viewable actor names will be rendered to 
+		/// the textbox above the text that was previous said by the respective actor(s). This is draw
+		/// from bottom-to-top based on newest to oldest text log; just like the above function.
 		/// @param {Real}	numberDrawn
 		/// @param {Real}	startY
 		/// @param {Real}	spacing
@@ -971,6 +1012,7 @@ function obj_textbox_handler() constructor{
 			case GREEN:		charColor = HEX_GREEN;			charOutlineColor = RGB_DARK_GREEN;		break;
 			case RED:		charColor = HEX_RED;			charOutlineColor = RGB_DARK_RED;		break;
 			case YELLOW:	charColor = HEX_LIGHT_YELLOW;	charOutlineColor = RGB_DARK_YELLOW;		break;
+			case GRAY:		charColor = HEX_GRAY;			charOutlineColor = RGB_DARK_GRAY;		break;
 			default:		charColor = HEX_WHITE;			charOutlineColor = RGB_GRAY;			break;
 		}
 		

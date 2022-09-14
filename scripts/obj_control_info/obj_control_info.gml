@@ -2,7 +2,8 @@
 
 #region Initializing any macros that are useful/related to obj_control_info
 
-// 
+// Macros that store the values for determining how an anchor's control info elements are alignment to its
+// position on the screen.
 #macro	ALIGNMENT_RIGHT				1001
 #macro	ALIGNMENT_LEFT				1002
 #macro	ALIGNMENT_UP				1003
@@ -194,7 +195,9 @@ if (os_type == os_windows){
 	ds_map_add(global.keyboardIcons, vk_lalt,		{iconSprite : spr_keyboard_icons_large,		imgIndex : 13});
 }
 
-// 
+// Stores all of the gamepad's icons in a global map, so they can be properly cleaned from memory (And also so
+// any duplicate structs can be replaced by pointers in the "inputIcons" map) when the information is no
+// longer needed by the control info object.
 global.gamepadIcons = ds_map_create();
 
 #endregion
@@ -213,11 +216,14 @@ function obj_control_info() constructor{
 	alphaTarget = 0;
 	alphaModifier = 0;
 	
-	// 
+	// Stores all of the currently used icons for the game's current input bindings and the player's currently
+	// active control input method (Can be keyboard or their gamepad, if it's supported).
 	inputIcons = ds_map_create();
 	prevGamepad = Gamepad.None;
 	
-	// 
+	// Stores each of the anchor points, which each have a unique position and alignment. The control data
+	// that is attached to each anchor is stored in a list within said anchor struct, and the order of these
+	// anchors in the map are stored in a seperate list in order to have quick processing during rendering.
 	anchorPoint = ds_map_create();
 	pointOrder = ds_list_create();
 	

@@ -149,15 +149,8 @@ global.gameTime = {
 	/// timer is currently toggled to update itself on a per-second basis. This function is called in the
 	/// "begin_step" in the main controller object.
 	begin_step : function(){
-		// Calculate the new value for delta time, which uses Game Maker's built-in "delta_time" variable,
-		// which calculates the time between frames in nanoseconds. This value is converted to seconds and
-		// multiplied by the targetFPS's value, such that whatever that value is makes the delta timing
-		// equal one when the game is running at that frame rate.
 		deltaTime = (delta_time / 1000000) * targetFPS;
 		
-		// Increase the millisecond timer by whatever delta time is divided by 60. (60 = 1 second of real-
-		// world time) Once that value passes 1, the ingame time will be increased by one if the timer isn't
-		// currently frozen at its current value.
 		inGameTimeMillis += deltaTime / 60;
 		if (inGameTimeMillis >= 1){
 			inGameTimeMillis--;
@@ -338,9 +331,6 @@ global.settings = {
 		trueSoundVolume =	masterVolume * soundVolume;
 		trueGuiVolume =		masterVolume * guiVolume;
 		
-		// When it comes to setting the music's volume, the flag for disabling music is checked. If that flag
-		// is set to true, the music volume will remain at 0. Otherwise, the standard volume will be set
-		// to match the master volume.
 		if (playMusic)	{trueMusicVolume = masterVolume * musicVolume;}
 		else			{trueMusicVolume = 0;}
 	},
@@ -452,51 +442,28 @@ global.gameplay = {
 	/// when out of combat.
 	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_forgiving : function(_puzzleDifficulty){
-		// Initialize the combat difficulty to store the numerical index for "Forgiving" difficulty; the
-		// puzzle difficulty setting being determined outside of this function and carried over by the
-		// function's only argument value.
 		combatDifficulty =		Difficulty.Forgiving;
 		puzzleDifficulty =		_puzzleDifficulty;
-		
-		// Set the starting item inventory size to be the largest of the difficulty options; that being 10
-		// available slots. Also, the maximum size will be the maximum size of the global array that stores
-		// the actual item inventory data; that value being 24.
 		startingItemInvSize =	10;
 		maximumItemInvSize =	24;
-		global.curItemInvSize = startingItemInvSize;
-		
-		// Dramatically boost the damage out for the player to be DOUBLE whatever was actually calcuated using
-		// the player damage formula. Then, reduce the enemy damage to be only half of whatever was calculated
-		// using their respective damage formula.
 		pDamageModifier =		2.0;
 		eDamageModifier =		0.5;
-		
-		// Since "forgiving" was the selected combat difficulty, the player will be granted the ability to
-		// regenerate slowly when they are outside of combat, and they will be given a unique starting pistol
-		// that consume no ammunition.
 		pStartingPistol =		true;
 		pRegenHitpoints =		true;
+		global.curItemInvSize = startingItemInvSize;
 	},
 	
 	/// @description Initializes the gameplay struct to not affect gameplay at all (Aside from how many slots 
 	/// are available to the player in their item inventory).
 	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_standard : function(_puzzleDifficulty){
-		// Set the index value for the combat difficulty to be set to "Standard", and set the puzzle difficulty
-		// to be whatever value of the three choices was selected by the player upon starting a new game.
 		combatDifficulty =		Difficulty.Standard;
 		puzzleDifficulty =		_puzzleDifficulty;
-		
-		// Set the starting inventory size to be 8 slots, with the maximum possible value being 20 slots
-		// once all available Item Pouches have been collected in the game world.
 		startingItemInvSize =	8;
 		maximumItemInvSize =	20;
-		global.curItemInvSize = startingItemInvSize;
-		
-		// Initialize the damage modifiers for both player damage and enemy damage to have no effect on the
-		// standard calculation for said damage output types since standard doesn't change damage values.
 		pDamageModifier =		1.0;
 		eDamageModifier =		1.0;
+		global.curItemInvSize = startingItemInvSize;
 		
 		// NOTE -- No gameplay modification flags are set on this difficulty.
 	},
@@ -504,74 +471,42 @@ global.gameplay = {
 	/// @description 
 	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_punishing : function(_puzzleDifficulty){
-		// 
 		combatDifficulty =		Difficulty.Punishing;
 		puzzleDifficulty =		_puzzleDifficulty;
-		
-		// 
 		startingItemInvSize =	8;
 		maximumItemInvSize =	16;
-		global.curItemInvSize = startingItemInvSize;
-		
-		// Reduce the damage output for the player by a factor of 25%; augmenting all damage output for enemies
-		// by the same factor. This makes enemies more punishing and the player overall much weaker without
-		// having to change enemy health pools.
 		pDamageModifier =		0.75;
 		eDamageModifier =		1.25;
-		
-		// Only toggle the flag that makes item durability management a mechanic within the game. This will
-		// add a little bit more of a challenge to the standard gameplay without being as punishing as limited
-		// save, which is a mechanic saved for "Nightmare" difficulty.
 		pItemRepairs =			true;
+		global.curItemInvSize = startingItemInvSize;
 	},
 	
 	/// @description 
 	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_nightmare : function(_puzzleDifficulty){
-		// 
 		combatDifficulty =		Difficulty.Punishing;
 		puzzleDifficulty =		_puzzleDifficulty;
-		
-		// 
 		startingItemInvSize =	6;
 		maximumItemInvSize =	12;
-		global.curItemInvSize = startingItemInvSize;
-		
-		// 
 		pDamageModifier =		0.5;
 		eDamageModifier =		1.5;
-		
-		// 
 		pItemRepairs =			true;
 		pLimitedSaving =		true;
+		global.curItemInvSize = startingItemInvSize;
 	},
 	
 	/// @description
 	/// @param {Enum.Difficulty}	puzzleDifficulty
 	initialize_difficulty_one_life_mode : function(_puzzleDifficulty){
-		// Much like the other four difficulty initialization functions, the combat difficulty's value is
-		// implicitly set to the proper value while the puzzle difficulty is one of the three possible
-		// options that is the player's choosing independent of the main difficulty level.
 		combatDifficulty =		Difficulty.OneLifeMode;
 		puzzleDifficulty =		_puzzleDifficulty;
-		
-		// Set up the inventory to be the smallest size that it can possibly be relative to the five difficulty
-		// levels; starting with a measly four slots and maxing out at only ten slots total.
 		startingItemInvSize =	4;
 		maximumItemInvSize =	10;
-		global.curItemInvSize = startingItemInvSize;
-		
-		// Contrary to the previous difficulty reducing the damage output for the player by half of their
-		// standard amount, this difficulty will keep the standard damage values for the player. However, all
-		// enemies will have their damage outputs doubled; making them extremely powerful and punishing.
 		pDamageModifier =		1.0;
 		eDamageModifier =		2.0;
-		
-		// Set the flag that enables item durability degredation AND the flag that sets the game into "One
-		// Life Mode", which simply disables all save points and prevents reloading upon death. Since saving
-		// is disabled, the flag for limiting saves is pointless and not set on this difficulty.
 		pItemRepairs =			true;
 		pOneLifeMode =			true;
+		global.curItemInvSize = startingItemInvSize;
 	}
 }
 
