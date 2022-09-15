@@ -615,22 +615,24 @@ function control_info_add_data(_anchor, _input, _info){
 /// @param {Real}	newInput
 /// @param {String}	newInfo
 function control_info_edit_data(_anchor, _input, _newInput, _newInfo){
-	var _data = anchorPoint[? _anchor];
-	if (is_undefined(_data)) {return;}
+	with(CONTROL_INFO){
+		var _data = anchorPoint[? _anchor];
+		if (is_undefined(_data)) {return;}
 	
-	// Jump into scope of the supplied anchor in order to search for and replace the input data with the newly
-	// with what was previously found inside the struct (If that input can be found). Then, calculate the
-	// position offsets to reflect the new change in input and info.
-	with(_data){
-		var _length = ds_list_size(info);
-		for (var i = 0; i < _length; i++){
-			if (info[| i].input == _input){
-				info[| i].input = _newInput;
-				info[| i].info = _newInfo;
-				break;
+		// Jump into scope of the supplied anchor in order to search for and replace the input data with the 
+		// newly with what was previously found inside the struct (If that input can be found). Then, calculate 
+		// the position offsets to reflect the new change in input and info.
+		with(_data){
+			var _length = ds_list_size(info);
+			for (var i = 0; i < _length; i++){
+				if (info[| i].input == _input){
+					info[| i].input = _newInput;
+					info[| i].info = _newInfo;
+					break;
+				}
 			}
 		}
-		set_icon_positions(_data);
+		set_icon_positions(_data)
 	}
 }
 
@@ -667,6 +669,16 @@ function control_info_initialize_anchor(_anchor){
 	with(CONTROL_INFO){
 		var _data = anchorPoint[? _anchor];
 		if (!is_undefined(_data)) {set_icon_positions(_data);}
+	}
+}
+
+/// @description 
+/// @param anchor
+function control_info_clear_anchor(_anchor){
+	with(CONTROL_INFO.anchorPoint[? _anchor]){
+		var _length = ds_list_size(info);
+		for (var i = 0; i < _length; i++) {delete info[| i];}
+		ds_list_clear(info);
 	}
 }
 

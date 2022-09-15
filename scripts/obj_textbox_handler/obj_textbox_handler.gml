@@ -41,6 +41,11 @@
 // text log buffer.
 #macro	TEXT_LOG_LIMIT				50
 
+// The playback speed of the textbox's scrolling effect sound. Since once per second is a value of 60 in
+// this game engine, the interval is set to 10 times every second, and then the speed of text set by the
+// user is applied to that base value to determine the final interval speed.
+#macro	SCROLL_SOUND_INTERVAL		6 * global.settings.textSpeed
+
 #endregion
 
 #region	Initializing any enumerators that are useful/related to obj_textbox_handler
@@ -84,11 +89,18 @@ function obj_textbox_handler() constructor{
 	isTextboxActive = false;
 	alpha = 0;
 	
+	// 
+	decisionWindowAlpha = 0;
+	curOption = -1;
+	
 	// Handles the auto scrolling of the various menu-like elements of the textbox: the log and
 	// the player decision window. Holding down one of the cursor movement keys will cause the
 	// position of said cursor to update at regular intervals based on the "cursorTimer" variable.
 	isAutoScrolling = false;
 	cursorTimer = 0;
+	
+	// 
+	prevEntityStates = ds_map_create();
 	
 	// Important variables for processing and managing the textbox data that will end up displaying
 	// so the user can read what each textbox contains. The first variable stores a list that holds
@@ -334,6 +346,12 @@ function obj_textbox_handler() constructor{
 	// or surpasses a value of 2; resetting back to zero after that happens.
 	indicatorOffset = 0;
 	
+	// 
+	canProcessText = false;
+	
+	// 
+	soundTimer = 0;
+	
 	// Variables that store the input state for the various actions that can be done through the
 	// textbox by the player; advancing to the next chunk of text, checking previous text through
 	// the "log", and moving the cursor to different decisions when the player is required to make
@@ -344,9 +362,6 @@ function obj_textbox_handler() constructor{
 	inputReturn = false;
 	inputUp = false;
 	inputDown = false;
-	
-	// 
-	prevEntityStates = ds_map_create();
 	
 	#region Game Maker events as functions
 	
@@ -364,6 +379,24 @@ function obj_textbox_handler() constructor{
 	/// in this event.
 	end_step = function(){
 		if (curState != nextState) {curState = nextState;}
+		
+		// Don't process any of the code below this line if the textbox isn't currently active. Otherwise,
+		// the scrolling sound would be able to play without any textbox being present if the  "canProcessText" 
+		// bool is ever set to true.
+		if (!isTextboxActive) {return;}
+		
+		// Handling the playback of the textbox's scrolling sound effect. It will play it at a set amount of
+		// times per second that will very roughly match the speed of the characters appearing on screen.
+		// Also, the bool for enabling that process is determined here, since the check for playing the sound
+		// is that same as the check for display characters.
+		canProcessText = (curChar <= finalChar && logger.alpha == 0);
+		if (canProcessText && punctuationTimer <= 0){
+			soundTimer -= DELTA_TIME;
+			if (soundTimer <= 0){
+				audio_play_sound_ext(snd_textbox_scroll, 0, SOUND_VOLUME * (0.1 + random_range(-0.02, 0.02)), 1.5, true);
+				soundTimer = SCROLL_SOUND_INTERVAL;
+			}
+		}
 		
 		// In order to allow for a textbox's sound to be delayed, the timer for that delayed
 		// playback is counted down here by access the "soundData" struct that is stored inside
@@ -421,8 +454,15 @@ function obj_textbox_handler() constructor{
 			surfText = surface_create(TEXTBOX_WIDTH, TEXTBOX_HEIGHT);
 			buffer_set_surface(surfTextBuffer, surfText, 0);
 		}
-		if (curChar <= finalChar && logger.alpha == 0) {update_text_surface(textbox.fullText);}
+		if (canProcessText) {update_text_surface(textbox.fullText);}
 		draw_surface_ext(surfText, x, y, 1, 1, 0, c_white, surfAlpha * alpha);
+		
+		// Drawing the decision window and its available options whenever the alpha level for it is
+		// greater than a value of zero, which would be fully transparent.
+		if (decisionWindowAlpha > 0){
+			draw_decision_window_background();
+			draw_decision_window_choices();
+		}
 		
 		// Draw the textbox log. If it has an alpha value of zero it will automatically have its
 		// rendering skipped. Otherwise, it will be drawn overtop of the rest of the textbox.
@@ -544,7 +584,7 @@ function obj_textbox_handler() constructor{
 					// that exists within each textbox data struct, the textbox will enter its decision
 					// state; having the next index determined relative to the choice made by the player.
 					if (ds_list_size(textbox.playerChoices) > 1){
-						//object_set_next_state(state_fade_in_decision_data);
+						object_set_next_state(state_animation_open_decision_window);
 						return;
 					}
 					
@@ -563,14 +603,56 @@ function obj_textbox_handler() constructor{
 	
 	/// @description 
 	state_select_decision = function(){
+		get_input(); // Before any logic is processed, get input from the user.
 		
+		// Showing the textbox log, which will allow the player to see text that was previously shown on 
+		// the textbox. Pressing the input to view said log will cause its opening animation to play and
+		// whatever state the log was opened from to be stored in a variable for use when closing the log.
+		if (inputLog){
+			object_set_next_state(state_animation_open_text_log);
+			lastStateExt = state_select_decision;
+			return; // Exit the state function early.
+		}
+		
+		// 
+		if (inputSelect){
+			object_set_next_state(state_animation_close_decision_window);
+			var _playerChoices = textbox.playerChoices[| curOption];
+			EVENT_SET_FLAG(_playerChoices.eventFlag, _playerChoices.flagState);
+			targetIndex = _playerChoices.outcomeIndex;
+			return; // Exit the state function prematurely.
+		}
+		
+		// 
+		var _movement = (inputDown - inputUp);
+		if (_movement != 0){
+			cursorTimer -= DELTA_TIME;
+			if (cursorTimer <= 0){
+				if (!isAutoScrolling){ // Initial button hold has a longer interval between option switches.
+					isAutoScrolling = true;
+					cursorTimer = 30;
+				} else{ // Shorten the timer between option switches when the cursor is held.
+					cursorTimer = 10;
+				}
+				
+				// Update the position of the cursor, but prevent it from surpassing the valid index bounds 
+				// of the list of available choices to the player.
+				var _listSize = ds_list_size(textbox.playerChoices);
+				curOption += _movement;
+				if (curOption >= _listSize) {curOption = _listSize - 1;}
+				else if (curOption < 0) {curOption = 0;}
+			}
+		} else{ // Reset the cursor timer back down to zero if the movement buttons are released before it hits zero again.
+			isAutoScrolling = false;
+			cursorTimer = 0;
+		}
 	}
 	
 	/// @description The state for the textbox whenever the player is looking at the previous textbox
 	/// text that was stored within the logger object struct. It handles exiting the state by pressing
 	/// the "return" input, and shifting through the logged text with the "up" and "down" menu inputs.
 	state_textbox_log = function(){
-		get_input();
+		get_input(); // Before any logic is processed, get input from the user.
 		
 		// Exit the textbox log state to return to whatever the previous state the textbox was in. This
 		// could be one of two outcomes: the default textbox state OR the player choice state.
@@ -677,12 +759,22 @@ function obj_textbox_handler() constructor{
 	
 	/// @description
 	state_animation_open_decision_window = function(){
-		
+		decisionWindowAlpha = value_set_linear(decisionWindowAlpha, 1, 0.1);
+		if (decisionWindowAlpha == 1){
+			object_set_next_state(state_select_decision);
+			initialize_decision_control_info();
+			curOption = 0;
+		}
 	}
 	
 	/// @description
 	state_animation_close_decision_window = function(){
-		
+		decisionWindowAlpha = value_set_linear(decisionWindowAlpha, 0, 0.1);
+		if (decisionWindowAlpha == 0){
+			object_set_next_state(state_default);
+			prepare_next_textbox(targetIndex, true);
+			initialize_default_control_info();
+		}
 	}
 	
 	/// @description A transition animation for opening the textbox's log. It will smoothly fade it into
@@ -695,7 +787,10 @@ function obj_textbox_handler() constructor{
 			_animationComplete = (alpha == 1);
 		}
 		
-		if (_animationComplete) {object_set_next_state(state_textbox_log);}
+		if (_animationComplete){
+			object_set_next_state(state_textbox_log);
+			initialize_log_control_info();
+		}
 	}
 	
 	/// @description A reverse process of the textbox log's opening function. It will reduce the alpha
@@ -709,7 +804,11 @@ function obj_textbox_handler() constructor{
 			_animationComplete = (alpha == 0);
 		}
 		
-		if (_animationComplete) {object_set_next_state(lastStateExt);}
+		if (_animationComplete){
+			object_set_next_state(lastStateExt);
+			if (nextState == state_select_decision)	{initialize_decision_control_info();}
+			else if (nextState == state_default)	{initialize_default_control_info();}
+		}
 	}
 	
 	#endregion
@@ -778,6 +877,9 @@ function obj_textbox_handler() constructor{
 		
 		// Reset the indicator offset so it always starts at the same position when it shows up.
 		indicatorOffset = 0;
+		
+		// Reset the textbox scroll sound effect timer so its initial playback lines up with the text.
+		soundTimer = 0;
 		
 		// Reset character position and color data to their defaults so the new text doesn't begin where
 		// the character offset was after the previous textbox's text completed its rendering.
@@ -916,7 +1018,7 @@ function obj_textbox_handler() constructor{
 		// if the textbox hasn't been set to ignore said timer.
 		if (processPunctuation && punctuationTimer > 0){
 			punctuationTimer -= global.settings.textSpeed * DELTA_TIME * textbox.textSpeed;
-			nextChar = curChar; // Stops the "nextChar" value from going too high when delta time is too large.
+			soundTimer = 0; // Ensures instant text scroll sound effect playback after the punctuation pause.
 			return;
 		}
 		
@@ -1092,6 +1194,45 @@ function obj_textbox_handler() constructor{
 	
 	#endregion
 	
+	#region Decision window rendering function
+	
+	/// @description 
+	draw_decision_window_background = function(){
+		// 
+		draw_set_font(font_gui_small);
+		var _height = 30 + (ds_list_size(textbox.playerChoices) * floor(string_height("M") + 2));
+		
+		// 
+		shader_set(shd_feathering);
+		var _halfWidth = CAM_HALF_WIDTH;
+		var _halfHeight = CAM_HALF_HEIGHT - 40;
+		feathering_set_bounds(_halfWidth - 80, _halfHeight - (_height / 5), _halfWidth + 80, _halfHeight + (_height / 5), 0, _halfHeight - (_height / 2), CAM_WIDTH, _halfHeight + (_height / 2));
+		draw_sprite_ext(spr_rectangle, 0, 0, _halfHeight - (_height / 2), CAM_WIDTH, _height, 0, HEX_BLACK, decisionWindowAlpha * alpha * 0.75);
+		shader_reset();
+	}
+	
+	/// @description 
+	draw_decision_window_choices = function(){
+		shader_set_outline(RGB_GRAY, font_gui_small);
+		draw_set_halign(fa_center);
+		
+		var _halfWidth = CAM_HALF_WIDTH;
+		var _playerChoices = textbox.playerChoices;
+		
+		var _length = ds_list_size(_playerChoices);
+		var _yOffset = CAM_HALF_HEIGHT - 40 - floor((_length * (string_height("M") + 2)) / 2);
+		for (var i = 0; i < _length; i++){
+			if (i == curOption) {draw_text_outline(_halfWidth, _yOffset, _playerChoices[| i].textString, HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, decisionWindowAlpha * alpha);}
+			else				{draw_text_outline(_halfWidth, _yOffset, _playerChoices[| i].textString, HEX_WHITE, RGB_GRAY, decisionWindowAlpha * alpha);}
+			_yOffset += string_height("M") + 2;
+		}
+		
+		draw_set_halign(fa_left);
+		shader_reset();
+	}
+	
+	#endregion
+	
 	#region Miscellaneous functions
 	
 	/// @description Returns a struct that contains information about the actor relative to the ID value
@@ -1117,23 +1258,54 @@ function obj_textbox_handler() constructor{
 	}
 	// TODO -- Potentially change this to a JSON file of data to simplify the code.
 	
-	/// @description 
-	initialize_default_controls = function(){
-		control_info_create_anchor("controls", CAM_WIDTH - 5, CAM_HEIGHT - 12, ALIGNMENT_RIGHT);
+	/// @description
+	initialize_default_control_info = function(){
+		control_info_clear_anchor("controls");
 		control_info_add_data("controls", INPUT_ADVANCE, "Next");
 		control_info_add_data("controls", INPUT_LOG, "Log");
 		control_info_initialize_anchor("controls");
+		
+		control_info_clear_anchor("movement");
 	}
 	
 	/// @description 
-	initialize_decision_controls = function(){
-		control_info_remove_data("controls", INPUT_LOG);
+	initialize_decision_control_info = function(){
+		control_info_clear_anchor("controls");
+		control_info_add_data("controls", INPUT_SELECT, "Select");
+		control_info_initialize_anchor("controls");
 		
-		// 
-		control_info_create_anchor("move", 5, CAM_HEIGHT - 12, ALIGNMENT_LEFT);
-		control_info_add_data("move", INPUT_MENU_DOWN, "");
-		control_info_add_data("move", INPUT_MENU_UP, "Move Cursor");
-		control_info_initialize_anchor("move");
+		// If there is already data for controls contained inside of the "movement" anchor, there is no 
+		// need to add that data again since it has to be the same format as the controls needed for the 
+		// textbox log (The "up" and "down" menu inputs).
+		if (ds_list_size(CONTROL_INFO.anchorPoint[? "movement"].info) == 0){
+			control_info_add_data("movement", INPUT_MENU_DOWN, "");
+			control_info_add_data("movement", INPUT_MENU_UP, "Move");
+			control_info_initialize_anchor("movement");
+		}
+	}
+	
+	/// @description 
+	initialize_log_control_info = function(){
+		control_info_clear_anchor("controls");
+		control_info_add_data("controls", INPUT_RETURN, "Close");
+		control_info_initialize_anchor("controls");
+		
+		// There is no need to display menu cursor controls when there are less textboxes logged than
+		// can be viewed by the player at any given time, which is less than four, overall. So, if there
+		// are less than that amount, any potential movement controls are cleared out of their anchor.
+		if (ds_list_size(logger.savedText) <= 3){
+			control_info_clear_anchor("movement");
+			return; // Exit before any menu cursor controls can be added.
+		}
+		
+		// If there is already data for controls contained inside of the "movement" anchor, there is no 
+		// need to add that data again since it has to be the same format as the controls needed for the 
+		// textbox log (The "up" and "down" menu inputs).
+		if (ds_list_size(CONTROL_INFO.anchorPoint[? "movement"].info) == 0){
+			control_info_add_data("movement", INPUT_MENU_DOWN, "");
+			control_info_add_data("movement", INPUT_MENU_UP, "Move");
+			control_info_initialize_anchor("movement");
+		}
 	}
 	
 	#endregion
@@ -1260,7 +1432,7 @@ function textbox_add_player_choice(_text, _outcomeIndex, _eventFlag = EVENT_FLAG
 				// Create the struct for the player choice data and store it within the list
 				// of current player choices stored within this most recent textbox struct.
 				ds_list_add(playerChoices, {
-					text :			_text,
+					textString :	_text,
 					outcomeIndex :	_outcomeIndex,
 					eventFlag :		_eventFlag,
 					flagState :		_flagState,
@@ -1299,11 +1471,11 @@ function textbox_activate(_startingIndex = 0){
 		prepare_next_textbox(_startingIndex);
 		object_set_next_state(state_animation_open_textbox);
 		
-		// Set up the controls to show the two main inputs for the textbox; the advancement input,
-		// and the input to open the log that displays previous textboxes. Then, fade that info
-		// in alongside the textbox opening animation.
-		initialize_default_controls();
+		// 
+		control_info_create_anchor("controls", CAM_WIDTH - 5, CAM_HEIGHT - 12, ALIGNMENT_RIGHT);
+		control_info_create_anchor("movement", 5, CAM_HEIGHT - 12, ALIGNMENT_LEFT);
 		control_info_set_alpha_target(1, 0.075);
+		initialize_default_control_info();
 		
 		// 
 		var _prevEntityStates = prevEntityStates;

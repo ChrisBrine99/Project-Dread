@@ -13,12 +13,12 @@
 
 #region The main object code for obj_interact_component
 
-/// @param x
-/// @param y
-/// @param radius
-/// @param interactFunction
-/// @param interactPrompt
-/// @param id
+/// @param {Real}			x
+/// @param {Real}			y
+/// @param {Real}			radius
+/// @param {Function}		interactFunction
+/// @param {String}			interactPrompt
+/// @param {Id.Instance}	id
 function obj_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt, _id) constructor{
 	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
@@ -86,11 +86,11 @@ function obj_interact_component(_x, _y, _radius, _interactFunction, _interactPro
 /// within a variable for later use within that entity instance object. It will also add this component to
 /// a global list of interact component instances which is used to figure out which one the player has 
 /// interacted with whenever they press their interact input.
-/// @param x
-/// @param y
-/// @param radius
-/// @param interactFunction
-/// @param interactPrompt
+/// @param {Real}		x
+/// @param {Real}		y
+/// @param {Real}		radius
+/// @param {Function}	interactFunction
+/// @param {String}		interactPrompt
 function object_add_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt){
 	if (interactComponent == noone){
 		interactComponent = new obj_interact_component(_x, _y, _radius, _interactFunction, _interactPrompt, id);

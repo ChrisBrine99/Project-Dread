@@ -11,9 +11,15 @@ with(SCREEN_FADE)		{step();}
 with(WEATHER_RAIN)		{step();}
 with(WEATHER_FOG)		{step();}
 
+// Update all of the existing light sources to handle their optional functionalities of lifespans and flicker.
+var _length = ds_list_size(global.lightSources);
+for (var l = 0; l < _length; l++){
+	with(global.lightSources[| l]) {step();}
+}
+
 // Loop through all of the currently existing menus and execute their step events, which handle player input,
 // animations, and menu cursor movement logic.
-var _length = ds_list_size(global.menuInstances);
+_length = ds_list_size(global.menuInstances);
 for (var i = 0; i < _length; i++){
 	with(global.menuInstances[| i]) {step();}
 }

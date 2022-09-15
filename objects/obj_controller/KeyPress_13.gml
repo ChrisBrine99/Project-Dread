@@ -5,15 +5,23 @@
 //						+ GREEN + "*green, *" + BLUE + "*blue.");
 //textbox_begin_execution();
 
-textbox_add_text("This is a*" + YELLOW + "* test# to see if the new textbox works. Can you believe that it actually works; even the pauses for*" + GREEN + "* punctuation#?");
-textbox_add_text("*" + RED + "*Mommy#?! Sorry.*" + YELLOW + "* Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.*" + RED + "* Mommy#? Sorry. *" + YELLOW + "*Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.*" + RED + "* Mommy#? Sorry. *" + YELLOW + "*Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.*" + RED + "* Mommy#? Sorry. *" + YELLOW + "*Mommy#? Sorry.*" + GREEN + "* Mommy#? Sorry.*" + BLUE + "* Mommy#? Sorry.", 1, 1, Actor.Claire, 3);
-textbox_add_text("More irrelevent text here. Something, something, penis music!?", 1, 1, Actor.Claire, 0);
-textbox_add_text("More text here.");
-textbox_add_text("Some more shit here.");
-textbox_add_text("Even more text here.");
-textbox_add_text("Keep the text coming.");
-textbox_add_text("Almost there...");
-textbox_add_text("THERE YOU GO!");
+textbox_add_text("Do you think... God stays in heaven because he, too, lives in fear of what he's created?", 1, 1, Actor.Claire, 3);
+textbox_add_player_choice("Yeah, I'd say so.", 1);
+textbox_add_player_choice("No, God loves his creations!", 2);
+textbox_add_player_choice("Is God even real?", 4);
+
+textbox_add_text("I guess when the apocalypse comes it won't be any surprise as to why he'll leave us all to die, then...", 1, 1, Actor.Claire, 1);	// First outcome
+textbox_set_to_close();
+
+textbox_add_text("Your blind faith in the notion that God would protect us after all humanity has become is pitiful!", 1, 1, Actor.Claire, 5);	// Second outcome
+textbox_add_text("I only hope that faith pays off in the end, but I don't think God is willing to heed the cries of any human, anymore...", 1, 1, Actor.Claire, 4);
+textbox_set_to_close();
+
+textbox_add_text("Is this even real? Can we truly claim a being far beyond our realm of knowing exists or not? The faith a deity can bring allows people to find reason for living, and that's a good thing.", 1, 1, Actor.Claire, 1);	// Third outcome
+textbox_add_text("Then again... It's also been used to enable countless horrible things to occur throughout our history in the name of a God...", 1, 1, Actor.Claire, 3);
+textbox_add_text("We could sit and worry about this \"God\" being real to begin with, or we could accept the differences we have as humans in our individual beliefs and learn to coexist with each other.", 1, 1, Actor.Claire, 1);
+textbox_add_text("We can only hope that one day that'll be a reality...", 1, 1, Actor.Claire, 3);
+
 textbox_activate();
 
 /*control_info_clear_data();

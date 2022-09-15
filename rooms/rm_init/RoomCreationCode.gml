@@ -35,3 +35,5 @@ with(PLAYER){
 	equip_item_to_player(0);
 	//equip_item_to_player(1);
 }
+
+EVENT_CREATE_FLAG("FirstKey", false);

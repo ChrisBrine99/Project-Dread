@@ -96,16 +96,16 @@ requiredKeys = ds_list_create();
 /// set up the variables for storing the target room to warp to and the position to place the player at within
 /// said room. Then the two required sounds are set. The rest of the variables are optional to set and will
 /// allow things like locking the door until certain keys are used on it, and the sounds associated with that.
-/// @param targetRoom
-/// @param targetX
-/// @param targetY
-/// @param openingSound
-/// @param closingSound
-/// @param doorState
-/// @param doorDirection
-/// @param lockedSound
-/// @param unlockSound
-initialize_door_data = function(_targetRoom, _targetX, _targetY, _openingSound, _closingSound, _doorState = DOOR_UNLOCKED, _doorDirection = DOOR_DIR_NORTH,  _lockedSound = NO_SOUND, _unlockSound = NO_SOUND){
+/// @param {Asset.GMRoom}	targetRoom
+/// @param {Real}			targetX
+/// @param {Real}			targetY
+/// @param {Asset.GMSound}	openingSound
+/// @param {Asset.GMSound}	closingSound
+/// @param {Real}			doorState
+/// @param {Real}			doorDirection
+/// @param {Asset.GMSound}	lockedSound
+/// @param {Asset.GMSound}	unlockSound
+initialize_door_data = function(_targetRoom, _targetX, _targetY, _openingSound, _closingSound, _doorState, _doorDirection,  _lockedSound = NO_SOUND, _unlockSound = NO_SOUND){
 	// Only bother setting the target warping variables if the room that is being "targetted" for warping
 	// actually exists in the game's level data. If it does exist, the player's target position is set as
 	// well as that target room index.
@@ -133,8 +133,8 @@ initialize_door_data = function(_targetRoom, _targetX, _targetY, _openingSound, 
 /// every door object. Upon the first addition of a key, the door's state will instantly be set to the 
 /// generic locked state until those keys within the list have been used on said door. Any item can be
 /// turned into a "key" for a door based on how this system works, so it's very flexible.
-/// @param itemName
-/// @param eventID
+/// @param {String}	itemName
+/// @param {Any}	eventID
 add_required_key = function(_itemName, _eventID){
 	if (is_undefined(global.itemData[? KEY_ITEM_LIST][? _itemName])) {return;}
 	if (!EVENT_CREATE_FLAG(_eventID)){
