@@ -73,21 +73,31 @@ function obj_effect_handler() constructor{
 	intensityTarget =	0;
 	intensityModifier = 0.001;
 	
-	// 
+	// The surface that is used for achieving the game's blooming effect. The surface index is stored in the
+	// first variable, and the texture ID for that surface is stored in the second variable so it can be used
+	// as a sampler in the bloom blend shader.
 	surfBloomLum = -1;
 	bloomTextureID = -1;
 	
-	// 
+	// Determines the range of colors that are affected by blooming; any colors that surpass the threshold 
+	// will have a bloom effect applied (The amount of bloom being determined by how far that color is below
+	// the "threshold" relative to the range value).
 	sBloomThreshold =	shader_get_uniform(shd_bloom_luminance, "threshold");
 	sBloomRange =		shader_get_uniform(shd_bloom_luminance, "range");
 	
-	// 
+	// Uniforms for the bloom effect. The first determines how intense the blooming effect is at the current
+	// moment in-game, the second determines how pronounced the bloom is relative to the rest of the screen
+	// that isn't affected, the third determines how saturated the bloomed colors become, and the final
+	// allows the bloom surface to be used as an additional sample texture in the bloom shader for accurate
+	// blending onto the application surface.
 	sBloomIntensity =	shader_get_uniform(shd_bloom_blend, "intensity");
 	sBloomDarken =		shader_get_uniform(shd_bloom_blend, "darkenAmount");
 	sBloomSaturation =	shader_get_uniform(shd_bloom_blend, "saturation");
 	sBloomTexture =		shader_get_sampler_index(shd_bloom_blend, "bloomTexture");
 	
-	// 
+	// The uniform that is responsible for determining how intense the chromatic aberration effect is on the
+	// screen. A higher values means the effect begins closer to the center of the screen, and the effect at
+	// the outer edges is more defined.
 	sAbrIntensity =		shader_get_uniform(shd_aberration, "intensity");
 	
 	// Variables that allow the sprite used for the film grain effect to move sporadically across the screen.
