@@ -6,7 +6,7 @@
 // A simple struct that contains the value for the game's current and previous states, respectively. On top of
 // that, it contains the only possible function that should be used to manipulate those state values; preventing
 // any possible accidental overwrites to these states from outside objects.
-global.gameState = {
+/*global.gameState = {
 	// The two storage variables for the game's current state and previous states, respectively.
 	curState :			GameState.NoState,
 	lastState :			GameState.NoState,
@@ -23,7 +23,7 @@ global.gameState = {
 			curState = clamp(_gameState, GameState.InGame, GameState.Paused);
 		}
 	}
-}
+}*/
 
 #endregion
 
@@ -70,61 +70,11 @@ audio_listener_orientation(0, 0, 1, 0, -1, 0);
 
 #endregion
 
-#region Event flag struct
-
-// The struct that is responsible for managing all of the event flags within the game. These flags are
-// responsible for spawning in new objects, triggering cutscenes, making certain sounds/music play at specific
-// points, and any other number of possibilities that can be thought up.
-global.events = {
-	// The data map that contains all of the flags for given "events" in the game, which can be anything as
-	// simple as unlocking a door/solving a puzzle to completely changing the layout of a given room, for
-	// example.
-	flags : ds_map_create(),
-	
-	/// @description Simply removes the flag map from memory to prevent it from remaining allocated if
-	/// its parent struct (This one) is deleted before the end of the game's runtime.
-	cleanup : function(){
-		ds_map_destroy(flags);
-	},
-	
-	/// @description Creates a new entry into the event flag data map with the given ID value and starting
-	/// state value. However, no event flag is created if there is already an event flag that exists at the
-	/// given ID value.
-	/// @param {Any}	flagID
-	/// @param {Bool}	startState
-	create_flag : function(_flagID, _startState = false){
-		if (!is_undefined(flags[? _flagID])) {return flags[? _flagID];}
-		ds_map_add(flags, _flagID, _startState);
-		return flags[? _flagID];
-	},
-	
-	/// @description A function that sets a given flag's value to the state that was provided to the function's
-	/// given argument parameter. If there is no valid event flag at that ID, the function will simply do
-	/// nothing with any flag data.
-	/// @param {Any}	flagID
-	/// @param {Bool}	flagState
-	set_flag : function(_flagID, _flagState){
-		if (is_undefined(flags[? _flagID])) {return;}
-		flags[? _flagID] = _flagState;
-	},
-	
-	/// @description A function that simply returns the current state of the flag in question. However, if
-	/// a flagID was provided to the function that doesn't currently exist within the map, the value -300
-	/// will be returned as a general error value.
-	/// @papram {Any}	flagID
-	get_flag : function(_flagID){
-		if (is_undefined(flags[? _flagID])) {return EVENT_FLAG_INVALID;}
-		return flags[? _flagID];
-	}
-}
-
-#endregion
-
 #region In-Game Playtime Tracker
 
 // Handles the management of the game's delta-timing, as well as the in-game time tracker. Also, this
 // struct stores the string representation (HH:MM:SS) of the current in-game playtime's value.
-global.gameTime = {
+/*global.gameTime = {
 	// Stores the values for the current delta timing between two frames (A value of 1 is equal to the
 	// game running at a steady 60 frames per second) and the target frame rate for physics calculations
 	// per second. Changing the lower variable's value will change what FPS is equal to a delta time of 1.
@@ -169,7 +119,7 @@ global.gameTime = {
 		}
 		return inGameTimeString;
 	}
-}
+}*/
 
 #endregion
 
@@ -208,7 +158,7 @@ global.curItemInvSize = 0;
 //	Gamepad			(Variables split into three pages: A "Game" and "Menu" page for each binding, and a final "General" page for options that aren't input bindings)
 //	Accessibility	(All variables on a single menu page)
 // 
-global.settings = {
+/*global.settings = {
 	// --- Video Settings --- //
 	aspectRatio :			AspectRatio.SixteenByNine,
 	resolutionScale :		4,
@@ -361,13 +311,13 @@ global.settings = {
 		guiVolume =			clamp(_guiVolume, 0, 1);
 		trueSoundVolume =	masterVolume * guiVolume;
 	}
-}
+}*/
 
 // A simple struct that contains information about the currently connected gamepad. Namely, it's device ID,
 // which determines whether it's an XInput or a Direct Input style gamepad. This distinction along with the 
 // variable storing the gamepad's "info" (it's guid and description string) will determine what icons are 
 // paired with the controller for the GUI's control information displays.
-global.gamepad = {
+/*global.gamepad = {
 	// Variables relating to the gamepad; the first two explained in the comment above. The third variable
 	// is simply a flag that lets the game know whether or not the gamepad is actually in use by the player.
 	// If so, the input is checked on the controller instead of the keyboard. 
@@ -397,7 +347,7 @@ global.gamepad = {
 			default:					return "";
 		}
 	}
-}
+}*/
 
 #endregion
 
@@ -407,7 +357,7 @@ global.gamepad = {
 // the player's item inventory starting/maximum size, the location and availability of items in the world,
 // the damage values of both the player and enemies, and also add/remove certain gameplay mechanics to make
 // the game easier or more difficulty depending on the set combat difficulty.
-global.gameplay = {
+/*global.gameplay = {
 	// The general settings for the combat and puzzle difficulty, respectively. They are separated much like
 	// in Silent Hill 2 and 3's difficulty selections to allow the player to increase/decrease one without
 	// having it effect the other as well. In short, allows better fine tuning of difficulty settings of
@@ -508,7 +458,7 @@ global.gameplay = {
 		pOneLifeMode =			true;
 		global.curItemInvSize = startingItemInvSize;
 	}
-}
+}*/
 
 #endregion
 

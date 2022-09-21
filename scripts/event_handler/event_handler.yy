@@ -1,11 +1,11 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "obj_depth_sorter",
+  "name": "event_handler",
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Singletons",
-    "path": "folders/Resources/Core/Singletons.yy",
+    "name": "Globals",
+    "path": "folders/Resources/Core/Singletons/Globals.yy",
   },
 }

@@ -1,4 +1,8 @@
-#region Player macro initialization
+#region Variable initialization
+
+event_inherited();
+
+/*#region Player macro initialization
 
 // The time is takes for stamina to begin regenerating after the player has stopped running; whether that
 // be them releasing the run input OR not moving despite holding the input down still. It's equal to 2.5
@@ -1291,8 +1295,8 @@ play_footstep_sound = function(){
 		// volume and pitch of each step will be randomly altered from within a range of values.
 		// The sound's fading distance and max audible range is set here, and altered if running.
 		var _volume, _pitch, _refDistance, _maxDistance;
-		_volume = random_range(0.15, 0.35) * SOUND_VOLUME;
-		_pitch = 1 + random_range(-0.05, 0.05);
+		_volume = random_range(0.3, 0.38);
+		_pitch = 1 + random_range(-0.016, 0.016);
 		_refDistance = 25;
 		_maxDistance = 75;
 		
@@ -1301,8 +1305,8 @@ play_footstep_sound = function(){
 		// a larger range than normal. On top of this, the pitch of the sound will be lowered in
 		// pitch. Finally, the maximum distance that the sound can be heard is vastly increased.
 		if (isRunning){
-			_volume += random_range(0.3, 0.4);
-			_pitch -= random_range(0.08, 0.12);
+			_volume += random_range(0.65, 0.75);
+			_pitch -= random_range(0.01, 0.02);
 			_refDistance = 60;
 			_maxDistance = 150;
 		}
@@ -1330,7 +1334,7 @@ play_footstep_sound = function(){
 		// Only bother attempting to play a sound if there is currently a valid sound index stored
 		// within the "curFootstepSound" variable. Otherwise, play the stored sound that is paired
 		// with the given index whenever a footstep sound needs to be played.
-		if (curFootstepSound != NO_SOUND) {audio_play_sound_at_ext(x, y, curFootstepSound, 0, _volume, _pitch, _refDistance, _maxDistance, 1, true);}
+		if (curFootstepSound != NO_SOUND) {audio_play_sound_at_ext(x, y, curFootstepSound, 0, _volume * SOUND_VOLUME, _pitch, _refDistance, _maxDistance, 1, true);}
 	}
 	// Only flip the flag back to "true" if the player's whole number image index value is no longer
 	// equal to either of the footstep frame index values. Otherwise, it will remain false until then.

@@ -225,13 +225,6 @@
 
 #region Global Struct macros
 
-// Macros that can be used in place of having to type out "global.gameState" whenever the game state needs to
-// be referenced within the code. The last value just makes the function call simpler to type and will need
-// the brackets with the function arguments after it as normal.
-#macro	GAME_STATE_CURRENT		global.gameState.curState
-#macro	GAME_STATE_PREVIOUS		global.gameState.lastState
-#macro	GAME_SET_STATE			global.gameState.set_state
-
 // Constants that allow easy reference to the delta timing variables for physics/general timing calculations
 // and the current amount of in-game playtime that the player has racked up thus far.
 #macro	DELTA_TIME				global.gameTime.deltaTime

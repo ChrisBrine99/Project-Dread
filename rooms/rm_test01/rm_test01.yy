@@ -23,7 +23,6 @@
         {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_17FCBBA7","properties":[],"isDnd":false,"objectId":{"name":"obj_collider","path":"objects/obj_collider/obj_collider.yy",},"inheritCode":false,"hasCreationCode":false,"colour":4294967295,"rotation":0.0,"scaleX":1.0,"scaleY":6.0,"imageIndex":0,"imageSpeed":1.0,"inheritedItemId":null,"frozen":false,"ignore":false,"inheritItemSettings":false,"x":192.0,"y":48.0,},
         {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_4E65FC25","properties":[],"isDnd":false,"objectId":{"name":"obj_collider","path":"objects/obj_collider/obj_collider.yy",},"inheritCode":false,"hasCreationCode":false,"colour":4294967295,"rotation":0.0,"scaleX":12.0,"scaleY":1.0,"imageIndex":0,"imageSpeed":1.0,"inheritedItemId":null,"frozen":false,"ignore":false,"inheritItemSettings":false,"x":16.0,"y":32.0,},
         {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_7C63AB8C","properties":[],"isDnd":false,"objectId":{"name":"obj_warp_door","path":"objects/obj_warp_door/obj_warp_door.yy",},"inheritCode":false,"hasCreationCode":true,"colour":4294967295,"rotation":0.0,"scaleX":1.0,"scaleY":1.0,"imageIndex":0,"imageSpeed":1.0,"inheritedItemId":null,"frozen":false,"ignore":false,"inheritItemSettings":false,"x":80.0,"y":32.0,},
-        {"resourceType":"GMRInstance","resourceVersion":"1.0","name":"inst_1EAAB1A8","properties":[],"isDnd":false,"objectId":{"name":"obj_light_source","path":"objects/obj_light_source/obj_light_source.yy",},"inheritCode":false,"hasCreationCode":true,"colour":4294967295,"rotation":0.0,"scaleX":1.0,"scaleY":1.0,"imageIndex":0,"imageSpeed":1.0,"inheritedItemId":null,"frozen":false,"ignore":false,"inheritItemSettings":false,"x":112.0,"y":80.0,},
       ],"visible":true,"depth":0,"userdefinedDepth":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"gridX":16,"gridY":16,"layers":[],"hierarchyFrozen":false,"effectEnabled":true,"effectType":null,"properties":[],},
     {"resourceType":"GMRTileLayer","resourceVersion":"1.1","name":"Aux_Ceiling_Tiles","tilesetId":null,"x":0,"y":0,"tiles":{"SerialiseWidth":0,"SerialiseHeight":0,"TileSerialiseData":[
 ],},"visible":true,"depth":10,"userdefinedDepth":false,"inheritLayerDepth":false,"inheritLayerSettings":false,"gridX":16,"gridY":16,"layers":[],"hierarchyFrozen":false,"effectEnabled":true,"effectType":null,"properties":[],},
@@ -92,7 +91,6 @@
     {"name":"inst_7E953386","path":"rooms/rm_test01/rm_test01.yy",},
     {"name":"inst_1868EB30","path":"rooms/rm_test01/rm_test01.yy",},
     {"name":"inst_2AA58C29","path":"rooms/rm_test01/rm_test01.yy",},
-    {"name":"inst_1EAAB1A8","path":"rooms/rm_test01/rm_test01.yy",},
   ],
   "inheritCreationOrder": false,
   "sequenceId": null,

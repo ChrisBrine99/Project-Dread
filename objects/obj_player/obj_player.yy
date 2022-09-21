@@ -38,7 +38,7 @@
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "Dynamic",
-    "path": "folders/Resources/Core/Entities/Dynamic.yy",
+    "name": "Player",
+    "path": "folders/Resources/Core/Entities/Dynamic/Player.yy",
   },
 }

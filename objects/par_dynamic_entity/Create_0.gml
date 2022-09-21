@@ -191,18 +191,18 @@ get_max_vspd = function()		{return max(0, maxVspd * maxVspdFactor);}
 /// value that is supplied to the function's "_valueToAdd" argument. If their hitpoints after the value is
 /// added to the function is less than zero, a non invincible entity will be flagged to be destroyed.
 /// Otherwise, it is capped at whatever the current hitpoint maximum currently is.
-/// @param valueToAdd
+/// @param {Real}	valueToAdd
 set_hitpoints = function(_valueToAdd){
 	hitpoints += _valueToAdd;
-	if (hitpoints < 0 && !isInvincible)			{isDestroyed = true;} 
+	if (hitpoints < 0 && !isInvincible)			{isDestroyed = true;}
 	else if (hitpoints > get_max_hitpoints())	{hitpoints = get_max_hitpoints();}
 }
 
 /// @description A simple function that adjusts the value of the variable that stores the additive bonuses to
 /// a given entity's maximum hitpoint value. Optionally, the same additive value can be added or subtracted
 /// to the current hitpoint value to keep the gap between them consistent.
-/// @param valueToAdd
-/// @param updateHitpointValue
+/// @param {Real}	valueToAdd
+/// @param {Bool}	updateHitpointValue
 set_max_hitpoint_modifier = function(_valueToAdd, _updateHitpointValue){
 	maxHitpointModifier += _valueToAdd;
 	if (_updateHitpointValue)	{set_hitpoints(_valueToAdd);}
@@ -213,8 +213,8 @@ set_max_hitpoint_modifier = function(_valueToAdd, _updateHitpointValue){
 /// a value that is multiplied against the base max hitpoints and whatever the current modifier value is in
 /// order to scale the maximum by a percentage relative to the sum other two values. Optionally, this function
 /// can adjust the current hitpoints by the same factor that the max hitpoint value was changed by.
-/// @param valueToAdd
-/// @param updateHitpointValue
+/// @param {Real}	valueToAdd
+/// @param {Bool}	updateHitpointValue
 set_max_hitpoint_factor = function(_valueToAdd, _updateHitpointValue){
 	var _prevMaxHitpoints = get_max_hitpoints();
 	maxHitpointFactor = max(0, maxHitpointFactor + _valueToAdd);
@@ -225,7 +225,7 @@ set_max_hitpoint_factor = function(_valueToAdd, _updateHitpointValue){
 /// @description A function that updates an entity's position using pixel-perfect movement; storing any
 /// fractional values until a whole value can be parsed out of them. Preventing sub-pixel movement is 
 /// important in allowing pixel-perfect collision to occur while also using delta timing.
-/// @param destroyOnCollide
+/// @param {Bool}	destroyOnCollide
 update_position = function(_destroyOnCollide){
 	// First, the true horizontal and vertical speed need to be calculated for the current frame. This means
 	// taking whatever the hspd and vspd values are and multiplying them by the current value for delta time.
@@ -254,9 +254,9 @@ update_position = function(_destroyOnCollide){
 /// @description A function that will provide collision detection between an entity and the world's colliders.
 /// It will first move and check for collisions on the horizontal axis; followed by the vertical axis check
 /// right after that. Opationally, the entity can be destroyed upon a collision with the world.
-/// @param deltaHspd
-/// @param deltaVspd
-/// @param destroyOnCollide
+/// @param {Real}	deltaHspd
+/// @param {Real}	deltaVspd
+/// @param {Bool}	destroyOnCollide
 world_collision = function(_deltaHspd, _deltaVspd, _destroyOnCollide){
 	// Handling horizontal collision with the world.
 	if (place_meeting_3d(x + _deltaHspd, y, z, obj_collider)){
@@ -291,7 +291,7 @@ world_collision = function(_deltaHspd, _deltaVspd, _destroyOnCollide){
 /// sprite it will update the necessary data to match the new sprite's properties. Otherwise, the function
 /// will simply update the animation speed modifier on every call--allowing for on-the-fly control of the
 /// animation's overall speed.
-/// @param spriteIndex
+/// @param {Asset.GMSprite}	spriteIndex
 /// @param imageIndex
 /// @param animationSpeed
 set_sprite = function(_spriteIndex, _imageIndex = 0, _animationSpeed = 1){
@@ -319,8 +319,8 @@ set_sprite = function(_spriteIndex, _imageIndex = 0, _animationSpeed = 1){
 }
 
 /// @description 
-/// @param damage
-/// @param invulnerablyTime
+/// @param {Real}	damage
+/// @param {Real}	invulnerablyTime
 damage_entity = function(_damage, _invulnerableTime){
 	// 
 	if (isHit) {return;}

@@ -393,7 +393,7 @@ function obj_textbox_handler() constructor{
 		if (canProcessText && punctuationTimer <= 0){
 			soundTimer -= DELTA_TIME;
 			if (soundTimer <= 0){
-				audio_play_sound_ext(snd_textbox_scroll, 0, SOUND_VOLUME * (0.1 + random_range(-0.02, 0.02)), 1.5, true);
+				audio_play_sound_ext(snd_textbox_scroll, 0, SOUND_VOLUME * (0.08 + random_range(-0.02, 0.02)), 1.5, true);
 				soundTimer = SCROLL_SOUND_INTERVAL;
 			}
 		}
@@ -616,6 +616,7 @@ function obj_textbox_handler() constructor{
 		
 		// 
 		if (inputSelect){
+			audio_play_sound_ext(snd_gui_select, 100, SOUND_VOLUME, 1);
 			object_set_next_state(state_animation_close_decision_window);
 			var _playerChoices = textbox.playerChoices[| curOption];
 			EVENT_SET_FLAG(_playerChoices.eventFlag, _playerChoices.flagState);
@@ -638,9 +639,15 @@ function obj_textbox_handler() constructor{
 				// Update the position of the cursor, but prevent it from surpassing the valid index bounds 
 				// of the list of available choices to the player.
 				var _listSize = ds_list_size(textbox.playerChoices);
+				var _curOption = curOption;
 				curOption += _movement;
 				if (curOption >= _listSize) {curOption = _listSize - 1;}
 				else if (curOption < 0) {curOption = 0;}
+				
+				// Only play the sound for the "cursor" moving to another decision if the movement was
+				// actually able to alter the value of "curOption". Otherwise, the sound would play when
+				// there isn't any actual movement in the menu.
+				if (_curOption != curOption) {audio_play_sound_ext(snd_gui_move, 100, SOUND_VOLUME * 0.5, 1);}
 			}
 		} else{ // Reset the cursor timer back down to zero if the movement buttons are released before it hits zero again.
 			isAutoScrolling = false;

@@ -146,10 +146,10 @@ function obj_depth_sorter() constructor{
 	/// currently existing entity in the room. It loop through all of the entities that exist within the 
 	/// current room, rendering their shadows if they have been flagged to do so; the size of the shadow 
 	/// being depending on how high up the entity is from the floor. (AKA its current Z value)
-	/// @param cameraX
-	/// @param cameraY
-	/// @param cameraWidth
-	/// @param cameraHeight
+	/// @param {Real}	cameraX
+	/// @param {Real}	cameraY
+	/// @param {Real}	cameraWidth
+	/// @param {Real}	cameraHeight
 	draw_entity_shadows = function(_cameraX, _cameraY, _cameraWidth, _cameraHeight){
 		shader_set(shd_shadow);
 		var _shadowsDrawn, _shadowRadius, _halfRadius, _shadowX, _shadowY;

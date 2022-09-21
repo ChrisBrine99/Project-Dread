@@ -3,7 +3,7 @@
 // nothing else will be drawn aside from the player.
 event_inherited();
 
-if (equipSlot.weapon != noone){
+/*if (equipSlot.weapon != noone){
 	// 
 	var _xx, _yy, _direction, _imageIndex;
 	_xx = x;

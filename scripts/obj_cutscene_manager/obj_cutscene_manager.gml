@@ -640,7 +640,7 @@ function obj_cutscene_manager() constructor{
 /// @param triggerID
 /// @param sceneInstructions
 /// @param startingIndex
-function cutscene_begin_execution(_triggerID, _sceneInstructions, _startingIndex){
+function cutscene_activate(_triggerID, _sceneInstructions, _startingIndex){
 	with(CUTSCENE_MANAGER){
 		// Prevent another cutscene from being activated while another is currently executing. Otherwise,
 		// store the instance ID for the trigger and begin setting up the manager for playing out the scene.
@@ -657,8 +657,6 @@ function cutscene_begin_execution(_triggerID, _sceneInstructions, _startingIndex
 		var _entityStates = entityStates;
 		with(par_dynamic_entity){
 			ds_map_add(_entityStates, id, [curState, nextState, lastState]);
-			// After adding the state values to the storage map, set all the state variables to NO_STATE to
-			// halt any execution of current states for the duration of the cutscene's execution.
 			curState = NO_STATE;
 			nextState = NO_STATE;
 			lastState = NO_STATE;

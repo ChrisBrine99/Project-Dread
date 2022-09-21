@@ -3,7 +3,7 @@
 event_inherited();
 
 // 
-var _gameState = GAME_STATE_CURRENT; // Store locally for quicker reference
+/*var _gameState = GAME_STATE_CURRENT; // Store locally for quicker reference
 if (_gameState != GameState.Paused){
 	update_additional_effect_timers();
 	check_collision_interactable();

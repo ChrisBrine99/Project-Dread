@@ -93,9 +93,11 @@ draw_interact_prompt = function(){
 	// valid instance ID within its "interactableID" variable; responsible for storing said IDs if the
 	// current interaction point collides with an interactable object.
 	var _interactPromptAlphaTarget = 0;
-	with(PLAYER.interactableID){
-		_interactPromptAlphaTarget = 1;
-		other.indicatorPrompt = interactPrompt;
+	with(PLAYER){
+		if (curState != NO_STATE && interactableID != noone){
+			_interactPromptAlphaTarget = 1;
+			CONTROLLER.indicatorPrompt = interactableID.interactPrompt;
+		}
 	}
 	
 	// Update the alpha level for the interaction prompt's graphics; pulling it towards or away from full
