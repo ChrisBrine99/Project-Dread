@@ -96,7 +96,7 @@ draw_interact_prompt = function(){
 	with(PLAYER){
 		if (curState != NO_STATE && interactableID != noone){
 			_interactPromptAlphaTarget = 1;
-			CONTROLLER.indicatorPrompt = interactableID.interactPrompt;
+			other.indicatorPrompt = interactableID.interactPrompt;
 		}
 	}
 	
@@ -130,7 +130,7 @@ draw_interact_prompt = function(){
 		
 		// After the icon is drawn at the proper position, the text will be drawn at the required offset
 		// for itself; much like the icon's text, but with no additional value applied to the initial offset.
-		shader_set_outline(RGB_GRAY, font_gui_small);
+		shader_set_outline(font_gui_small, RGB_GRAY);
 		draw_text_outline(_interactPromptOffset, CAM_HEIGHT - 40, indicatorPrompt, HEX_WHITE, RGB_GRAY, interactPromptAlpha);
 		shader_reset();
 	}

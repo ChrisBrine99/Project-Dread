@@ -3,6 +3,9 @@
 
 #region Initializing any macros that are useful/related to the event handler
 
+// A macro to simplify the look of the code whenever the event flag buffer needs to be referenced.
+#macro	EVENT_HANDLER			global.eventFlags
+
 // 
 #macro	TOTAL_EVENT_FLAG_BYTES	64
 
@@ -34,10 +37,10 @@ function event_set_flag(_flagID, _flagState){
 	// Grab the byte that contains the desired bit from the event flag buffer (There's no way to grab a single
 	// bit from a buffer; smallest amount is 8 bits per read) and set the flag bit or clear it depending on
 	// what the function calls for. Then, overwrite that original buffer byte with the new data.
-	var _data = buffer_peek(global.eventFlags, _offset, buffer_u8);
+	var _data = buffer_peek(EVENT_HANDLER, _offset, buffer_u8);
 	if (_flagState)	{_data = _data |	(1 << (_flagID & 7));}
 	else			{_data = _data &   ~(1 << (_flagID & 7));}
-	buffer_poke(global.eventFlags, _offset, buffer_u8, _data);
+	buffer_poke(EVENT_HANDLER, _offset, buffer_u8, _data);
 }
 
 /// @description Grabs the state of the flag given the ID value provided. Exceeding the total number of bytes
@@ -50,7 +53,7 @@ function event_get_flag(_flagID){
 	// Grab the byte that contains the bit from the buffer. Then, perform a bitwise and with a value that will
 	// have the desired bit set to 1 and all other bits set to zero. This way all other bits in the byte that
 	// is being used for the comparison are ignored in the result of this get_flag function.
-	return (buffer_peek(global.eventFlags, _offset, buffer_u8) & (1 << (_flagID & 7)) != 0);
+	return (buffer_peek(EVENT_HANDLER, _offset, buffer_u8) & (1 << (_flagID & 7)) != 0);
 }
 
 #endregion

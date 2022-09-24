@@ -63,68 +63,6 @@
 
 #endregion
 
-#region Macros for the game's available gamepad and keyboard input bindings.
-
-// Macro values for all of the KEYBOARD input bindings.
-#macro	KEY_GAME_RIGHT			global.settings.keyGameRight		// Movement inputs
-#macro	KEY_GAME_LEFT			global.settings.keyGameLeft
-#macro	KEY_GAME_UP				global.settings.keyGameUp
-#macro	KEY_GAME_DOWN			global.settings.keyGameDown
-#macro	KEY_RUN					global.settings.keyRun
-#macro	KEY_INTERACT			global.settings.keyInteract			// Interaction input
-#macro	KEY_READY_WEAPON		global.settings.keyReadyWeapon		// Weapon inputs
-#macro	KEY_USE_WEAPON			global.settings.keyUseWeapon
-#macro	KEY_AMMO_SWAP			global.settings.keyAmmoSwap
-#macro	KEY_RELOAD_GUN			global.settings.keyReloadGun
-#macro	KEY_FLASHLIGHT			global.settings.keyFlashlight		// Flashlight inputs
-#macro	KEY_LIGHT_SWAP			global.settings.keyLightSwap
-#macro	KEY_PAUSE				global.settings.keyPause			// Menu opening inputs
-#macro	KEY_ITEMS				global.settings.keyItems
-#macro	KEY_NOTES				global.settings.keyNotes
-#macro	KEY_MAPS				global.settings.keyMaps
-#macro	KEY_MENU_RIGHT			global.settings.keyMenuRight		// Menu cursor inputs
-#macro	KEY_MENU_LEFT			global.settings.keyMenuLeft
-#macro	KEY_MENU_UP				global.settings.keyMenuUp
-#macro	KEY_MENU_DOWN			global.settings.keyMenuDown
-#macro	KEY_AUX_MENU_RIGHT		global.settings.keyAuxMenuRight
-#macro	KEY_AUX_MENU_LEFT		global.settings.keyAuxMenuLeft
-#macro	KEY_SELECT				global.settings.keySelect			// Menu interaction inputs
-#macro	KEY_RETURN				global.settings.keyReturn
-#macro	KEY_FILE_DELETE			global.settings.keyFileDelete
-#macro	KEY_ADVANCE				global.settings.keyAdvance			// Textbox inputs
-#macro	KEY_LOG					global.settings.keyLog
-
-// Macro values for all of the GAMEPAD input bindings.
-#macro	PAD_GAME_RIGHT			global.settings.gpadGameRight		// Movement inputs
-#macro	PAD_GAME_LEFT			global.settings.gpadGameLeft
-#macro	PAD_GAME_UP				global.settings.gpadGameUp
-#macro	PAD_GAME_DOWN			global.settings.gpadGameDown
-#macro	PAD_RUN					global.settings.gpadRun
-#macro	PAD_INTERACT			global.settings.gpadInteract		// Interaction input
-#macro	PAD_READY_WEAPON		global.settings.gpadReadyWeapon		// Weapon inputs
-#macro	PAD_USE_WEAPON			global.settings.gpadUseWeapon
-#macro	PAD_AMMO_SWAP			global.settings.gpadAmmoSwap
-#macro	PAD_RELOAD_GUN			global.settings.gpadReloadGun
-#macro	PAD_FLASHLIGHT			global.settings.gpadFlashlight		// Flashlight inputs
-#macro	PAD_LIGHT_SWAP			global.settings.gpadLightSwap
-#macro	PAD_PAUSE				global.settings.gpadPause			// Menu opening inputs
-#macro	PAD_ITEMS				global.settings.gpadItems
-#macro	PAD_NOTES				global.settings.gpadNotes
-#macro	PAD_MAPS				global.settings.gpadMaps
-#macro	PAD_MENU_RIGHT			global.settings.gpadMenuRight		// Menu cursor inputs
-#macro	PAD_MENU_LEFT			global.settings.gpadMenuLeft
-#macro	PAD_MENU_UP				global.settings.gpadMenuUp
-#macro	PAD_MENU_DOWN			global.settings.gpadMenuDown
-#macro	PAD_AUX_MENU_RIGHT		global.settings.gpadAuxMenuRight
-#macro	PAD_AUX_MENU_LEFT		global.settings.gpadAuxMenuLeft
-#macro	PAD_SELECT				global.settings.gpadSelect			// Menu interaction inputs
-#macro	PAD_RETURN				global.settings.gpadReturn
-#macro	PAD_FILE_DELETE			global.settings.gpadFileDelete
-#macro	PAD_ADVANCE				global.settings.gpadAdvance			// Textbox inputs
-#macro	PAD_LOG					global.settings.gpadLog
-
-#endregion
-
 #region Global object macros
 
 // Constants that represent their respective default or "zero" values--representing the value that any 
@@ -220,59 +158,6 @@
 #macro	RGB_LIGHT_YELLOW		[1    , 0.913, 0.5  ] // RGB = 255, 233, 127
 #macro	RGB_YELLOW				[1    , 0.862, 0    ] // RGB = 255, 220,   0
 #macro	RGB_DARK_YELLOW			[0.498, 0.447, 0.247] // RGB = 127, 114,  63
-
-#endregion
-
-#region Global Struct macros
-
-// Constants that allow easy reference to the delta timing variables for physics/general timing calculations
-// and the current amount of in-game playtime that the player has racked up thus far.
-#macro	DELTA_TIME				global.gameTime.deltaTime
-#macro	GET_IN_GAME_TIME		global.gameTime.get_current_in_game_time
-
-// Macros that replace the long-winded typing required in order to access the game's current volumes for the
-// in-game music, sound effects, and menu/ui sounds, respectively. These values are all adjusted to match 
-// the master volume automatically.
-#macro	MUSIC_VOLUME			global.settings.trueMusicVolume
-#macro	SOUND_VOLUME			global.settings.trueSoundVolume
-#macro	GUI_VOLUME				global.settings.trueGuiVolume
-
-// 
-#macro	IS_RUN_TOGGLE			global.settings.isRunToggle
-#macro	IS_AIM_TOGGLE			global.settings.isAimToggle
-
-// Constants to condense the code required to reference the game's current values for gameplay/combat and 
-// puzzle difficulty, repsectively. On top of that, variables that adjust certain aspects of the game (player
-// damage, enemy damage/health, saving restrictions, etc.) are also stored in constants for easy reference.
-#macro	GAME_DIFFICULTY			global.gameplay.combatDifficulty
-#macro	PUZZLE_DIFFICULTY		global.gameplay.puzzleDifficulty
-#macro	PLAYER_DAMAGE_MOD		global.gameplay.pDamageModifier
-#macro	ENEMY_DAMAGE_MOD		global.gameplay.eDamageModifier
-
-// 
-#macro	MINIMUM_INVENTORY_SIZE	global.gameplay.startingItemInvSize
-#macro	MAXIMUM_INVENTORY_SIZE	global.gameplay.maximumItemInvSize
-
-// Macro values that represent the functions that initialize the gameplay struct to specific gameplay difficulty
-// levels; with the puzzle difficulty levels being set as the argument value for each of these functions.
-#macro	GAME_SET_FORGIVING		global.gameplay.initialize_difficulty_forgiving
-#macro	GAME_SET_STANDARD		global.gameplay.initialize_difficulty_standard
-#macro	GAME_SET_PUNISHING		global.gameplay.initialize_difficulty_punishing
-#macro	GAME_SET_NIGHTMARE		global.gameplay.initialize_difficulty_nightmare
-#macro	GAME_SET_ONE_LIFE_MODE	global.gameplay.initialize_difficulty_one_life_mode
-
-// Macro that represents the function for setting the audio listener's linked object; saving on typing.
-#macro	LISTENER_SET_OBJECT		global.audioListener.set_linked_object
-
-// Macro values that represent the functions that handle the game's event flag data; allowing the creation,
-// manipulating, and retrieving a given flag's current state.
-#macro	EVENT_CREATE_FLAG		global.events.create_flag
-#macro	EVENT_SET_FLAG			global.events.set_flag
-#macro	EVENT_GET_FLAG			global.events.get_flag
-
-// 
-#macro	GAMEPAD_DEVICE_ID		global.gamepad.deviceID
-#macro	GAMEPAD_IS_ACTIVE		global.gamepad.isActive
 
 #endregion
 

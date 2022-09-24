@@ -1,17 +1,25 @@
 // Destroy each singleton; cleaning up all their allocated data in the form of data structures, surfaces, and so
 // on. For the player, the cleanup event is automatically called by GML's "instance_destroy" function, but for
-// the other struct singletons their cleanups must be called before their pointer's deletion.
-with(CAMERA)			{cleanup();}	delete CAMERA;				CAMERA = noone;
-with(MUSIC_HANDLER)		{cleanup();}	delete MUSIC_HANDLER;		MUSIC_HANDLER = noone;
-with(EFFECT_HANDLER)	{cleanup();}	delete EFFECT_HANDLER;		EFFECT_HANDLER = noone;
-with(CUTSCENE_MANAGER)	{cleanup();}	delete CUTSCENE_MANAGER;	CUTSCENE_MANAGER = noone;
-with(TEXTBOX_HANDLER)	{cleanup();}	delete TEXTBOX_HANDLER;		TEXTBOX_HANDLER = noone;
-with(DEPTH_SORTER)		{cleanup();}	delete DEPTH_SORTER;		DEPTH_SORTER = noone;
-with(CONTROL_INFO)		{cleanup();}	delete CONTROL_INFO;		CONTROL_INFO = noone;
-										delete SCREEN_FADE;			SCREEN_FADE = noone;
-with(WEATHER_RAIN)		{cleanup();}	delete WEATHER_RAIN;		WEATHER_RAIN = noone;
-with(WEATHER_FOG)		{cleanup();}	delete WEATHER_FOG;			WEATHER_FOG = noone;
-with(DEBUGGER)			{cleanup();}	delete DEBUGGER;			DEBUGGER = noone;
+// the other struct singletons their cleanups must be called before their pointer's deletion if the contain
+// that function.
+with(CAMERA)			{cleanup();}	delete CAMERA;
+with(MUSIC_HANDLER)		{cleanup();}	delete MUSIC_HANDLER;
+with(EFFECT_HANDLER)	{cleanup();}	delete EFFECT_HANDLER;
+with(CUTSCENE_MANAGER)	{cleanup();}	delete CUTSCENE_MANAGER;
+with(TEXTBOX_HANDLER)	{cleanup();}	delete TEXTBOX_HANDLER;
+with(DEPTH_SORTER)		{cleanup();}	delete DEPTH_SORTER;
+with(CONTROL_INFO)		{cleanup();}	delete CONTROL_INFO;
+with(WEATHER_RAIN)		{cleanup();}	delete WEATHER_RAIN;
+with(WEATHER_FOG)		{cleanup();}	delete WEATHER_FOG;
+with(DEBUGGER)			{cleanup();}	delete DEBUGGER;
+with(GAME_SETTINGS)		{cleanup();}	delete GAME_SETTINGS;
+delete SCREEN_FADE;
+delete GAME_MANAGER;
+delete AUDIO_MANAGER;
+delete GAMEPAD_MANAGER;
+delete SHADER_OUTLINE;
+delete SHADER_FEATHERING;
+buffer_delete(EVENT_HANDLER);
 
 // Destroy all existing menus and clean up their structs by calling each of their "menu_cleanup" functions.
 // After that, delete the list that held all of the pointers to all current menus to free it from memory as well.
@@ -50,23 +58,3 @@ while(!is_undefined(_key)){
 }
 ds_map_destroy(global.worldItemData);
 ds_list_destroy(global.collectedItems);
-
-// Remove the event struct from memory and the map it contains that stores all of the event flag states
-// that are currently being utilized within the game. After that, the struct itself is signalled to be
-// destroyed from memory after it is cleaned up.
-with(global.events) {cleanup();}
-delete global.events;
-
-// After cleaning up all the singletones and their allocated memory, clean up all of the global data structures
-// and allocated memory before telling Game Maker to end the game's execution. The general order of this
-// clean up doesn't really matter so long as they are all freed from memory here.
-ds_map_destroy(global.fontTextures);
-delete global.shaderOutline;
-delete global.shaderFeathering;
-delete global.audioListener;
-delete global.gameState;
-delete global.gameTime;
-delete global.gameplay;
-delete global.itemData;	// This single "delete" statement will automatically clear all contained data structures from memory.
-delete global.settings;
-delete global.gamepad;

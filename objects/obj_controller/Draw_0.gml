@@ -4,4 +4,4 @@
 with(DEPTH_SORTER) {draw();}
 
 // FOR DEBUGGING
-with(DEBUGGER) {draw();}
+//with(DEBUGGER) {draw();}

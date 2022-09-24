@@ -1,8 +1,6 @@
-// Update the position of the audio listener relative to its currently linked object. (If there is one)
-with(global.audioListener)	{end_step();}
-
 // Calling the end step event for all singleton structs that contain an end_step function within their code.
 with(CAMERA)				{end_step();}
+with(AUDIO_MANAGER)			{end_step();}
 with(MUSIC_HANDLER)			{end_step();}
 with(TEXTBOX_HANDLER)		{end_step();}
 
@@ -13,4 +11,4 @@ for (var i = 0; i < _length; i++){
 }
 
 // FOR TESTING
-with(DEBUGGER) {end_step();}
+//with(DEBUGGER) {end_step();}

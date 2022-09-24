@@ -31,4 +31,4 @@ with(CONTROL_INFO)		{draw_gui();}
 with(SCREEN_FADE) {draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, fadeColor, alpha);}
 
 // FOR DEBUGGING
-with(DEBUGGER) {draw_gui();}
+//with(DEBUGGER) {draw_gui();}
