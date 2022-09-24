@@ -139,6 +139,17 @@
 #macro	GET_GAME_VOLUME			game_get_group_volume(GAME_VOLUME)
 #macro	GET_UI_VOLUME			game_get_group_volume(UI_VOLUME)
 
+// 
+#macro	RESOLUTION_SCALE		global.gameSettings.resolutionScale
+#macro	ASPECT_RATIO			global.gameSettings.aspectRatio
+#macro	BRIGHTNESS				global.gameSettings.brightness
+#macro	GAMMA					global.gameSettings.gamma
+#macro	TEXT_SPEED				global.gameSettings.textSpeed
+
+// 
+#macro	PLAYER_DAMAGE_MOD		global.gameSettings.pDamageModifier
+#macro	ENEMY_DAMAGE_MOD		global.gameSettings.eDamageModifier
+
 #endregion
 
 #region Initializing enumerators that are useful/related to the game settings struct
@@ -158,9 +169,10 @@ global.gameSettings = {
 	
 	// For video settings that can't be stored as single bits, they will all have their own variables to
 	// represent their current configurations. These include the current aspect ratio, resolution scale (Not
-	// used when the game is in full-screen mode), and the image's gamma level.
+	// used when the game is in full-screen mode), the image's overall brightness, and the image's gamma level.
 	resolutionScale :		0,
 	aspectRatio :			0,
+	brightness :			0,
 	gamma :					0,
 	
 	// Much like the group of variables above, these will store setting values that can be represented by a
@@ -259,6 +271,7 @@ function game_load_settings(){
 		// Loading in the video settings that aren't represented by single bits in the "settingFlags" integer.
 		resolutionScale =	ini_read_real(SECTION_VIDEO, "resolution_scale", 4);
 		aspectRatio =		ini_read_real(SECTION_VIDEO, "aspect_ratio", AspectRatio.SixteenByNine);
+		brightness =		ini_read_real(SECTION_VIDEO, "brightness", 0.4);
 		gamma =				ini_read_real(SECTION_VIDEO, "gamma", 1.0);
 		
 		// Loading in the volume for each of the four main groups.

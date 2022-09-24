@@ -9,8 +9,8 @@ switch(async_load[? "event_type"]){
 			// 
 			var _info = gamepad_get_guid(_gamepadID) + "," + gamepad_get_description(_gamepadID);
 			with(GAME_SETTINGS){ // Scope into the settings struct to access the required variables.
-				gamepad_set_axis_deadzone(_gamepadID, gpadDeadzone);
-				gamepad_set_button_threshold(_gamepadID, gpadButtonThreshold);
+				gamepad_set_axis_deadzone(_gamepadID, stickDeadzone);
+				gamepad_set_button_threshold(_gamepadID, triggerThreshold);
 			}
 			
 			// 

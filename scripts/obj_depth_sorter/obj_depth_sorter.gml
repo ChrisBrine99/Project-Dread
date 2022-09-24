@@ -42,6 +42,9 @@ function obj_depth_sorter() constructor{
 	entitiesDrawn = 0;
 	shadowsDrawn = 0;
 	
+	// 
+	surfShadow = -1;
+	
 	/// @description Code that should be placed into the "room start" event of whatever object is controlling
 	/// obj_depth_sorter. In short, it will grab the ID values for the wall layers that the depth sorter
 	/// is responsible for rendering in between the entities and their drop shadows.
@@ -110,7 +113,7 @@ function obj_depth_sorter() constructor{
 		// Call the function that renders the shadows ovals of varying/unique sizes onto the floors of the
 		// current room, but below the wall tilemaps. (Those are rendered manually directly below this line)
 		shadowsDrawn = 0; // Reset the debug counter before shadows are drawn again.
-		draw_entity_shadows(_cameraX, _cameraY, _cameraWidth, _cameraHeight);
+		draw_entity_shadows(_cameraX, _cameraY, CAM_WIDTH, CAM_HEIGHT);
 		
 		// Draw the room's walls and wall details AFTER rendering shadows, which should only have their 
 		// darkening effect applied to the ground and entities that other entities are above in certain cases.
@@ -138,6 +141,7 @@ function obj_depth_sorter() constructor{
 	/// unhandled while the game is still running. (Game Maker cleans it all up at the end of runtime by
 	/// default, so it doesn't matter as much in that case)
 	cleanup = function(){
+		if (surface_exists(surfShadow)) {surface_free(surfShadow);}
 		ds_grid_destroy(global.entities);
 		totalEntities = 0;
 	}
@@ -151,33 +155,33 @@ function obj_depth_sorter() constructor{
 	/// @param {Real}	cameraWidth
 	/// @param {Real}	cameraHeight
 	draw_entity_shadows = function(_cameraX, _cameraY, _cameraWidth, _cameraHeight){
-		shader_set(shd_shadow);
-		var _shadowsDrawn, _shadowRadius, _halfRadius, _shadowX, _shadowY;
-		_shadowsDrawn = 0;
+		if (!surface_exists(surfShadow)) {surfShadow = surface_create(CAM_WIDTH, CAM_HEIGHT);}
+		
+		surface_set_target(surfShadow);
+		draw_clear_alpha(c_black, 0);
+		draw_set_color(c_black);
+		var _shadowsDrawn = 0;
+		var _shadowRadius = 0;
+		var _shadowHalfRadius = 0;
+		var _shadowX = 0;
+		var _shadowY = 0;
 		for (var i = 0; i < totalEntities; i++){
 			with(global.entities[# 0, i]){
 				if (displayShadow){
-					// As the entity's z value increases, their shadow will slowly shrink in size until it is
-					// no longer visible. Also, the veritcal size of the shadow is half that of the horizontal
-					// size; to mimic the fake 2.5D depth of the game's artsyle.
 					_shadowRadius = shadowRadius / max(1, (z * 0.15));
-					_halfRadius = _shadowRadius * 0.5;
+					_shadowHalfRadius = _shadowRadius / 2;
+					_shadowX = x + shadowOffsetX - _cameraX;
+					_shadowY = y + shadowOffsetY - _cameraY;
 					
-					// Stores the coordinates for the current entity's drop shadow; making the overall code
-					// below that actually draws the shadow easier to read while containing less repeating math.
-					_shadowX = x + shadowOffsetX;
-					_shadowY = y + shadowOffsetY;
-					
-					// Determine if the entity's shadows should be drawn by checking if it's actually visible on the
-					// screen. Otherwise, rendering will be a waste of time and resources, so it will be skipped.
-					if (_shadowX + _shadowRadius < _cameraX || _shadowY + _halfRadius < _cameraY || _shadowX - _shadowRadius > _cameraWidth || _shadowY - _shadowRadius > _cameraHeight) {continue;}
-					draw_ellipse_color(_shadowX - _shadowRadius, _shadowY - _halfRadius, _shadowX + _shadowRadius, _shadowY + _halfRadius, c_white, c_black, false);
+					if (_shadowX + _shadowRadius < 0 || _shadowY + _shadowHalfRadius < 0 || _shadowX - _shadowRadius > _cameraWidth || _shadowY - _shadowHalfRadius > _cameraHeight) {continue;}
+					draw_ellipse(_shadowX - _shadowRadius, _shadowY - _shadowHalfRadius, _shadowX + _shadowRadius, _shadowY + _shadowHalfRadius, false);
 					_shadowsDrawn++;
 				}
 			}
 		}
 		shadowsDrawn = _shadowsDrawn;
-		shader_reset();
+		surface_reset_target();
+		draw_surface_ext(surfShadow, _cameraX, _cameraY, 1, 1, 0, c_black, 0.35);
 	}
 }
 

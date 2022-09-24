@@ -6,7 +6,9 @@ gpu_set_alphatestenable(true);
 // overwrite that process in order to display properly.
 application_surface_draw_enable(false);
 
-// TODO -- Load in settings here 
+// 
+game_load_settings();
+CAMERA.camera_initialize(0, 0, WIDTH_SIXTEEN_BY_NINE, HEIGHT_SIXTEEN_BY_NINE, RESOLUTION_SCALE);
 
 // Create an instance of the controller object and player object since they both need to exist 100% of the time.
 // However, the player is initialized and then deactivated until the actual game has commenced; (AKA the user has
@@ -23,11 +25,9 @@ room_goto(rm_test01);
 
 /// FOR TESTING
 show_debug_overlay(true);
+audio_set_linked_object(PLAYER);
 
-GAME_SET_STANDARD(Difficulty.Standard);
-LISTENER_SET_OBJECT(PLAYER);
-
-inventory_item_add(BRIGHT_FLASHLIGHT, 1, 0);
+/*inventory_item_add(BRIGHT_FLASHLIGHT, 1, 0);
 //inventory_item_add(HANDGUN, 12, 40);
 //inventory_item_add(HANDGUN_AMMO, 35, 0);
 with(PLAYER){
@@ -36,4 +36,4 @@ with(PLAYER){
 	//equip_item_to_player(1);
 }
 
-EVENT_CREATE_FLAG("FirstKey", false);
+EVENT_CREATE_FLAG("FirstKey", false);*/

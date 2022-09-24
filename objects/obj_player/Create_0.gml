@@ -2,6 +2,8 @@
 
 event_inherited();
 
+isFlashlightOn = true;
+
 /*#region Player macro initialization
 
 // The time is takes for stamina to begin regenerating after the player has stopped running; whether that

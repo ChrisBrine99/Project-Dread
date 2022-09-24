@@ -131,8 +131,8 @@ function obj_effect_handler() constructor{
 	/// the application surface, but BEFORE the game's GUI surface. For example, the screen blurring and
 	/// bloom effects are applied here.
 	draw_gui_begin = function(){
-		if (global.settings.bloomEffect)		{apply_screen_bloom();}
-		if (global.settings.abberationEffect)	{apply_chromatic_aberration();}
+		if (game_get_setting_flag(BLOOM_EFFECT))		{apply_screen_bloom();}
+		if (game_get_setting_flag(ABERRATION_EFFECT))	{apply_chromatic_aberration();}
 		render_screen_blur(application_surface, blurRadius, blurIntensity);
 	}
 	
@@ -141,8 +141,8 @@ function obj_effect_handler() constructor{
 	/// application surface AND the game's GUI surface. For example, both the scanlines and noise filter are
 	/// applied here to overlap the entire image.
 	draw_gui_end = function(){
-		if (global.settings.filmGrainEffect)	{render_film_grain();}
-		if (global.settings.scanlineEffect)		{render_scanlines();}
+		if (game_get_setting_flag(FILM_GRAIN_FILTER))	{render_film_grain();}
+		if (game_get_setting_flag(SCANLINE_FILTER))		{render_scanlines();}
 	}
 	
 	/// @description Code that should be placed into the "Cleanup" event of whatever object is controlling
@@ -189,7 +189,7 @@ function obj_effect_handler() constructor{
 		// intensity for the world's base ambient lighting.
 		surface_set_target(surfLight);
 		draw_clear_alpha(c_black, 0);
-		draw_surface_ext(application_surface, _cameraX, _cameraY, 1, 1, 0, ambientColor, ambientStrength * (1 - global.settings.brightness));
+		draw_surface_ext(application_surface, _cameraX, _cameraY, 1, 1, 0, ambientColor, ambientStrength * BRIGHTNESS);
 		
 		// After setting up the surface for rendering all light sources to it, set up the shader for rendering
 		// those light sources and apply the correct blendmode to the rendering, which will add each light

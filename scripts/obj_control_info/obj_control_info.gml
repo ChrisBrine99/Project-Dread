@@ -267,7 +267,7 @@ function obj_control_info() constructor{
 		// drawn. It uses another loop because of the shader the is required for the text; saving time that
 		// would be used constantly setting and resetting the shader in order to prevent the icon from being
 		// outlined like the text is. With this method, the shader is only ever set once for the entire loop.
-		shader_set_outline(RGB_GRAY, font_gui_small);
+		shader_set_outline(font_gui_small, RGB_GRAY);
 		for (var ii = 0; ii < _totalPoints; ii++){
 			with(anchorPoint[? pointOrder[| ii]]){
 				_x = x;
@@ -355,39 +355,39 @@ function obj_control_info() constructor{
 			ds_map_add(inputIcons, INPUT_LOG,				global.gamepadIcons[? PAD_LOG]);
 		} else{ // Assigning icons for the default input device: the keyboard.
 			ds_map_clear(inputIcons); // Clear out the old struct pointers.
-			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.keyboardIcons[? KEY_GAME_RIGHT]);	// Player movement inputs
-			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.keyboardIcons[? KEY_GAME_LEFT]);
-			ds_map_add(inputIcons, INPUT_GAME_UP,			global.keyboardIcons[? KEY_GAME_UP]);
-			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.keyboardIcons[? KEY_GAME_DOWN]);
-			ds_map_add(inputIcons, INPUT_RUN,				global.keyboardIcons[? KEY_RUN]);
+			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.keyboardIcons[? game_get_input_binding(KEY_GAME_RIGHT)]);	// Player movement inputs
+			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.keyboardIcons[? game_get_input_binding(KEY_GAME_LEFT)]);
+			ds_map_add(inputIcons, INPUT_GAME_UP,			global.keyboardIcons[? game_get_input_binding(KEY_GAME_UP)]);
+			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.keyboardIcons[? game_get_input_binding(KEY_GAME_DOWN)]);
+			ds_map_add(inputIcons, INPUT_RUN,				global.keyboardIcons[? game_get_input_binding(KEY_RUN)]);
 															
-			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.keyboardIcons[? KEY_READY_WEAPON]);	// Weapon inputs
-			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.keyboardIcons[? KEY_USE_WEAPON]);
-			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.keyboardIcons[? KEY_RELOAD_GUN]);
-			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.keyboardIcons[? KEY_AMMO_SWAP]);
+			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.keyboardIcons[? game_get_input_binding(KEY_READY_WEAPON)]);	// Weapon inputs
+			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.keyboardIcons[? game_get_input_binding(KEY_USE_WEAPON)]);
+			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.keyboardIcons[? game_get_input_binding(KEY_RELOAD)]);
+			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.keyboardIcons[? game_get_input_binding(KEY_AMMO_SWAP)]);
 															
-			ds_map_add(inputIcons, INPUT_INTERACT,			global.keyboardIcons[? KEY_INTERACT]);		// Interaction input
-			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.keyboardIcons[? KEY_FLASHLIGHT]);	// Flashlight inputs
-			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.keyboardIcons[? KEY_LIGHT_SWAP]);
+			ds_map_add(inputIcons, INPUT_INTERACT,			global.keyboardIcons[? game_get_input_binding(KEY_INTERACT)]);		// Interaction input
+			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.keyboardIcons[? game_get_input_binding(KEY_FLASHLIGHT)]);	// Flashlight inputs
+			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.keyboardIcons[? game_get_input_binding(KEY_LIGHT_SWAP)]);
 															
-			ds_map_add(inputIcons, INPUT_ITEMS,				global.keyboardIcons[? KEY_ITEMS]);			// Menu shortcut inputs
-			ds_map_add(inputIcons, INPUT_NOTES,				global.keyboardIcons[? KEY_NOTES]);
-			ds_map_add(inputIcons, INPUT_MAPS,				global.keyboardIcons[? KEY_MAPS]);
-			ds_map_add(inputIcons, INPUT_PAUSE,				global.keyboardIcons[? KEY_PAUSE]);
+			ds_map_add(inputIcons, INPUT_ITEMS,				global.keyboardIcons[? game_get_input_binding(KEY_ITEMS)]);			// Menu shortcut inputs
+			ds_map_add(inputIcons, INPUT_NOTES,				global.keyboardIcons[? game_get_input_binding(KEY_NOTES)]);
+			ds_map_add(inputIcons, INPUT_MAPS,				global.keyboardIcons[? game_get_input_binding(KEY_MAPS)]);
+			ds_map_add(inputIcons, INPUT_PAUSE,				global.keyboardIcons[? game_get_input_binding(KEY_PAUSE)]);
 			
-			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.keyboardIcons[? KEY_MENU_RIGHT]);	// Menu cursor inputs
-			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.keyboardIcons[? KEY_MENU_LEFT]);
-			ds_map_add(inputIcons, INPUT_MENU_UP,			global.keyboardIcons[? KEY_MENU_UP]);
-			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.keyboardIcons[? KEY_MENU_DOWN]);
-			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.keyboardIcons[? KEY_AUX_MENU_RIGHT]);
-			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.keyboardIcons[? KEY_AUX_MENU_LEFT]);
+			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.keyboardIcons[? game_get_input_binding(KEY_MENU_RIGHT)]);	// Menu cursor inputs
+			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.keyboardIcons[? game_get_input_binding(KEY_MENU_LEFT)]);
+			ds_map_add(inputIcons, INPUT_MENU_UP,			global.keyboardIcons[? game_get_input_binding(KEY_MENU_UP)]);
+			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.keyboardIcons[? game_get_input_binding(KEY_MENU_DOWN)]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.keyboardIcons[? game_get_input_binding(KEY_AUX_MENU_RIGHT)]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.keyboardIcons[? game_get_input_binding(KEY_AUX_MENU_LEFT)]);
 			
-			ds_map_add(inputIcons, INPUT_SELECT,			global.keyboardIcons[? KEY_SELECT]);		// Menu interaction inputs
-			ds_map_add(inputIcons, INPUT_RETURN,			global.keyboardIcons[? KEY_RETURN]);
-			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.keyboardIcons[? KEY_FILE_DELETE]);
+			ds_map_add(inputIcons, INPUT_SELECT,			global.keyboardIcons[? game_get_input_binding(KEY_SELECT)]);		// Menu interaction inputs
+			ds_map_add(inputIcons, INPUT_RETURN,			global.keyboardIcons[? game_get_input_binding(KEY_RETURN)]);
+			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.keyboardIcons[? game_get_input_binding(KEY_FILE_DELETE)]);
 			
-			ds_map_add(inputIcons, INPUT_ADVANCE,			global.keyboardIcons[? KEY_ADVANCE]);		// Textbox inputs
-			ds_map_add(inputIcons, INPUT_LOG,				global.keyboardIcons[? KEY_LOG]);
+			ds_map_add(inputIcons, INPUT_ADVANCE,			global.keyboardIcons[? game_get_input_binding(KEY_ADVANCE)]);		// Textbox inputs
+			ds_map_add(inputIcons, INPUT_LOG,				global.keyboardIcons[? game_get_input_binding(KEY_LOG)]);
 		}
 		
 		// Once the valid input icon data have all been added to the "inputIcons" map, it will then be used to

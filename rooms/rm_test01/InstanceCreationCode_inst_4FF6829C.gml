@@ -1,1 +1,1 @@
-object_add_interact_component(x, y - 14, 16, inspect_bookshelf, "Inspect");
+//object_add_interact_component(x, y - 14, 16, inspect_bookshelf, "Inspect");

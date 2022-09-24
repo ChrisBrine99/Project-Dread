@@ -21,7 +21,7 @@
 
 global.gamepadManager = {
 	// 
-	gamepadID : -1,			// 0 to 4 = XInput, 4 to 11 = DirectInput
+	deviceID : -1,			// 0 to 4 = XInput, 4 to 11 = DirectInput
 	isActive : false,
 	
 	/// @description A simple function that is called every single possible in-game frame in order to allow

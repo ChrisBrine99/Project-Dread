@@ -16,18 +16,10 @@
 
 // Constants that shorten the amount of typing needed to retrieve the camera's current width and height, as
 // well as the values for half of those respective values which are stored alongside them.
-#macro	CAM_WIDTH					global.cameraDimensions.curWidth
-#macro	CAM_HEIGHT					global.cameraDimensions.curHeight
-#macro	CAM_HALF_WIDTH				global.cameraDimensions.halfWidth
-#macro	CAM_HALF_HEIGHT				global.cameraDimensions.halfHeight
-
-// A constant that stores whatever the current aspect ratio is for the camera and game window; minimizing the
-// total amount of typing needed to access that value.
-#macro	CAM_ASPECT_RATIO			global.cameraDimensions.curAspectRatio
-
-// A constant that stores whatever the current scaling factor is for the window; minimizing the total amount
-// of typing that is needed to access that information.
-#macro	WINDOW_SCALE				global.cameraDimensions.scale
+#macro	CAM_WIDTH					CAMERA.curWidth
+#macro	CAM_HEIGHT					CAMERA.curHeight
+#macro	CAM_HALF_WIDTH				CAMERA.halfWidth
+#macro	CAM_HALF_HEIGHT				CAMERA.halfHeight
 
 // Constants that store the key values for each camera function represented in the global.cameraStates
 // map. This will prevent any accidental typos when referencing said keys.
@@ -62,23 +54,6 @@ enum AspectRatio{
 
 #region Initializing any globals that are useful/related to obj_camera
 
-// Stores all the data related to the camera's aspect ratio and current window scaling factor. Also store the
-// values for half the width and height for easy reference to those values in other pieces of code.
-global.cameraDimensions = {
-	// By default, the game will run at a 16:9 aspect ratio with a window scaling factor of 4
-	curWidth :			WIDTH_SIXTEEN_BY_NINE,
-	curHeight :			HEIGHT_SIXTEEN_BY_NINE,
-	scale :				4,
-	
-	// Stores the current aspect ratio for the camera in the struct itself. This allows there to be an easy
-	// reference to whatever the current aspect ratio is from anywhere in the code.
-	curAspectRatio :	AspectRatio.SixteenByNine,
-	
-	// Store the values for half the width and half the height of the current camera dimensions
-	halfWidth :			(WIDTH_SIXTEEN_BY_NINE / 2),
-	halfHeight :		(HEIGHT_SIXTEEN_BY_NINE / 2),
-};
-
 // A map that stores index references to all functions within obj_camera that are public in nature; being able 
 // to be referenced outside of the object for the purpose of changing the camera's current logic function.
 global.cameraStates = ds_map_create();
@@ -96,6 +71,12 @@ function obj_camera() constructor{
 	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_camera;
+	
+	// 
+	curWidth = 0;
+	curHeight = 0;
+	halfWidth = 0;
+	halfHeight = 0;
 	
 	// This pair of variables store the fractional values for the camera's movement on both the x-axis and
 	// y-axis, respectively. When a whole number can be parsed from either of the values, they will be added
@@ -124,21 +105,8 @@ function obj_camera() constructor{
 		duration :		0,
 	};
 	
-	// Creating the camera and placing its unique ID into a variable. After the initialization, use the
-	// returned ID to alter the size of the camera's view into the game world to the desired size and
-	// also make sure the position in the room is set as well.
+	// 
 	cameraID = camera_create();
-	camera_set_view_size(cameraID, CAM_WIDTH, CAM_HEIGHT);
-	camera_set_view_pos(cameraID, 0, 0);
-	
-	// Update the dimensions of the game window itself to reflect the camera's viewport dimensions, but
-	// magnified to the desired scale that was set upon obj_camera's creation.
-	window_update_dimensions(CAM_WIDTH * WINDOW_SCALE, CAM_HEIGHT * WINDOW_SCALE);
-	
-	// Finally, set the size of the game's default application surface to match the dimensions of the
-	// camera's viewport and window. Also, set the gui size to reflect those dimensions as well.
-	surface_resize(application_surface, CAM_WIDTH, CAM_HEIGHT);
-	display_set_gui_size(CAM_WIDTH, CAM_HEIGHT);
 	
 	/// @description Code that should be placed into the "End Step" event of whatever object is controlling
 	/// obj_camera. In short, it handles executing the current movement state and the camera's shake effect 
@@ -180,6 +148,42 @@ function obj_camera() constructor{
 		// Delete the camera from memory and remove its unique ID value.
 		camera_destroy(cameraID);
 		cameraID = undefined;
+	}
+	
+	/// @description 
+	/// @param {Real}	x
+	/// @param {Real}	y
+	/// @param {Real}	width
+	/// @param {Real}	height
+	/// @param {Real}	scale
+	camera_initialize = function(_x, _y, _width, _height, _scale){
+		// 
+		x = _x;
+		y = _y;
+		curWidth = _width;
+		curHeight = _height;
+		halfWidth = (_width / 2);
+		halfHeight = (_height / 2);
+		
+		// 
+		camera_set_view_size(cameraID, _width, _height);
+		camera_set_view_pos(cameraID, _x, _y);
+		
+		// 
+		surface_resize(application_surface, _width, _height);
+		display_set_gui_size(_width, _height);
+		
+		// 
+		window_initialize(_width * _scale, _height * _scale);
+	}
+	
+	/// @description 
+	/// @param {Real}	width
+	/// @param {Real}	height
+	window_initialize = function(_width, _height){
+		var _maxScale = floor(min(display_get_width() / curWidth, display_get_height() / curHeight));
+		window_set_size(clamp(_width, curWidth, curWidth * _maxScale), clamp(_height, curHeight, curHeight * _maxScale));
+		window_set_position(floor((display_get_width() - _width) / 2),  floor((display_get_height() - _height) / 2));
 	}
 	
 	/// @description Updates the camera's position based on how many pixels it's been set to move for the
