@@ -6,10 +6,14 @@
 // A macro to simplify the look of the code whenever the event flag buffer needs to be referenced.
 #macro	EVENT_HANDLER			global.eventFlags
 
-// 
-#macro	TOTAL_EVENT_FLAG_BYTES	64
+// Macro that determines the total number of event flags that exist for the game to use. The value is 1/8th
+// of the total number of flags because buffers can only be created in bytes at the smallest. The true value
+// will be the macro times 8, as a result.
+#macro	TOTAL_EVENT_FLAG_BYTES	64	//	= 64 bytes * 8 = 512 bit flags
 
-//
+// Macro to represent a value that will cause the functions "event_set_flag" and "event_get_flag" to perform
+// no event flag manipulation. Useful for systems that have to automatically call either function in order
+// to account for scenarios where a flag is used and also not used.
 #macro	INVALID_FLAG			-100
 
 #endregion
@@ -35,7 +39,7 @@ global.eventFlags = buffer_create(TOTAL_EVENT_FLAG_BYTES, buffer_fast, 1);
 /// @param {Bool}	flagState	The state to set the flag bit. (0 = False, 1 = True).
 function event_set_flag(_flagID, _flagState){
 	var _offset = (_flagID >> 3); // Calculates the byte-aligned offset that the flag bit is found.
-	if (_offset >= TOTAL_EVENT_FLAG_BYTES) {return;}
+	if (_flagID == INVALID_FLAG || _offset >= TOTAL_EVENT_FLAG_BYTES) {return;}
 	
 	// Grab the byte that contains the desired bit from the event flag buffer (There's no way to grab a single
 	// bit from a buffer; smallest amount is 8 bits per read) and set the flag bit or clear it depending on

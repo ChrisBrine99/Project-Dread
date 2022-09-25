@@ -41,8 +41,8 @@
 #macro	SCROLL_SOUND_INTERVAL		6 * TEXT_SPEED
 
 // 
-#macro	ANCHOR_MAIN_CONTROLS		"main"
-#macro	ANCHOR_EXTRA_CONTROLS		"extras"
+#macro	TEXTBOX_MAIN_INFO			"main"
+#macro	TEXTBOX_EXTRA_INFO			"extras"
 
 #endregion
 
@@ -1283,52 +1283,52 @@ function obj_textbox_handler() constructor{
 	
 	/// @description
 	initialize_default_control_info = function(){
-		control_info_clear_anchor(ANCHOR_MAIN_CONTROLS);
-		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_ADVANCE, "Next");
-		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_LOG, "Log");
-		control_info_initialize_anchor(ANCHOR_MAIN_CONTROLS);
+		control_info_clear_anchor(TEXTBOX_MAIN_INFO);
+		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_ADVANCE, "Next");
+		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_LOG, "Log");
+		control_info_initialize_anchor(TEXTBOX_MAIN_INFO);
 		
-		control_info_clear_anchor(ANCHOR_EXTRA_CONTROLS);
+		control_info_clear_anchor(TEXTBOX_EXTRA_INFO);
 	}
 	
 	/// @description 
 	initialize_decision_control_info = function(){
-		control_info_clear_anchor(ANCHOR_MAIN_CONTROLS);
-		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_SELECT, "Select");
-		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_LOG, "Log");
-		control_info_initialize_anchor(ANCHOR_MAIN_CONTROLS);
+		control_info_clear_anchor(TEXTBOX_MAIN_INFO);
+		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_SELECT, "Select");
+		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_LOG, "Log");
+		control_info_initialize_anchor(TEXTBOX_MAIN_INFO);
 		
-		// If there is already data for controls contained inside of the ANCHOR_EXTRA_CONTROLS anchor, there is no 
+		// If there is already data for controls contained inside of the TEXTBOX_EXTRA_INFO anchor, there is no 
 		// need to add that data again since it has to be the same format as the controls needed for the 
 		// textbox log (The "up" and "down" menu inputs).
-		if (ds_list_size(CONTROL_INFO.anchorPoint[? ANCHOR_EXTRA_CONTROLS].info) == 0){
-			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_DOWN, "");
-			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_UP, "Move");
-			control_info_initialize_anchor(ANCHOR_EXTRA_CONTROLS);
+		if (ds_list_size(CONTROL_INFO.anchorPoint[? TEXTBOX_EXTRA_INFO].info) == 0){
+			control_info_add_data(TEXTBOX_EXTRA_INFO, INPUT_MENU_DOWN, "");
+			control_info_add_data(TEXTBOX_EXTRA_INFO, INPUT_MENU_UP, "Move");
+			control_info_initialize_anchor(TEXTBOX_EXTRA_INFO);
 		}
 	}
 	
 	/// @description 
 	initialize_log_control_info = function(){
-		control_info_clear_anchor(ANCHOR_MAIN_CONTROLS);
-		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_RETURN, "Close");
-		control_info_initialize_anchor(ANCHOR_MAIN_CONTROLS);
+		control_info_clear_anchor(TEXTBOX_MAIN_INFO);
+		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_RETURN, "Close");
+		control_info_initialize_anchor(TEXTBOX_MAIN_INFO);
 		
 		// There is no need to display menu cursor controls when there are less textboxes logged than
 		// can be viewed by the player at any given time, which is less than four, overall. So, if there
 		// are less than that amount, any potential movement controls are cleared out of their anchor.
 		if (ds_list_size(logger.savedText) <= 3){
-			control_info_clear_anchor(ANCHOR_EXTRA_CONTROLS);
+			control_info_clear_anchor(TEXTBOX_EXTRA_INFO);
 			return; // Exit before any menu cursor controls can be added.
 		}
 		
-		// If there is already data for controls contained inside of the ANCHOR_EXTRA_CONTROLS anchor, there is no 
+		// If there is already data for controls contained inside of the TEXTBOX_EXTRA_INFO anchor, there is no 
 		// need to add that data again since it has to be the same format as the controls needed for the 
 		// textbox log (The "up" and "down" menu inputs).
-		if (ds_list_size(CONTROL_INFO.anchorPoint[? ANCHOR_EXTRA_CONTROLS].info) == 0){
-			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_DOWN, "");
-			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_UP, "Move");
-			control_info_initialize_anchor(ANCHOR_EXTRA_CONTROLS);
+		if (ds_list_size(CONTROL_INFO.anchorPoint[? TEXTBOX_EXTRA_INFO].info) == 0){
+			control_info_add_data(TEXTBOX_EXTRA_INFO, INPUT_MENU_DOWN, "");
+			control_info_add_data(TEXTBOX_EXTRA_INFO, INPUT_MENU_UP, "Move");
+			control_info_initialize_anchor(TEXTBOX_EXTRA_INFO);
 		}
 	}
 	
@@ -1497,8 +1497,8 @@ function textbox_activate(_startingIndex = 0){
 		object_set_next_state(state_animation_open_textbox);
 		
 		// 
-		control_info_create_anchor(ANCHOR_MAIN_CONTROLS, _cameraWidth - 5, _cameraHeight - 12, ALIGNMENT_RIGHT);
-		control_info_create_anchor(ANCHOR_EXTRA_CONTROLS, 5, _cameraHeight - 12, ALIGNMENT_LEFT);
+		control_info_create_anchor(TEXTBOX_MAIN_INFO, _cameraWidth - 5, _cameraHeight - 12, ALIGNMENT_RIGHT);
+		control_info_create_anchor(TEXTBOX_EXTRA_INFO, 5, _cameraHeight - 12, ALIGNMENT_LEFT);
 		control_info_set_alpha_target(1, 0.075);
 		initialize_default_control_info();
 		

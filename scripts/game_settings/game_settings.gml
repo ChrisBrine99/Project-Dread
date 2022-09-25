@@ -100,6 +100,35 @@
 #macro	KEY_ADVANCE				50		// Textbox inputs
 #macro	KEY_LOG					52
 
+// 
+#macro	KEYCODE_GAME_RIGHT		game_get_input_binding(KEY_GAME_RIGHT)		// Player movement inputs 
+#macro	KEYCODE_GAME_LEFT		game_get_input_binding(KEY_GAME_LEFT)
+#macro	KEYCODE_GAME_UP			game_get_input_binding(KEY_GAME_UP)
+#macro	KEYCODE_GAME_DOWN		game_get_input_binding(KEY_GAME_DOWN)
+#macro	KEYCODE_RUN				game_get_input_binding(KEY_RUN)
+#macro	KEYCODE_INTERACT		game_get_input_binding(KEY_INTERACT)		// World interaction input
+#macro	KEYCODE_READY_WEAPON	game_get_input_binding(KEY_READY_WEAPON)	// Weapon manipulation inputs 
+#macro	KEYCODE_USE_WEAPON		game_get_input_binding(KEY_USE_WEAPON)
+#macro	KEYCODE_AMMO_SWAP		game_get_input_binding(KEY_INTERACT)
+#macro	KEYCODE_RELOAD			game_get_input_binding(KEY_RELOAD)
+#macro	KEYCODE_FLASHLIGHT		game_get_input_binding(KEY_FLASHLIGHT)		// Flashlight inputs
+#macro	KEYCODE_LIGHT_SWAP		game_get_input_binding(KEY_LIGHT_SWAP)
+#macro	KEYCODE_ITEMS			game_get_input_binding(KEY_ITEMS)			// Pausing/inventory shortcut inputs
+#macro	KEYCODE_MAPS			game_get_input_binding(KEY_MAPS)
+#macro	KEYCODE_NOTES			game_get_input_binding(KEY_NOTES)
+#macro	KEYCODE_PAUSE			game_get_input_binding(KEY_PAUSE)
+#macro	KEYCODE_MENU_RIGHT		game_get_input_binding(KEY_MENU_RIGHT)		// Menu cursor movement inputs 
+#macro	KEYCODE_MENU_LEFT		game_get_input_binding(KEY_MENU_LEFT)
+#macro	KEYCODE_MENU_UP			game_get_input_binding(KEY_MENU_UP)
+#macro	KEYCODE_MENU_DOWN		game_get_input_binding(KEY_MENU_DOWN)
+#macro	KEYCODE_AUX_MENU_RIGHT	game_get_input_binding(KEY_AUX_MENU_RIGHT)
+#macro	KEYCODE_AUX_MENU_LEFT	game_get_input_binding(KEY_AUX_MENU_LEFT)
+#macro	KEYCODE_SELECT			game_get_input_binding(KEY_SELECT)			// Menu option interaction inputs 
+#macro	KEYCODE_RETURN			game_get_input_binding(KEY_RETURN)
+#macro	KEYCODE_FILE_DELETE		game_get_input_binding(KEY_FILE_DELETE)
+#macro	KEYCODE_ADVANCE			game_get_input_binding(KEY_ADVANCE)			// Textbox inputs 
+#macro	KEYCODE_LOG				game_get_input_binding(KEY_LOG)
+
 // The positions within the buffer for the player's current input configuration that each of these actions'
 // respective gamepad input bindings are stored. Each is a 2-byte value storing the values for Game Maker's
 // constants for gamepad input bindings that match up to what the player has configured for their gamepad
@@ -133,37 +162,32 @@
 #macro	PAD_LOG					112
 
 // 
-#macro	KEYCODE_GAME_RIGHT		game_get_input_binding(KEY_GAME_RIGHT)
-#macro	KEYCODE_GAME_LEFT		game_get_input_binding(KEY_GAME_LEFT)
-#macro	KEYCODE_GAME_UP			game_get_input_binding(KEY_GAME_UP)
-#macro	KEYCODE_GAME_DOWN		game_get_input_binding(KEY_GAME_DOWN)
-
-#macro	KEYCODE_MENU_RIGHT		game_get_input_binding(KEY_MENU_RIGHT)
-#macro	KEYCODE_MENU_LEFT		game_get_input_binding(KEY_MENU_LEFT)
-#macro	KEYCODE_MENU_UP			game_get_input_binding(KEY_MENU_UP)
-#macro	KEYCODE_MENU_DOWN		game_get_input_binding(KEY_MENU_DOWN)
-#macro	KEYCODE_AUX_MENU_RIGHT	game_get_input_binding(KEY_AUX_MENU_RIGHT)
-#macro	KEYCODE_AUX_MENU_LEFT	game_get_input_binding(KEY_AUX_MENU_LEFT)
-#macro	KEYCODE_SELECT			game_get_input_binding(KEY_SELECT)
-#macro	KEYCODE_RETURN			game_get_input_binding(KEY_RETURN)
-#macro	KEYCODE_ADVANCE			game_get_input_binding(KEY_ADVANCE)
-#macro	KEYCODE_LOG				game_get_input_binding(KEY_LOG)
-
-// 
-#macro	PADCODE_GAME_RIGHT		game_get_input_binding(PAD_GAME_RIGHT)
+#macro	PADCODE_GAME_RIGHT		game_get_input_binding(PAD_GAME_RIGHT)		// Player movement inputs 
 #macro	PADCODE_GAME_LEFT		game_get_input_binding(PAD_GAME_LEFT)
 #macro	PADCODE_GAME_UP			game_get_input_binding(PAD_GAME_UP)
 #macro	PADCODE_GAME_DOWN		game_get_input_binding(PAD_GAME_DOWN)
-
-#macro	PADCODE_MENU_RIGHT		game_get_input_binding(PAD_MENU_RIGHT)
+#macro	PADCODE_RUN				game_get_input_binding(PAD_RUN)
+#macro	PADCODE_INTERACT		game_get_input_binding(PAD_INTERACT)		// World interaction input
+#macro	PADCODE_READY_WEAPON	game_get_input_binding(PAD_READY_WEAPON)	// Weapon manipulation inputs 
+#macro	PADCODE_USE_WEAPON		game_get_input_binding(PAD_USE_WEAPON)
+#macro	PADCODE_AMMO_SWAP		game_get_input_binding(PAD_INTERACT)
+#macro	PADCODE_RELOAD			game_get_input_binding(PAD_RELOAD)
+#macro	PADCODE_FLASHLIGHT		game_get_input_binding(PAD_FLASHLIGHT)		// Flashlight inputs
+#macro	PADCODE_LIGHT_SWAP		game_get_input_binding(PAD_LIGHT_SWAP)
+#macro	PADCODE_ITEMS			game_get_input_binding(PAD_ITEMS)			// Pausing/inventory shortcut inputs
+#macro	PADCODE_MAPS			game_get_input_binding(PAD_MAPS)
+#macro	PADCODE_NOTES			game_get_input_binding(PAD_NOTES)
+#macro	PADCODE_PAUSE			game_get_input_binding(PAD_PAUSE)
+#macro	PADCODE_MENU_RIGHT		game_get_input_binding(PAD_MENU_RIGHT)		// Menu cursor movement inputs 
 #macro	PADCODE_MENU_LEFT		game_get_input_binding(PAD_MENU_LEFT)
 #macro	PADCODE_MENU_UP			game_get_input_binding(PAD_MENU_UP)
 #macro	PADCODE_MENU_DOWN		game_get_input_binding(PAD_MENU_DOWN)
 #macro	PADCODE_AUX_MENU_RIGHT	game_get_input_binding(PAD_AUX_MENU_RIGHT)
 #macro	PADCODE_AUX_MENU_LEFT	game_get_input_binding(PAD_AUX_MENU_LEFT)
-#macro	PADCODE_SELECT			game_get_input_binding(PAD_SELECT)
+#macro	PADCODE_SELECT			game_get_input_binding(PAD_SELECT)			// Menu option interaction inputs 
 #macro	PADCODE_RETURN			game_get_input_binding(PAD_RETURN)
-#macro	PADCODE_ADVANCE			game_get_input_binding(PAD_ADVANCE)
+#macro	PADCODE_FILE_DELETE		game_get_input_binding(PAD_FILE_DELETE)
+#macro	PADCODE_ADVANCE			game_get_input_binding(PAD_ADVANCE)			// Textbox inputs 
 #macro	PADCODE_LOG				game_get_input_binding(PAD_LOG)
 
 // A shorted down version that returns the volume for each of the four groups; the bottom three being influenced
@@ -183,6 +207,8 @@
 // 
 #macro	PLAYER_DAMAGE_MOD		global.gameSettings.pDamageModifier
 #macro	ENEMY_DAMAGE_MOD		global.gameSettings.eDamageModifier
+#macro	MIN_ITEM_SLOTS			global.gameSettings.minItemSlots
+#macro	MAX_ITEM_SLOTS			global.gameSettings.maxItemSlots
 
 #endregion
 
@@ -237,6 +263,10 @@ global.gameSettings = {
 	// an enemy based on if their modifier value is greater than or less than 1.0, respectively.
 	pDamageModifier :		1.0,
 	eDamageModifier :		1.0,
+	
+	// 
+	minItemSlots :			0,
+	maxItemSlots :			0,
 	
 	/// @description 
 	cleanup : function(){
@@ -585,6 +615,20 @@ function game_set_puzzle_difficulty(_difficultyFlag){
 					(1 << PDIFF_PUNISHING);			// Setting required bits for difficulty configuration.
 		}
 	}
+}
+
+/// @description 
+/// @param {Real}	difficultyFlag
+function game_check_combat_difficulty(_difficultyFlag){
+	if (_difficultyFlag < 0 || _difficultyFlag > CDIFF_ONELIFEMODE) {return false;}
+	with(GAME_SETTINGS) {return (difficultyFlags & (1 << _difficultyFlag) != 0);}
+}
+
+/// @description 
+/// @param {Real}	difficultyFlag
+function game_check_puzzle_difficulty(_difficultyFlag){
+	if (_difficultyFlag < PDIFF_FORGIVING || _difficultyFlag > PDIFF_PUNISHING) {return false;}
+	with(GAME_SETTINGS) {return (difficultyFlags & (1 << _difficultyFlag) != 0);}
 }
 
 #endregion
