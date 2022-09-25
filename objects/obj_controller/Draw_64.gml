@@ -23,7 +23,7 @@ for (var i = 0; i < _length; i++){
 // Process all singleton structs that contain a Draw GUI event; rendering them to the screen when and how they
 // would if they were standard GML objects. The order here is important and determines what will be drawn on
 // top of what, and vice versa.
-with(TEXTBOX_HANDLER)	{draw_gui();}
+with(TEXTBOX_HANDLER)	{draw_gui(camera_get_width(), camera_get_height());}
 with(CONTROL_INFO)		{draw_gui();}
 
 // Renders a screen covering rectangle in the desired color and transparency whenever a screen fade effect has

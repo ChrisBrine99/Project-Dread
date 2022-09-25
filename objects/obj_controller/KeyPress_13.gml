@@ -5,6 +5,8 @@
 //						+ GREEN + "*green, *" + BLUE + "*blue.");
 //textbox_begin_execution();
 
+//show_debug_message(CAM_HEIGHT);
+
 textbox_add_text("Do you think... God stays in heaven because he, too, lives in fear of what he's created?", 1, 1, Actor.Claire, 3);
 textbox_add_player_choice("Yeah, I'd say so.", 1);
 textbox_add_player_choice("No, God loves his creations!", 2);

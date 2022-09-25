@@ -103,17 +103,17 @@ function obj_depth_sorter() constructor{
 		// entering the loop, since these values never change and will cause a lot of jumping in the code if
 		// they weren't stored in local variables like below.
 		var _cameraX, _cameraY, _cameraWidth, _cameraHeight;
-		with (CAMERA){ // The x and y values are stored within the camera singleton object.
+		with (CAMERA){
 			_cameraX = x;
 			_cameraY = y;
+			_cameraWidth = curWidth;
+			_cameraHeight = curHeight;
 		}
-		_cameraWidth = _cameraX + CAM_WIDTH;	// The width and height are found within a struct that is separate from the camera.
-		_cameraHeight = _cameraY + CAM_HEIGHT;
 		
 		// Call the function that renders the shadows ovals of varying/unique sizes onto the floors of the
 		// current room, but below the wall tilemaps. (Those are rendered manually directly below this line)
 		shadowsDrawn = 0; // Reset the debug counter before shadows are drawn again.
-		draw_entity_shadows(_cameraX, _cameraY, CAM_WIDTH, CAM_HEIGHT);
+		draw_entity_shadows(_cameraX, _cameraY, _cameraWidth, _cameraHeight);
 		
 		// Draw the room's walls and wall details AFTER rendering shadows, which should only have their 
 		// darkening effect applied to the ground and entities that other entities are above in certain cases.
@@ -128,7 +128,7 @@ function obj_depth_sorter() constructor{
 				// Display every entity that is VISIBLE ON SCREEN and has their flag for rendering themselves
 				// currently set to "true". Otherwise, the view bounds check will be false OR no sprite should
 				// render--meaning no draw event will be called for the entity; saving resources.
-				if (displaySprite && x + sprite_width >= _cameraX && y + sprite_height >= _cameraY && x - sprite_width <= _cameraWidth && y - sprite_height <= _cameraHeight){
+				if (displaySprite && x + sprite_width >= _cameraX && y + sprite_height >= _cameraY && x - sprite_width <= _cameraX + _cameraWidth && y - sprite_height <= _cameraY + _cameraHeight){
 					event_perform(ev_draw, 0);
 					_entitiesDrawn++;
 				}
@@ -155,7 +155,7 @@ function obj_depth_sorter() constructor{
 	/// @param {Real}	cameraWidth
 	/// @param {Real}	cameraHeight
 	draw_entity_shadows = function(_cameraX, _cameraY, _cameraWidth, _cameraHeight){
-		if (!surface_exists(surfShadow)) {surfShadow = surface_create(CAM_WIDTH, CAM_HEIGHT);}
+		if (!surface_exists(surfShadow)) {surfShadow = surface_create(_cameraWidth, _cameraHeight);}
 		
 		surface_set_target(surfShadow);
 		draw_clear_alpha(c_black, 0);

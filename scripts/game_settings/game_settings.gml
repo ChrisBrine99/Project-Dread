@@ -104,33 +104,67 @@
 // respective gamepad input bindings are stored. Each is a 2-byte value storing the values for Game Maker's
 // constants for gamepad input bindings that match up to what the player has configured for their gamepad
 // control scheme.
-#macro	GPAD_GAME_RIGHT			60		// Player movement inputs 
-#macro	GPAD_GAME_LEFT			62		
-#macro	GPAD_GAME_UP			64		
-#macro	GPAD_GAME_DOWN			66		
-#macro	GPAD_RUN				68		
-#macro	GPAD_INTERACT			70		// World interaction input 
-#macro	GPAD_READY_WEAPON		72		// Weapon manipulation inputs 
-#macro	GPAD_USE_WEAPON			74		
-#macro	GPAD_AMMO_SWAP			76		
-#macro	GPAD_RELOAD				78
-#macro	GPAD_FLASHLIGHT			80		// Flashlight inputs 
-#macro	GPAD_LIGHT_SWAP			82		
-#macro	GPAD_ITEMS				84		// Pausing/inventory shortcut inputs 
-#macro	GPAD_MAPS				86		
-#macro	GPAD_NOTES				88		
-#macro	GPAD_PAUSE				90		
-#macro	GPAD_MENU_RIGHT			92		// Menu cursor movement inputs 
-#macro	GPAD_MENU_LEFT			94		
-#macro	GPAD_MENU_UP			96		
-#macro	GPAD_MENU_DOWN			98		
-#macro	GPAD_AUX_MENU_RIGHT		100		
-#macro	GPAD_AUX_MENU_LEFT		102		
-#macro	GPAD_SELECT				104		// Menu option interaction inputs 
-#macro	GPAD_RETURN				106		
-#macro	GPAD_FILE_DELETE		108		
-#macro	GPAD_ADVANCE			110		// Textbox inputs 
-#macro	GPAD_LOG				112
+#macro	PAD_GAME_RIGHT			60		// Player movement inputs 
+#macro	PAD_GAME_LEFT			62		
+#macro	PAD_GAME_UP				64		
+#macro	PAD_GAME_DOWN			66		
+#macro	PAD_RUN					68		
+#macro	PAD_INTERACT			70		// World interaction input 
+#macro	PAD_READY_WEAPON		72		// Weapon manipulation inputs 
+#macro	PAD_USE_WEAPON			74		
+#macro	PAD_AMMO_SWAP			76		
+#macro	PAD_RELOAD				78
+#macro	PAD_FLASHLIGHT			80		// Flashlight inputs 
+#macro	PAD_LIGHT_SWAP			82		
+#macro	PAD_ITEMS				84		// Pausing/inventory shortcut inputs 
+#macro	PAD_MAPS				86		
+#macro	PAD_NOTES				88		
+#macro	PAD_PAUSE				90		
+#macro	PAD_MENU_RIGHT			92		// Menu cursor movement inputs 
+#macro	PAD_MENU_LEFT			94		
+#macro	PAD_MENU_UP				96		
+#macro	PAD_MENU_DOWN			98		
+#macro	PAD_AUX_MENU_RIGHT		100		
+#macro	PAD_AUX_MENU_LEFT		102		
+#macro	PAD_SELECT				104		// Menu option interaction inputs 
+#macro	PAD_RETURN				106		
+#macro	PAD_FILE_DELETE			108		
+#macro	PAD_ADVANCE				110		// Textbox inputs 
+#macro	PAD_LOG					112
+
+// 
+#macro	KEYCODE_GAME_RIGHT		game_get_input_binding(KEY_GAME_RIGHT)
+#macro	KEYCODE_GAME_LEFT		game_get_input_binding(KEY_GAME_LEFT)
+#macro	KEYCODE_GAME_UP			game_get_input_binding(KEY_GAME_UP)
+#macro	KEYCODE_GAME_DOWN		game_get_input_binding(KEY_GAME_DOWN)
+
+#macro	KEYCODE_MENU_RIGHT		game_get_input_binding(KEY_MENU_RIGHT)
+#macro	KEYCODE_MENU_LEFT		game_get_input_binding(KEY_MENU_LEFT)
+#macro	KEYCODE_MENU_UP			game_get_input_binding(KEY_MENU_UP)
+#macro	KEYCODE_MENU_DOWN		game_get_input_binding(KEY_MENU_DOWN)
+#macro	KEYCODE_AUX_MENU_RIGHT	game_get_input_binding(KEY_AUX_MENU_RIGHT)
+#macro	KEYCODE_AUX_MENU_LEFT	game_get_input_binding(KEY_AUX_MENU_LEFT)
+#macro	KEYCODE_SELECT			game_get_input_binding(KEY_SELECT)
+#macro	KEYCODE_RETURN			game_get_input_binding(KEY_RETURN)
+#macro	KEYCODE_ADVANCE			game_get_input_binding(KEY_ADVANCE)
+#macro	KEYCODE_LOG				game_get_input_binding(KEY_LOG)
+
+// 
+#macro	PADCODE_GAME_RIGHT		game_get_input_binding(PAD_GAME_RIGHT)
+#macro	PADCODE_GAME_LEFT		game_get_input_binding(PAD_GAME_LEFT)
+#macro	PADCODE_GAME_UP			game_get_input_binding(PAD_GAME_UP)
+#macro	PADCODE_GAME_DOWN		game_get_input_binding(PAD_GAME_DOWN)
+
+#macro	PADCODE_MENU_RIGHT		game_get_input_binding(PAD_MENU_RIGHT)
+#macro	PADCODE_MENU_LEFT		game_get_input_binding(PAD_MENU_LEFT)
+#macro	PADCODE_MENU_UP			game_get_input_binding(PAD_MENU_UP)
+#macro	PADCODE_MENU_DOWN		game_get_input_binding(PAD_MENU_DOWN)
+#macro	PADCODE_AUX_MENU_RIGHT	game_get_input_binding(PAD_AUX_MENU_RIGHT)
+#macro	PADCODE_AUX_MENU_LEFT	game_get_input_binding(PAD_AUX_MENU_LEFT)
+#macro	PADCODE_SELECT			game_get_input_binding(PAD_SELECT)
+#macro	PADCODE_RETURN			game_get_input_binding(PAD_RETURN)
+#macro	PADCODE_ADVANCE			game_get_input_binding(PAD_ADVANCE)
+#macro	PADCODE_LOG				game_get_input_binding(PAD_LOG)
 
 // A shorted down version that returns the volume for each of the four groups; the bottom three being influenced
 // by what the current global volume is (Values all range from 0 to 1).
@@ -312,33 +346,33 @@ function game_load_settings(){
 		
 		// Reading in and applying all player input bindings for the gamepad. If no values exists, the defaults
 		// at the end of each line will be what is set to the input's space in the "inputBindings" buffer.
-		buffer_poke(inputBindings, GPAD_GAME_RIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_right",		gp_padr));
-		buffer_poke(inputBindings, GPAD_GAME_LEFT, buffer_u16,		ini_read_real(SECTION_GAMEPAD,	"game_left",		gp_padl));
-		buffer_poke(inputBindings, GPAD_GAME_UP, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_up",			gp_padu));
-		buffer_poke(inputBindings, GPAD_GAME_DOWN, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_down",			gp_padd));
-		buffer_poke(inputBindings, GPAD_RUN, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "run",				gp_face3));
-		buffer_poke(inputBindings, GPAD_INTERACT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "interact",			gp_face1));
-		buffer_poke(inputBindings, GPAD_READY_WEAPON, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "ready_weapon",		gp_shoulderl));
-		buffer_poke(inputBindings, GPAD_USE_WEAPON, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "use_weapon",		gp_face1));
-		buffer_poke(inputBindings, GPAD_AMMO_SWAP, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "ammo_swap",			gp_face2));
-		buffer_poke(inputBindings, GPAD_RELOAD, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "reload",			gp_face3));
-		buffer_poke(inputBindings, GPAD_FLASHLIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "flashlight",		gp_face4));
-		buffer_poke(inputBindings, GPAD_LIGHT_SWAP, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "light_swap",		gp_face2));
-		buffer_poke(inputBindings, GPAD_ITEMS, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "items",				gp_select));
-		buffer_poke(inputBindings, GPAD_NOTES, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "notes",				gp_shoulderlb));
-		buffer_poke(inputBindings, GPAD_MAPS, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "maps",				gp_shoulderrb));
-		buffer_poke(inputBindings, GPAD_PAUSE, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "pause",				gp_start));
-		buffer_poke(inputBindings, GPAD_MENU_RIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_right",		gp_padr));
-		buffer_poke(inputBindings, GPAD_MENU_LEFT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_left",			gp_padl));
-		buffer_poke(inputBindings, GPAD_MENU_UP, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_up",			gp_padu));
-		buffer_poke(inputBindings, GPAD_MENU_DOWN, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_down",			gp_padd));
-		buffer_poke(inputBindings, GPAD_AUX_MENU_RIGHT, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "aux_menu_right",	gp_shoulderlb));
-		buffer_poke(inputBindings, GPAD_AUX_MENU_LEFT, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "aux_menu_left",		gp_shoulderrb));
-		buffer_poke(inputBindings, GPAD_SELECT, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "select",			gp_face1));
-		buffer_poke(inputBindings, GPAD_RETURN, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "return",			gp_face2));
-		buffer_poke(inputBindings, GPAD_FILE_DELETE, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "file_delete",		gp_face3));
-		buffer_poke(inputBindings, GPAD_ADVANCE, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "advance",			gp_face1));
-		buffer_poke(inputBindings, GPAD_LOG, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "log",				gp_face3));
+		buffer_poke(inputBindings, PAD_GAME_RIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_right",		gp_padr));
+		buffer_poke(inputBindings, PAD_GAME_LEFT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_left",			gp_padl));
+		buffer_poke(inputBindings, PAD_GAME_UP, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "game_up",			gp_padu));
+		buffer_poke(inputBindings, PAD_GAME_DOWN, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_down",			gp_padd));
+		buffer_poke(inputBindings, PAD_RUN, buffer_u16,				ini_read_real(SECTION_GAMEPAD, "run",				gp_face3));
+		buffer_poke(inputBindings, PAD_INTERACT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "interact",			gp_face1));
+		buffer_poke(inputBindings, PAD_READY_WEAPON, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "ready_weapon",		gp_shoulderl));
+		buffer_poke(inputBindings, PAD_USE_WEAPON, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "use_weapon",		gp_face1));
+		buffer_poke(inputBindings, PAD_AMMO_SWAP, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "ammo_swap",			gp_face2));
+		buffer_poke(inputBindings, PAD_RELOAD, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "reload",			gp_face3));
+		buffer_poke(inputBindings, PAD_FLASHLIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "flashlight",		gp_face4));
+		buffer_poke(inputBindings, PAD_LIGHT_SWAP, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "light_swap",		gp_face2));
+		buffer_poke(inputBindings, PAD_ITEMS, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "items",				gp_select));
+		buffer_poke(inputBindings, PAD_NOTES, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "notes",				gp_shoulderlb));
+		buffer_poke(inputBindings, PAD_MAPS, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "maps",				gp_shoulderrb));
+		buffer_poke(inputBindings, PAD_PAUSE, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "pause",				gp_start));
+		buffer_poke(inputBindings, PAD_MENU_RIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_right",		gp_padr));
+		buffer_poke(inputBindings, PAD_MENU_LEFT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_left",			gp_padl));
+		buffer_poke(inputBindings, PAD_MENU_UP, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "menu_up",			gp_padu));
+		buffer_poke(inputBindings, PAD_MENU_DOWN, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "menu_down",			gp_padd));
+		buffer_poke(inputBindings, PAD_AUX_MENU_RIGHT, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "aux_menu_right",	gp_shoulderlb));
+		buffer_poke(inputBindings, PAD_AUX_MENU_LEFT, buffer_u16,	ini_read_real(SECTION_GAMEPAD, "aux_menu_left",		gp_shoulderrb));
+		buffer_poke(inputBindings, PAD_SELECT, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "select",			gp_face1));
+		buffer_poke(inputBindings, PAD_RETURN, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "return",			gp_face2));
+		buffer_poke(inputBindings, PAD_FILE_DELETE, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "file_delete",		gp_face3));
+		buffer_poke(inputBindings, PAD_ADVANCE, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "advance",			gp_face1));
+		buffer_poke(inputBindings, PAD_LOG, buffer_u16,				ini_read_real(SECTION_GAMEPAD, "log",				gp_face3));
 		
 		// 
 		vibrationIntensity =	ini_read_real(SECTION_GAMEPAD, "vibrate_intensity", 0.5);
@@ -410,7 +444,7 @@ function game_set_input_binding(_inputID, _inputConstant){
 /// @description 
 /// @param {Real}	inputID
 function game_get_input_binding(_inputID){
-	with(GAME_SETTINGS) {get_input_binding(_inputID);}
+	with(GAME_SETTINGS) {return get_input_binding(_inputID);}
 }
 
 /// @description 

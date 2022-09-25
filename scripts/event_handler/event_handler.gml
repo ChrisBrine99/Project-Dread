@@ -9,6 +9,9 @@
 // 
 #macro	TOTAL_EVENT_FLAG_BYTES	64
 
+//
+#macro	INVALID_FLAG			-100
+
 #endregion
 
 #region Initializing enumerators that are useful/related to the event handler
@@ -48,7 +51,7 @@ function event_set_flag(_flagID, _flagState){
 /// @param {Real}	flagID		The position of this requested flag's bit relative to the first bit in the buffer.
 function event_get_flag(_flagID){
 	var _offset = (_flagID >> 3); // Calculates the byte-aligned offset that the flag bit is found.
-	if (_offset >= TOTAL_EVENT_FLAG_BYTES) {return false;}
+	if (_flagID == INVALID_FLAG || _offset >= TOTAL_EVENT_FLAG_BYTES) {return false;}
 	
 	// Grab the byte that contains the bit from the buffer. Then, perform a bitwise and with a value that will
 	// have the desired bit set to 1 and all other bits set to zero. This way all other bits in the byte that

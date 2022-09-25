@@ -14,13 +14,6 @@
 #macro	WIDTH_THREE_BY_TWO			324		// 3:2 aspect
 #macro	HEIGHT_THREE_BY_TWO			216
 
-// Constants that shorten the amount of typing needed to retrieve the camera's current width and height, as
-// well as the values for half of those respective values which are stored alongside them.
-#macro	CAM_WIDTH					CAMERA.curWidth
-#macro	CAM_HEIGHT					CAMERA.curHeight
-#macro	CAM_HALF_WIDTH				CAMERA.halfWidth
-#macro	CAM_HALF_HEIGHT				CAMERA.halfHeight
-
 // Constants that store the key values for each camera function represented in the global.cameraStates
 // map. This will prevent any accidental typos when referencing said keys.
 #macro	KEY_FOLLOW_OBJECT			"follow_object"
@@ -73,6 +66,9 @@ function obj_camera() constructor{
 	object_index = obj_camera;
 	
 	// 
+	cameraID = camera_create();
+	
+	// 
 	curWidth = 0;
 	curHeight = 0;
 	halfWidth = 0;
@@ -104,9 +100,6 @@ function obj_camera() constructor{
 		curPower :		0,
 		duration :		0,
 	};
-	
-	// 
-	cameraID = camera_create();
 	
 	/// @description Code that should be placed into the "End Step" event of whatever object is controlling
 	/// obj_camera. In short, it handles executing the current movement state and the camera's shake effect 
@@ -140,12 +133,7 @@ function obj_camera() constructor{
 	/// obj_camera. In short, it will cleanup any data that needs to be freed from memory that isn't collected
 	/// by Game Maker's built-in garbage collection handler.
 	cleanup = function(){
-		// Remove the camera dimension struct from memory and also remove the list for the publicly 
-		// accesible camera functions.
-		delete global.cameraDimensions;
 		ds_map_destroy(global.cameraStates);
-		
-		// Delete the camera from memory and remove its unique ID value.
 		camera_destroy(cameraID);
 		cameraID = undefined;
 	}
@@ -175,6 +163,12 @@ function obj_camera() constructor{
 		
 		// 
 		window_initialize(_width * _scale, _height * _scale);
+		
+		// 
+		with(EFFECT_HANDLER){
+			windowTexelWidth = 1 / _width;
+			windowTexelHeight = 1 / _height;
+		}
 	}
 	
 	/// @description 
@@ -536,30 +530,8 @@ function camera_set_state(_state, _arguments){
 	}
 }
 
-/// @description A simple function that updates the dimensions of the current window to match the current
-/// camera dimensions with a given scale applied to the values (Shown as "_width" and "_height" in the
-/// argument fields. It also keeps the window centered on the display it's being rendered on.
-/// @param {Real}	width
-/// @param {Real}	height
-function window_update_dimensions(_width, _height){
-	// First, determine the maximum possible scaling that the window can achieve before either the width OR
-	// the height surpasses the resolution of the current display. That value will then be used to clamp the
-	// provided dimensions to a valid range.
-	var _maxScale = min(floor(display_get_width() / CAM_WIDTH), floor(display_get_height() / CAM_HEIGHT));
-	_width = clamp(_width, CAM_WIDTH, CAM_WIDTH * _maxScale);
-	_height = clamp(_height, CAM_HEIGHT, CAM_HEIGHT * _maxScale);
-	
-	// Then, the offset of the window based on its width and height from the center of the display is calculated
-	// in order to keep the window centered on said display. Otherwise, updating the dimensions will cause it
-	// to expand to the right and downward.
-	var _xOffset, _yOffset;
-	_xOffset = floor((display_get_width() - _width) / 2);
-	_yOffset = floor((display_get_height() - _height) / 2);
-	
-	// Finally, set the size of the window to the final width and height values and the position to the offset
-	// so it remains in the center of the screen.
-	window_set_size(_width, _height);
-	window_set_position(_xOffset, _yOffset);
-}
+/// @description 
+function camera_get_width()			{return CAMERA.curWidth;}
+function camera_get_height()		{return CAMERA.curHeight;}
 
 #endregion

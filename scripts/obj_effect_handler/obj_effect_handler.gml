@@ -26,8 +26,8 @@ function obj_effect_handler() constructor{
 	// Stores the current texel values for the application surface, which is a normalized value for a single
 	// pixel relative to the dimensions of said surface. Since the aspect ratio can be altered in the game,
 	// these variables will be updated to store the proper texel sizes for any changes that occur.
-	windowTexelWidth =	1 / CAM_WIDTH;
-	windowTexelHeight = 1 / CAM_HEIGHT;
+	windowTexelWidth =	0;
+	windowTexelHeight = 0;
 	
 	// Stores the surface that has each light source rendered onto it before being blended back onto the
 	// application surface to result in a natural-looking lighting system.
@@ -176,7 +176,7 @@ function obj_effect_handler() constructor{
 	render_lights = function(_cameraX, _cameraY){
 		// If the current surface used for rendering light sources isn't currently in VRAM, it needs to be
 		// initialized based on the current width and height of the camera.
-		if (!surface_exists(surfLight)) {surfLight = surface_create(CAM_WIDTH, CAM_HEIGHT);}
+		if (!surface_exists(surfLight)) {surfLight = surface_create(camera_get_width(), camera_get_height());}
 		
 		// Offset the world matrix to the negative of the current camera's position in order to allow
 		// the light surface to render itself in the proper world space coordinates despite the fact that
@@ -259,7 +259,7 @@ function obj_effect_handler() constructor{
 		
 		// Make sure the buffer surface for the blurring effect exists within the GPU's memory before
 		// any processing of the effect has begun. It's dimensions are the same as the window's.
-		if (!surface_exists(surfBlurBuffer)) {surfBlurBuffer = surface_create(CAM_WIDTH, CAM_HEIGHT);}
+		if (!surface_exists(surfBlurBuffer)) {surfBlurBuffer = surface_create(camera_get_width(), camera_get_height());}
 		
 		// First, the shader will be activated and the main parameters will be set; the radius of the blur,
 		// (This determines how many pixels around the current fragment will effect the final color of said
@@ -296,7 +296,7 @@ function obj_effect_handler() constructor{
 		// be altered by this screen blooming function. The ID given to that surface is also stored since
 		// it is required for the blending of the luminance surface and the application surface.
 		if (!surface_exists(surfBloomLum)){
-			surfBloomLum = surface_create(CAM_WIDTH, CAM_HEIGHT);
+			surfBloomLum = surface_create(camera_get_width(), camera_get_height());
 			bloomTextureID = surface_get_texture(surfBloomLum);
 		}
 		
@@ -371,7 +371,7 @@ function obj_effect_handler() constructor{
 	render_scanlines = function(){
 		shader_set(shd_scanlines);
 		shader_set_uniform_f(sScanlineOpacity, 0.15);
-		draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_white, 1);
+		draw_sprite_ext(spr_rectangle, 0, 0, 0, camera_get_width(), camera_get_height(), 0, c_white, 1);
 		shader_reset();
 	}
 }

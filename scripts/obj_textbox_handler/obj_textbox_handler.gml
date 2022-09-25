@@ -14,12 +14,6 @@
 #macro	TEXT_X_BORDER				2
 #macro	LINE_MAX_WIDTH				274
 
-// Macros used for the opening/actor swap animation. The first value is the position that the textbox
-// will begin at BEFORE any movement has occured, and the second value is the position the textbox
-// wil need to reach in order to complete the movement portion of the animation.
-#macro	TEXTBOX_INITIAL_Y			(CAM_HEIGHT + 60)
-#macro	TEXTBOX_TARGET_Y			(CAM_HEIGHT - 58)
-
 // Macros that contain the characters that are used to determine when line width checks need to occur
 // and when additional data like colors need to be parsed out of the text and applied to the characters
 // after said color data.
@@ -44,7 +38,11 @@
 // The playback speed of the textbox's scrolling effect sound. Since once per second is a value of 60 in
 // this game engine, the interval is set to 10 times every second, and then the speed of text set by the
 // user is applied to that base value to determine the final interval speed.
-#macro	SCROLL_SOUND_INTERVAL		6 * global.settings.textSpeed
+#macro	SCROLL_SOUND_INTERVAL		6 * TEXT_SPEED
+
+// 
+#macro	ANCHOR_MAIN_CONTROLS		"main"
+#macro	ANCHOR_EXTRA_CONTROLS		"extras"
 
 #endregion
 
@@ -68,12 +66,16 @@ enum Actor{
 function obj_textbox_handler() constructor{
 	// Much like Game Maker's own x and y variables, these store the current position of the camera within 
 	// the current room. By default they are always set to a value of zero.
-	x = CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2);
+	x = 0;
 	y = 0;
 	
 	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
 	// object by Game Maker during runtime; in order to easily use it within a singleton system.
 	object_index = obj_textbox_handler;
+	
+	// 
+	initialY = 0;
+	targetY = 0;
 	
 	// Borrows the same three variables that the dynamic entities use for their state machines to
 	// mimic that state machine system, but for the textbox instead of an object in the world. The
@@ -163,17 +165,19 @@ function obj_textbox_handler() constructor{
 		/// @description Code that is called from the "draw_gui" function of obj_textbox_handler. 
 		/// It is responsible for displaying the currently viewable region of the textbox log; along
 		/// with any background elements for the log area.
-		draw_gui : function(){
+		/// @param {Real}	cameraWidth
+		/// @param {Real}	cameraHeight
+		draw_gui : function(_cameraWidth, _cameraHeight){
 			if (alpha == 0) {return;}
 			
 			// If there is no logged text currently, text will be displayed telling the player that
 			// and no other elements will be shown due to the "return" statement at the branch.
 			if (ds_list_size(savedText) == 0){
-				draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_black, alpha * 0.75);
+				draw_sprite_ext(spr_rectangle, 0, 0, 0, _cameraWidth, _cameraHeight, 0, c_black, alpha * 0.75);
 				
-				shader_set_outline(RGB_DARK_GRAY, font_gui_medium);
+				shader_set_outline(font_gui_medium, RGB_DARK_GRAY);
 				draw_set_text_align(fa_center, fa_middle);
-				draw_text_outline(CAM_HALF_WIDTH, CAM_HALF_HEIGHT, "No Logged Text", HEX_GRAY, RGB_DARK_GRAY, alpha);
+				draw_text_outline(_cameraWidth / 2, _cameraHeight / 2, "No Logged Text", HEX_GRAY, RGB_DARK_GRAY, alpha);
 				draw_reset_text_align();
 				shader_reset();
 				return;
@@ -187,9 +191,9 @@ function obj_textbox_handler() constructor{
 			
 			// Call the functions that are responsible for rendering the background, logged text
 			// surfaces, and actor names, respectively.
-			draw_log_background(_numberDrawn, CAM_HEIGHT - 15, _spacing);
-			draw_logged_surfaces(_numberDrawn, CAM_HEIGHT - 55, _spacing);
-			draw_logged_actor_names(_numberDrawn, CAM_HEIGHT - 55, _spacing);
+			draw_log_background(_numberDrawn, _cameraHeight - 15, _spacing, _cameraWidth, _cameraHeight);
+			draw_logged_surfaces(_numberDrawn, _cameraHeight - 55, _spacing);
+			draw_logged_actor_names(_numberDrawn, _cameraHeight - 55, _spacing);
 		},
 		
 		/// @description Code that is called from the "cleanup" function of obj_textbox_handler. 
@@ -218,17 +222,17 @@ function obj_textbox_handler() constructor{
 		/// @param {Real}	numberDrawn
 		/// @param {Real}	startY
 		/// @param {Real}	spacing
-		draw_log_background : function(_numberDrawn, _startY, _spacing){
-			draw_sprite_ext(spr_rectangle, 0, 0, 0, CAM_WIDTH, CAM_HEIGHT, 0, c_black, alpha * 0.75);
+		draw_log_background : function(_numberDrawn, _startY, _spacing, _cameraWidth, _cameraHeight){
+			draw_sprite_ext(spr_rectangle, 0, 0, 0, _cameraWidth, _cameraHeight, 0, c_black, alpha * 0.75);
 			
 			// Displaying the white dividing lines between the viewable textbox logs. There will always be
 			// one more line than there is viewable text because there needs to be a divider between the
 			// first text log and the control information at the bottom of the screen.
 			shader_set(shd_feathering);
-			feathering_set_bounds(120, 0, CAM_WIDTH - 120, CAM_HEIGHT, 10, 0, CAM_WIDTH - 10, CAM_HEIGHT);
+			feathering_set_bounds(120, 0, _cameraWidth - 120, _cameraHeight, 10, 0, _cameraWidth - 10, _cameraHeight);
 			var _offsetY = _startY;
 			repeat(_numberDrawn + 1){
-				draw_sprite_ext(spr_rectangle, 0, 10, _offsetY, CAM_WIDTH - 20, 1, 0, c_white, alpha);
+				draw_sprite_ext(spr_rectangle, 0, 10, _offsetY, _cameraWidth - 20, 1, 0, c_white, alpha);
 				_offsetY -= _spacing;
 			}
 			
@@ -236,8 +240,8 @@ function obj_textbox_handler() constructor{
 			// viewable text logs will be rendered using their original textbox colors.
 			_offsetY = _startY - _spacing + 5;
 			for (var i = 0; i < _numberDrawn; i++){
-				feathering_set_bounds(100, _offsetY + (_spacing / 2), CAM_WIDTH - 100, _offsetY + (_spacing / 2), 0, _offsetY, CAM_WIDTH, _offsetY + _spacing);
-				draw_sprite_ext(spr_rectangle, 0, 0, _offsetY, CAM_WIDTH, _spacing, 0, actorData[| i + viewOffset].backgroundColor, alpha * 0.75);
+				feathering_set_bounds(100, _offsetY + (_spacing / 2), _cameraWidth - 100, _offsetY + (_spacing / 2), 0, _offsetY, _cameraWidth, _offsetY + _spacing);
+				draw_sprite_ext(spr_rectangle, 0, 0, _offsetY, _cameraWidth, _spacing, 0, actorData[| i + viewOffset].backgroundColor, alpha * 0.75);
 				_offsetY -= _spacing;
 			}
 			shader_reset();
@@ -267,7 +271,7 @@ function obj_textbox_handler() constructor{
 		/// @param {Real}	startY
 		/// @param {Real}	spacing
 		draw_logged_actor_names : function(_numberDrawn, _startY, _spacing){
-			shader_set_outline(RGB_GRAY, font_gui_small);
+			shader_set_outline(font_gui_small, RGB_GRAY);
 			var _name = "";	// Stores the name being processed so the list and struct only needs to be accessed once per loop.
 			for (var i = 0; i < _numberDrawn; i++){
 				_name = actorData[| i + viewOffset].nameString;
@@ -352,16 +356,13 @@ function obj_textbox_handler() constructor{
 	// 
 	soundTimer = 0;
 	
-	// Variables that store the input state for the various actions that can be done through the
-	// textbox by the player; advancing to the next chunk of text, checking previous text through
-	// the "log", and moving the cursor to different decisions when the player is required to make
-	// a decision.
-	inputAdvance = false;
-	inputLog = false;
-	inputSelect = false;
-	inputReturn = false;
-	inputUp = false;
-	inputDown = false;
+	// 
+	inputAdvance =	false;
+	inputLog =		false;
+	inputMenuUp =	false;
+	inputMenuDown =	false;
+	inputSelect =	false;
+	inputReturn =	false;
 	
 	#region Game Maker events as functions
 	
@@ -393,7 +394,8 @@ function obj_textbox_handler() constructor{
 		if (canProcessText && punctuationTimer <= 0){
 			soundTimer -= DELTA_TIME;
 			if (soundTimer <= 0){
-				audio_play_sound_ext(snd_textbox_scroll, 0, SOUND_VOLUME * (0.08 + random_range(-0.02, 0.02)), 1.5, true);
+				audio_play_sound(snd_textbox_scroll, 0, false, GET_UI_VOLUME * (0.08 + random_range(-0.02, 0.02)), 0, 1.5);
+				//audio_play_sound_ext(snd_textbox_scroll, 0, GET_UI_VOLUME * (0.08 + random_range(-0.02, 0.02)), 1.5, true);
 				soundTimer = SCROLL_SOUND_INTERVAL;
 			}
 		}
@@ -428,9 +430,11 @@ function obj_textbox_handler() constructor{
 	/// obj_textbox_handler. In short, it will handle the rendering of the components that make up the
 	/// textbox by calling their respective functions if the textbox is currently visible (alpha > 0)
 	/// or toggled to an active state.
-	draw_gui = function(){
+	/// @param {Real}	cameraWidth
+	/// @param {Real}	cameraHeight
+	draw_gui = function(_cameraWidth, _cameraHeight){
 		if (!isTextboxActive || alpha == 0) {return;}
-
+		
 		// Drawing the "background" information for the currently viewable textbox data. The color of
 		// these elements being dictated on a per-actor basis, and things like the portrait area and
 		// namespace only being optional features to include.
@@ -460,13 +464,13 @@ function obj_textbox_handler() constructor{
 		// Drawing the decision window and its available options whenever the alpha level for it is
 		// greater than a value of zero, which would be fully transparent.
 		if (decisionWindowAlpha > 0){
-			draw_decision_window_background();
-			draw_decision_window_choices();
+			draw_decision_window_background(_cameraWidth, _cameraHeight);
+			draw_decision_window_choices(_cameraWidth, _cameraHeight);
 		}
 		
 		// Draw the textbox log. If it has an alpha value of zero it will automatically have its
 		// rendering skipped. Otherwise, it will be drawn overtop of the rest of the textbox.
-		with(logger) {draw_gui();}
+		with(logger) {draw_gui(_cameraWidth, _cameraHeight);}
 	}
 	
 	/// @description Code that should be placed into the "Clean Up" event of whatever object is controlling
@@ -529,20 +533,20 @@ function obj_textbox_handler() constructor{
 	get_input = function(){
 		if (GAMEPAD_IS_ACTIVE){ // Getting input from the detected and in-use gamepad.
 			var _gamepadID =	GAMEPAD_DEVICE_ID;
-			inputAdvance =		gamepad_button_check_pressed(_gamepadID, PAD_ADVANCE);
-			inputLog =			gamepad_button_check_pressed(_gamepadID, PAD_LOG);
-			inputSelect =		gamepad_button_check_pressed(_gamepadID, PAD_SELECT);
-			inputReturn =		gamepad_button_check_pressed(_gamepadID, PAD_RETURN);
-			inputUp =			gamepad_button_check(_gamepadID, PAD_MENU_UP);
-			inputDown =			gamepad_button_check(_gamepadID, PAD_MENU_DOWN);
+			inputAdvance =		gamepad_button_check_pressed(_gamepadID, PADCODE_ADVANCE);
+			inputLog =			gamepad_button_check_pressed(_gamepadID, PADCODE_LOG);
+			inputSelect =		gamepad_button_check_pressed(_gamepadID, PADCODE_SELECT);
+			inputReturn =		gamepad_button_check_pressed(_gamepadID, PADCODE_RETURN);
+			inputUp =			gamepad_button_check(_gamepadID, PADCODE_MENU_UP);
+			inputDown =			gamepad_button_check(_gamepadID, PADCODE_MENU_DOWN);
 			// TODO -- Add ability to select options by using the left or right thumbsticks.
 		} else{ // Getting input from the default device keyboard.
-			inputAdvance =		keyboard_check_pressed(KEY_ADVANCE);
-			inputLog =			keyboard_check_pressed(KEY_LOG);
-			inputSelect =		keyboard_check_pressed(KEY_SELECT);
-			inputReturn =		keyboard_check_pressed(KEY_RETURN);
-			inputUp =			keyboard_check(KEY_MENU_UP);
-			inputDown =			keyboard_check(KEY_MENU_DOWN);
+			inputAdvance =		keyboard_check_pressed(KEYCODE_ADVANCE);
+			inputLog =			keyboard_check_pressed(KEYCODE_LOG);
+			inputSelect =		keyboard_check_pressed(KEYCODE_SELECT);
+			inputReturn =		keyboard_check_pressed(KEYCODE_RETURN);
+			inputUp =			keyboard_check(KEYCODE_MENU_UP);
+			inputDown =			keyboard_check(KEYCODE_MENU_DOWN);
 		}
 	}
 	
@@ -616,10 +620,10 @@ function obj_textbox_handler() constructor{
 		
 		// 
 		if (inputSelect){
-			audio_play_sound_ext(snd_gui_select, 100, SOUND_VOLUME, 1);
+			audio_play_sound_ext(snd_gui_select, 100, GET_UI_VOLUME, 1);
 			object_set_next_state(state_animation_close_decision_window);
 			var _playerChoices = textbox.playerChoices[| curOption];
-			EVENT_SET_FLAG(_playerChoices.eventFlag, _playerChoices.flagState);
+			event_set_flag(_playerChoices.eventFlag, _playerChoices.flagState);
 			targetIndex = _playerChoices.outcomeIndex;
 			return; // Exit the state function prematurely.
 		}
@@ -647,7 +651,7 @@ function obj_textbox_handler() constructor{
 				// Only play the sound for the "cursor" moving to another decision if the movement was
 				// actually able to alter the value of "curOption". Otherwise, the sound would play when
 				// there isn't any actual movement in the menu.
-				if (_curOption != curOption) {audio_play_sound_ext(snd_gui_move, 100, SOUND_VOLUME * 0.5, 1);}
+				if (_curOption != curOption) {audio_play_sound_ext(snd_gui_move, 100, GET_UI_VOLUME * 0.5, 1);}
 			}
 		} else{ // Reset the cursor timer back down to zero if the movement buttons are released before it hits zero again.
 			isAutoScrolling = false;
@@ -720,10 +724,10 @@ function obj_textbox_handler() constructor{
 	/// the textbox's state is set to its "default" where player input can be processed.
 	state_animation_open_textbox = function(){
 		alpha = value_set_linear(alpha, 1, 0.05);
-		y = value_set_relative(y, TEXTBOX_TARGET_Y, 0.15);
-		if (alpha == 1 && y < TEXTBOX_TARGET_Y + 0.5){
+		y = value_set_relative(y, targetY, 0.15);
+		if (alpha == 1 && y < targetY + 0.5){
 			object_set_next_state(state_default);
-			y = TEXTBOX_TARGET_Y;
+			y = targetY;
 		}
 	}
 	
@@ -740,7 +744,7 @@ function obj_textbox_handler() constructor{
 			} else{ // Prepares the next textbox; playing the opening animation again.
 				object_set_next_state(state_animation_open_textbox);
 				prepare_next_textbox(targetIndex, true);
-				y = TEXTBOX_INITIAL_Y;
+				y = initialY;
 			}
 		}
 	}
@@ -999,7 +1003,7 @@ function obj_textbox_handler() constructor{
 			// for the current speaker (If they have a name). If there is no name, this code is ignored
 			// and no namespace is rendered for the textbox.
 			if (nameString != ""){
-				shader_set_outline(RGB_GRAY, font_gui_small);
+				shader_set_outline(font_gui_small, RGB_GRAY);
 				draw_set_halign(fa_center);
 				draw_text_outline(_x - 5 + round(nameWidth / 2), _y - 15, nameString, HEX_WHITE, RGB_GRAY, _alpha);
 				draw_set_halign(fa_left);
@@ -1024,7 +1028,7 @@ function obj_textbox_handler() constructor{
 		// Pause any processing of the textbox's typewriter effect until the punctuation timer runs out
 		// if the textbox hasn't been set to ignore said timer.
 		if (processPunctuation && punctuationTimer > 0){
-			punctuationTimer -= global.settings.textSpeed * DELTA_TIME * textbox.textSpeed;
+			punctuationTimer -= TEXT_SPEED * DELTA_TIME * textbox.textSpeed;
 			soundTimer = 0; // Ensures instant text scroll sound effect playback after the punctuation pause.
 			return;
 		}
@@ -1033,11 +1037,11 @@ function obj_textbox_handler() constructor{
 		// it means that more characters must be rendered to the surface as is required by the text's
 		// typewriter effect. To do this, it will loop; rendering each new character until the value for
 		// "curChar" is finally greater than "nextChar" or the final character in the string has been hit.
-		nextChar += global.settings.textSpeed * DELTA_TIME * textbox.textSpeed;
+		nextChar += TEXT_SPEED * DELTA_TIME * textbox.textSpeed;
 		if (nextChar > curChar){
 			// Render the required characters to the text surface. Also, copy that surface data into a
 			// buffer so it doesn't get lost if the surface is freed for whatever reason.
-			shader_set_outline(charOutlineColor, font_gui_small);
+			shader_set_outline(font_gui_small, charOutlineColor);
 			surface_set_target(surfText);
 			
 			var _scale, _charString;
@@ -1204,34 +1208,46 @@ function obj_textbox_handler() constructor{
 	#region Decision window rendering function
 	
 	/// @description 
-	draw_decision_window_background = function(){
+	draw_decision_window_background = function(_cameraWidth, _cameraHeight){
 		// 
 		draw_set_font(font_gui_small);
 		var _height = 30 + (ds_list_size(textbox.playerChoices) * floor(string_height("M") + 2));
+		var _halfHeight = (_height / 2);
+		var _fifthHeight = (_height / 5);
+		
+		// 
+		var _backgroundCenterY = (_cameraHeight / 2) - 40;
+		var _cameraHalfWidth = (_cameraWidth / 2);
 		
 		// 
 		shader_set(shd_feathering);
-		var _halfWidth = CAM_HALF_WIDTH;
-		var _halfHeight = CAM_HALF_HEIGHT - 40;
-		feathering_set_bounds(_halfWidth - 80, _halfHeight - (_height / 5), _halfWidth + 80, _halfHeight + (_height / 5), 0, _halfHeight - (_height / 2), CAM_WIDTH, _halfHeight + (_height / 2));
-		draw_sprite_ext(spr_rectangle, 0, 0, _halfHeight - (_height / 2), CAM_WIDTH, _height, 0, HEX_BLACK, decisionWindowAlpha * alpha * 0.75);
+		feathering_set_bounds(_cameraHalfWidth - 80, _backgroundCenterY - _fifthHeight, _cameraHalfWidth + 80, _backgroundCenterY + _fifthHeight, 0, _backgroundCenterY - _halfHeight, _cameraWidth, _backgroundCenterY + _halfHeight);
+		draw_sprite_ext(spr_rectangle, 0, 0, _backgroundCenterY - _halfHeight, _cameraWidth, _height, 0, HEX_BLACK, decisionWindowAlpha * alpha * 0.75);
 		shader_reset();
 	}
 	
 	/// @description 
-	draw_decision_window_choices = function(){
-		shader_set_outline(RGB_GRAY, font_gui_small);
+	/// @param cameraWidth
+	/// @param cameraHeight
+	draw_decision_window_choices = function(_cameraWidth, _cameraHeight){
+		shader_set_outline(font_gui_small, RGB_GRAY);
 		draw_set_halign(fa_center);
 		
-		var _halfWidth = CAM_HALF_WIDTH;
-		var _playerChoices = textbox.playerChoices;
+		// 
+		var _alpha = decisionWindowAlpha * alpha;
+		var _cameraHalfWidth = _cameraWidth / 2;
+		var _textSpacingY = string_height("M") + 2;
 		
+		// 
+		var _playerChoices = textbox.playerChoices;
 		var _length = ds_list_size(_playerChoices);
-		var _yOffset = CAM_HALF_HEIGHT - 40 - floor((_length * (string_height("M") + 2)) / 2);
+		var _yOffset = (_cameraHeight / 2) - 40 - floor((_length * _textSpacingY) / 2);
+		
+		// 
 		for (var i = 0; i < _length; i++){
-			if (i == curOption) {draw_text_outline(_halfWidth, _yOffset, _playerChoices[| i].textString, HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, decisionWindowAlpha * alpha);}
-			else				{draw_text_outline(_halfWidth, _yOffset, _playerChoices[| i].textString, HEX_WHITE, RGB_GRAY, decisionWindowAlpha * alpha);}
-			_yOffset += string_height("M") + 2;
+			if (i == curOption) {draw_text_outline(_cameraHalfWidth, _yOffset, _playerChoices[| i].textString, HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, _alpha);}
+			else				{draw_text_outline(_cameraHalfWidth, _yOffset, _playerChoices[| i].textString, HEX_WHITE, RGB_GRAY, _alpha);}
+			_yOffset += _textSpacingY;
 		}
 		
 		draw_set_halign(fa_left);
@@ -1267,51 +1283,52 @@ function obj_textbox_handler() constructor{
 	
 	/// @description
 	initialize_default_control_info = function(){
-		control_info_clear_anchor("controls");
-		control_info_add_data("controls", INPUT_ADVANCE, "Next");
-		control_info_add_data("controls", INPUT_LOG, "Log");
-		control_info_initialize_anchor("controls");
+		control_info_clear_anchor(ANCHOR_MAIN_CONTROLS);
+		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_ADVANCE, "Next");
+		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_LOG, "Log");
+		control_info_initialize_anchor(ANCHOR_MAIN_CONTROLS);
 		
-		control_info_clear_anchor("movement");
+		control_info_clear_anchor(ANCHOR_EXTRA_CONTROLS);
 	}
 	
 	/// @description 
 	initialize_decision_control_info = function(){
-		control_info_clear_anchor("controls");
-		control_info_add_data("controls", INPUT_SELECT, "Select");
-		control_info_initialize_anchor("controls");
+		control_info_clear_anchor(ANCHOR_MAIN_CONTROLS);
+		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_SELECT, "Select");
+		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_LOG, "Log");
+		control_info_initialize_anchor(ANCHOR_MAIN_CONTROLS);
 		
-		// If there is already data for controls contained inside of the "movement" anchor, there is no 
+		// If there is already data for controls contained inside of the ANCHOR_EXTRA_CONTROLS anchor, there is no 
 		// need to add that data again since it has to be the same format as the controls needed for the 
 		// textbox log (The "up" and "down" menu inputs).
-		if (ds_list_size(CONTROL_INFO.anchorPoint[? "movement"].info) == 0){
-			control_info_add_data("movement", INPUT_MENU_DOWN, "");
-			control_info_add_data("movement", INPUT_MENU_UP, "Move");
-			control_info_initialize_anchor("movement");
+		if (ds_list_size(CONTROL_INFO.anchorPoint[? ANCHOR_EXTRA_CONTROLS].info) == 0){
+			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_DOWN, "");
+			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_UP, "Move");
+			control_info_initialize_anchor(ANCHOR_EXTRA_CONTROLS);
 		}
 	}
 	
 	/// @description 
 	initialize_log_control_info = function(){
-		control_info_clear_anchor("controls");
-		control_info_add_data("controls", INPUT_RETURN, "Close");
-		control_info_initialize_anchor("controls");
+		control_info_clear_anchor(ANCHOR_MAIN_CONTROLS);
+		control_info_add_data(ANCHOR_MAIN_CONTROLS, INPUT_RETURN, "Close");
+		control_info_initialize_anchor(ANCHOR_MAIN_CONTROLS);
 		
 		// There is no need to display menu cursor controls when there are less textboxes logged than
 		// can be viewed by the player at any given time, which is less than four, overall. So, if there
 		// are less than that amount, any potential movement controls are cleared out of their anchor.
 		if (ds_list_size(logger.savedText) <= 3){
-			control_info_clear_anchor("movement");
+			control_info_clear_anchor(ANCHOR_EXTRA_CONTROLS);
 			return; // Exit before any menu cursor controls can be added.
 		}
 		
-		// If there is already data for controls contained inside of the "movement" anchor, there is no 
+		// If there is already data for controls contained inside of the ANCHOR_EXTRA_CONTROLS anchor, there is no 
 		// need to add that data again since it has to be the same format as the controls needed for the 
 		// textbox log (The "up" and "down" menu inputs).
-		if (ds_list_size(CONTROL_INFO.anchorPoint[? "movement"].info) == 0){
-			control_info_add_data("movement", INPUT_MENU_DOWN, "");
-			control_info_add_data("movement", INPUT_MENU_UP, "Move");
-			control_info_initialize_anchor("movement");
+		if (ds_list_size(CONTROL_INFO.anchorPoint[? ANCHOR_EXTRA_CONTROLS].info) == 0){
+			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_DOWN, "");
+			control_info_add_data(ANCHOR_EXTRA_CONTROLS, INPUT_MENU_UP, "Move");
+			control_info_initialize_anchor(ANCHOR_EXTRA_CONTROLS);
 		}
 	}
 	
@@ -1353,7 +1370,7 @@ function textbox_add_text(_text, _speed = 1, _scale = 1, _actorID = Actor.None, 
 			soundData :	{
 				index :			NO_SOUND,
 				delay :			0,
-				volume :		SOUND_VOLUME,
+				volume :		GET_UI_VOLUME,
 				pitch :			1,
 			},
 			
@@ -1405,7 +1422,7 @@ function textbox_add_shake_effect(_power, _duration){
 /// @param {Real}			delay
 /// @param {Real}			volume
 /// @param {Real}			pitch
-function textbox_add_sound_effect(_sound, _delay = 0, _volume = SOUND_VOLUME, _pitch = 1){
+function textbox_add_sound_effect(_sound, _delay = 0, _volume = GET_UI_VOLUME, _pitch = 1){
 	with(TEXTBOX_HANDLER){
 		var _index = ds_list_size(textboxData) - 1;
 		if (_index >= 0){ // Only attempt to add data with a valid index.
@@ -1427,15 +1444,11 @@ function textbox_add_sound_effect(_sound, _delay = 0, _volume = SOUND_VOLUME, _p
 /// @param {Real}			outcomeIndex
 /// @param {Real}			eventFlag
 /// @param {Bool}			flagState
-function textbox_add_player_choice(_text, _outcomeIndex, _eventFlag = EVENT_FLAG_INVALID, _flagState = false){
+function textbox_add_player_choice(_text, _outcomeIndex, _eventFlag = INVALID_FLAG, _flagState = false){
 	with(TEXTBOX_HANDLER){ // Only attempt to add data with a valid index.
 		var _index = ds_list_size(textboxData) - 1;
 		if (_index >= 0){
 			with(textboxData[| _index]){
-				// Ensures that the event flag for the newly added decision being selected is 
-				// actually created and ready for use by the game.
-				if (_eventFlag != EVENT_FLAG_INVALID) {EVENT_CREATE_FLAG(_eventFlag);}
-			
 				// Create the struct for the player choice data and store it within the list
 				// of current player choices stored within this most recent textbox struct.
 				ds_list_add(playerChoices, {
@@ -1469,18 +1482,23 @@ function textbox_activate(_startingIndex = 0){
 	with(TEXTBOX_HANDLER){
 		if (ds_list_size(textboxData) == 0 || isTextboxActive) {return;}
 		
-		// Set the textbox's relevant variables to their proper values upon the textbox's start.
-		// Also, set the state to the opening animation for the textbox and prepare the initial
-		// textbox data for displaying.
-		y = TEXTBOX_INITIAL_Y;
+		// 
+		var _cameraWidth = camera_get_width();
+		x = (_cameraWidth - TEXTBOX_WIDTH) / 2;
+		
+		var _cameraHeight = camera_get_height();
+		initialY = _cameraHeight + 60;
+		targetY = _cameraHeight - 58;
+		y = initialY;
+		
 		isTextboxActive = true;
 		actorSwap = true; // Allows the first textbox to actually initialize its actor data.
 		prepare_next_textbox(_startingIndex);
 		object_set_next_state(state_animation_open_textbox);
 		
 		// 
-		control_info_create_anchor("controls", CAM_WIDTH - 5, CAM_HEIGHT - 12, ALIGNMENT_RIGHT);
-		control_info_create_anchor("movement", 5, CAM_HEIGHT - 12, ALIGNMENT_LEFT);
+		control_info_create_anchor(ANCHOR_MAIN_CONTROLS, _cameraWidth - 5, _cameraHeight - 12, ALIGNMENT_RIGHT);
+		control_info_create_anchor(ANCHOR_EXTRA_CONTROLS, 5, _cameraHeight - 12, ALIGNMENT_LEFT);
 		control_info_set_alpha_target(1, 0.075);
 		initialize_default_control_info();
 		

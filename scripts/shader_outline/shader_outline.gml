@@ -49,9 +49,9 @@ global.shaderOutline = {
 	/// @param fontTexture
 	outline_set_texel_width : function(_fontTexture){
 		var _texelWidth = texture_get_texel_width(_fontTexture);
-		if (_texelWidth != curTexelHeight){
+		if (_texelWidth != curTexelWidth){
 			shader_set_uniform_f(sPixelWidth, texture_get_texel_width(_fontTexture));
-			curTexelHeight = _texelWidth;
+			curTexelWidth = _texelWidth;
 		}
 	},
 	
