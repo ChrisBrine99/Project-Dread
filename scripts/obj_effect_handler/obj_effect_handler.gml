@@ -19,9 +19,10 @@ global.lightSources = ds_list_create();
 #region The main object code for obj_effect_handler
 
 function obj_effect_handler() constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_effect_handler;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = EFFECT_HANDLER_ID;
 	
 	// Stores the current texel values for the application surface, which is a normalized value for a single
 	// pixel relative to the dimensions of said surface. Since the aspect ratio can be altered in the game,

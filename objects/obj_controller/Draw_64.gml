@@ -7,6 +7,12 @@ _playerY = PLAYER.y;
 _cameraX = CAMERA.x;
 _cameraY = CAMERA.y;
 
+with(AUDIO_MANAGER){
+	draw_set_font(font_gui_small);
+	draw_set_color(c_white);
+	draw_text(5, 5, string(ds_list_size(activeSounds)));
+}
+
 // Draw all of the elements of the HUD; including the door indicator, interaction prompt describing what
 // can be done when the player presses the interact input on said interactable object.
 draw_door_indicator(_playerX, _playerY, _cameraX, _cameraY);

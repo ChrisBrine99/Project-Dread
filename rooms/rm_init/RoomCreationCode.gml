@@ -8,7 +8,6 @@ application_surface_draw_enable(false);
 
 // 
 game_load_settings();
-CAMERA.camera_initialize(0, 0, WIDTH_SIXTEEN_BY_NINE, HEIGHT_SIXTEEN_BY_NINE, RESOLUTION_SCALE);
 
 // Create an instance of the controller object and player object since they both need to exist 100% of the time.
 // However, the player is initialized and then deactivated until the actual game has commenced; (AKA the user has
@@ -25,6 +24,8 @@ room_goto(rm_test01);
 
 /// FOR TESTING
 show_debug_overlay(true);
+audio_debug(true);
+texture_debug_messages(true);
 audio_set_linked_object(PLAYER);
 
 /*inventory_item_add(BRIGHT_FLASHLIGHT, 1, 0);

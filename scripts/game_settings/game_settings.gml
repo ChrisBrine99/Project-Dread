@@ -1,4 +1,6 @@
-/// @description Insert summary of this file here.
+/// @description Contains all the data that is used to assign, manipulate, store, and utilize all of
+/// the player's desired settings given their current configuration. This includes audio, video,
+/// input, and accessibility settings, as well as the difficulty configuration for the current game.
 
 #region Initializing any macros that are useful/related to the game settings struct
 
@@ -36,13 +38,21 @@
 // GameMaker's code).
 #macro	GAMEPAD_VIBRATION		30
 
+// 
+#macro	AR_SIXTEEN_BY_NINE		800
+#macro	AR_SIXTEEN_BY_TEN		801
+#macro	AR_THREE_BY_TWO			802
+#macro	AR_SEVEN_BY_THREE		803
+
 // The values that will tell the game settings which volume group needs to be dealt with when calling the
 // "game_get_audio_group" function. The bottom three will all have their volume adjusted based on the global
 // volume's current value.
 #macro	GLOBAL_VOLUME			0
 #macro	MUSIC_VOLUME			1
-#macro	GAME_VOLUME				2
-#macro	UI_VOLUME				3
+#macro	SOUND_VOLUME			2
+#macro	FOOTSTEP_VOLUME			3
+#macro	AMBIENCE_VOLUME			4
+#macro	UI_VOLUME				5
 
 // The locations of the bits that determine what combat difficulty the game has been set to; also determining
 // item spawning locations for resources, as well as their rarity.
@@ -100,7 +110,8 @@
 #macro	KEY_ADVANCE				50		// Textbox inputs
 #macro	KEY_LOG					52
 
-// 
+// Macros to simply the typing required to check each respective input binding for the keyboard whenever
+// player input needs to be processed in the code.
 #macro	KEYCODE_GAME_RIGHT		game_get_input_binding(KEY_GAME_RIGHT)		// Player movement inputs 
 #macro	KEYCODE_GAME_LEFT		game_get_input_binding(KEY_GAME_LEFT)
 #macro	KEYCODE_GAME_UP			game_get_input_binding(KEY_GAME_UP)
@@ -161,7 +172,8 @@
 #macro	PAD_ADVANCE				110		// Textbox inputs 
 #macro	PAD_LOG					112
 
-// 
+// Macros to simply the typing required to check each respective input binding for the connected and active
+// gamepad whenever player input needs to be processed in the code.
 #macro	PADCODE_GAME_RIGHT		game_get_input_binding(PAD_GAME_RIGHT)		// Player movement inputs 
 #macro	PADCODE_GAME_LEFT		game_get_input_binding(PAD_GAME_LEFT)
 #macro	PADCODE_GAME_UP			game_get_input_binding(PAD_GAME_UP)
@@ -190,21 +202,25 @@
 #macro	PADCODE_ADVANCE			game_get_input_binding(PAD_ADVANCE)			// Textbox inputs 
 #macro	PADCODE_LOG				game_get_input_binding(PAD_LOG)
 
-// A shorted down version that returns the volume for each of the four groups; the bottom three being influenced
-// by what the current global volume is (Values all range from 0 to 1).
+// A shorten-downed version that returns the volume for each of the four groups; the bottom three being 
+// influenced by what the current global volume is (Values all range from 0 to 1).
 #macro	GET_GLOBAL_VOLUME		game_get_group_volume(GLOBAL_VOLUME)
 #macro	GET_MUSIC_VOLUME		game_get_group_volume(MUSIC_VOLUME)
-#macro	GET_GAME_VOLUME			game_get_group_volume(GAME_VOLUME)
+#macro	GET_SOUND_VOLUME		game_get_group_volume(SOUND_VOLUME)
+#macro	GET_FOOTSTEP_VOLUME		game_get_group_volume(FOOTSTEP_VOLUME)
+#macro	GET_AMBIENCE_VOLUME		game_get_group_volume(AMBIENCE_VOLUME)
 #macro	GET_UI_VOLUME			game_get_group_volume(UI_VOLUME)
 
-// 
+// Macros that provide an easy method of referencing various setting values without having to constantly
+// typing out "global.gameSettings.*" for each of these values whenever they are needed.
 #macro	RESOLUTION_SCALE		global.gameSettings.resolutionScale
 #macro	ASPECT_RATIO			global.gameSettings.aspectRatio
 #macro	BRIGHTNESS				global.gameSettings.brightness
 #macro	GAMMA					global.gameSettings.gamma
 #macro	TEXT_SPEED				global.gameSettings.textSpeed
 
-// 
+// Macros that allow easy interfacing with the difficulty-reliant variables that aren't stored as
+// individual bits in the "difficultyFlags" variable.
 #macro	PLAYER_DAMAGE_MOD		global.gameSettings.pDamageModifier
 #macro	ENEMY_DAMAGE_MOD		global.gameSettings.eDamageModifier
 #macro	MIN_ITEM_SLOTS			global.gameSettings.minItemSlots
@@ -240,7 +256,9 @@ global.gameSettings = {
 	// that is stored as a value between 0 and 1, determining the overall volume of the group they represent.
 	globalVolume :			0,
 	musicVolume :			0,
-	gameVolume :			0,
+	soundVolume :			0,
+	footstepVolume :		0,
+	ambienceVolume :		0,
 	uiVolume :				0,
 	
 	// The input binding buffer will store the currently set inputs for each action that were set up by the
@@ -264,59 +282,35 @@ global.gameSettings = {
 	pDamageModifier :		1.0,
 	eDamageModifier :		1.0,
 	
-	// 
+	// Item inventory size limits, which are determined by the game's combat difficulty. The absolute maximum
+	// is 24 due to the "global.items" array (Which stores the player's item inventory) being implicitly set
+	// to a size of 24 upon creation.
 	minItemSlots :			0,
 	maxItemSlots :			0,
 	
-	/// @description 
+	/// @description Function that borrows the name of the event it should be called from within the
+	/// "obj_controller" object. It will clear out and deallocate any memory that was allocated by the
+	/// player input binding buffer to prevent any leaks.
 	cleanup : function(){
 		buffer_delete(inputBindings);
 	},
-	
-	/// @description 
-	/// @param {Real}	inputID
-	/// @param {Real}	inputConstant
-	set_input_binding : function(_inputID, _inputConstant){
-		if (_inputID < 0 || _inputID > buffer_get_size(inputBindings)) {return;}
-		buffer_poke(inputBindings, _inputID, buffer_u16, _inputConstant);
-	},
-	
-	/// @description 
-	/// @param {Real}	inputID
-	get_input_binding : function(_inputID){
-		if (_inputID < 0 || _inputID > buffer_get_size(inputBindings)) {return -1;}
-		return buffer_peek(inputBindings, _inputID, buffer_u16);
-	}
 }
 
 #endregion
 
 #region Global functions related to the game settings struct
 
-/// @description 
-/// @param {Real}	flagID
-/// @param {Real}	flagState
-function game_set_setting_flag(_flagID, _flagState){
-	with(GAME_SETTINGS) {settingFlags = settingFlags | (_flagState << _flagID);}
-}
-
-/// @description 
-/// @param {Real}	flagID
-function game_get_setting_flag(_flagID){
-	with(GAME_SETTINGS) {return (settingFlags & (1 << _flagID) != 0);}
-}
-
-/// @description 
+/// @description Loading in the games settings from the "settings.ini". This function can still be used if
+/// that ini file doesn't exist since the "ini_read_*" functions allow foe default values to be set if they
+/// can't read in the required values for whatever reason (Ex. the file doesn't exist or the section/key 
+/// pair doesn't exist within the file).
 function game_load_settings(){
 	with(GAME_SETTINGS){
-		// Opens the settings ini file so it can be read into the game's data. Note that if no file actually
-		// exists with that name, the file will be created automatically by this function; it will just be
-		// completely empty.
 		ini_open("settings.ini");
 		
-		// First, all the bit flags are grabbed from the settings are applied to the value of 0. That way, the
-		// settings that were previously applied will be completely overwritten by this function loading the
-		// values in from the file, since they could possibly differ.
+		// First, all the bit flags are grabbed from the settings are applied to the value of 0. That way, 
+		// the settings that were previously applied will be completely overwritten by this function loading 
+		// the values in from the file, since they could possibly differ.
 		settingFlags = 0 | 
 			(ini_read_real(SECTION_VIDEO, "fullscreen", 0) <<				FULL_SCREEN) |
 			(ini_read_real(SECTION_VIDEO, "vsync", 0) <<					VERTICAL_SYNC) |
@@ -334,18 +328,21 @@ function game_load_settings(){
 		
 		// Loading in the video settings that aren't represented by single bits in the "settingFlags" integer.
 		resolutionScale =	ini_read_real(SECTION_VIDEO, "resolution_scale", 4);
-		aspectRatio =		ini_read_real(SECTION_VIDEO, "aspect_ratio", AspectRatio.SixteenByNine);
+		aspectRatio =		ini_read_real(SECTION_VIDEO, "aspect_ratio", AR_SIXTEEN_BY_NINE);
 		brightness =		ini_read_real(SECTION_VIDEO, "brightness", 0.4);
 		gamma =				ini_read_real(SECTION_VIDEO, "gamma", 1.0);
 		
 		// Loading in the volume for each of the four main groups.
 		globalVolume =		ini_read_real(SECTION_AUDIO, "global_volume", 1.0);
 		musicVolume =		ini_read_real(SECTION_AUDIO, "music_volume", 0.75);
-		gameVolume =		ini_read_real(SECTION_AUDIO, "game_volume", 0.85);
+		soundVolume =		ini_read_real(SECTION_AUDIO, "sound_volume", 0.85);
+		footstepVolume =	ini_read_real(SECTION_AUDIO, "footstep_volume", 0.8);
+		ambienceVolume =	ini_read_real(SECTION_AUDIO, "ambience_volume",	0.9);
 		uiVolume =			ini_read_real(SECTION_AUDIO, "ui_volume", 0.65);
 		
-		// Reading in and applying all player input bindings for the keyboard. If no values exists, the defaults
-		// at the end of each line will be what is set to the input's space in the "inputBindings" buffer.
+		// Reading in and applying all player input bindings for the keyboard. If no values exists, the 
+		// defaults at the end of each line will be what is set to the input's space in the "inputBindings" 
+		// buffer.
 		buffer_poke(inputBindings, KEY_GAME_RIGHT, buffer_u16,		ini_read_real(SECTION_KEYBOARD, "game_right",		vk_right));
 		buffer_poke(inputBindings, KEY_GAME_LEFT, buffer_u16,		ini_read_real(SECTION_KEYBOARD,	"game_left",		vk_left));
 		buffer_poke(inputBindings, KEY_GAME_UP, buffer_u16,			ini_read_real(SECTION_KEYBOARD, "game_up",			vk_up));
@@ -374,8 +371,9 @@ function game_load_settings(){
 		buffer_poke(inputBindings, KEY_ADVANCE, buffer_u16,			ini_read_real(SECTION_KEYBOARD, "advance",			vk_z));
 		buffer_poke(inputBindings, KEY_LOG, buffer_u16,				ini_read_real(SECTION_KEYBOARD, "log",				vk_x));
 		
-		// Reading in and applying all player input bindings for the gamepad. If no values exists, the defaults
-		// at the end of each line will be what is set to the input's space in the "inputBindings" buffer.
+		// Reading in and applying all player input bindings for the gamepad. If no values exists, the 
+		// defaults at the end of each line will be what is set to the input's space in the "inputBindings" 
+		// buffer.
 		buffer_poke(inputBindings, PAD_GAME_RIGHT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_right",		gp_padr));
 		buffer_poke(inputBindings, PAD_GAME_LEFT, buffer_u16,		ini_read_real(SECTION_GAMEPAD, "game_left",			gp_padl));
 		buffer_poke(inputBindings, PAD_GAME_UP, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "game_up",			gp_padu));
@@ -404,94 +402,231 @@ function game_load_settings(){
 		buffer_poke(inputBindings, PAD_ADVANCE, buffer_u16,			ini_read_real(SECTION_GAMEPAD, "advance",			gp_face1));
 		buffer_poke(inputBindings, PAD_LOG, buffer_u16,				ini_read_real(SECTION_GAMEPAD, "log",				gp_face3));
 		
-		// 
+		// Loading in all the gamepad settings that aren't input constants stored in the input buffer
+		// or flags that are all loaded in at the top of this function.
 		vibrationIntensity =	ini_read_real(SECTION_GAMEPAD, "vibrate_intensity", 0.5);
 		stickDeadzone =			ini_read_real(SECTION_GAMEPAD, "stick_deadzone",	0.25);
 		triggerThreshold =		ini_read_real(SECTION_GAMEPAD, "trigger_threshold", 0.15);
 		
-		// 
+		// Loading in the accessibility settings that aren't bit flags; storing them into the variables
+		// that are responsible for said values during the game's runtime.
 		textSpeed =				ini_read_real(SECTION_ACCESSIBILITY, "text_speed",	0.75);
 		
 		ini_close();
 	}
+	
+	// 
+	camera_initialize(0, 0, game_get_aspect_ratio_width(ASPECT_RATIO), game_get_aspect_ratio_height(ASPECT_RATIO), RESOLUTION_SCALE);
 }
 
-/// @description 
+/// @description Saves the current configuration for the game's settings to the "settings.ini" file
+/// stored in the game's appdata folder (This is the default destination for GameMaker when files are
+/// created through code).
 function game_save_settings(){
 	with(GAME_SETTINGS){
-		// 
+		// First, the file has to be opened so the settings can be written to it. If this file doesn't
+		// current exist, it will automatically be created by this function being called and then an
+		// "ini_write_*" function being used before the ini reader is closed.
 		ini_open("settings.ini");
 		
-		// 
-		ini_write_real(SECTION_VIDEO, "resolution_scale",		resolutionScale);
-		ini_write_real(SECTION_VIDEO, "aspect_ratio",			aspectRatio);
-		ini_write_real(SECTION_VIDEO, "fullscreen",				(settingFlags & (1 << FULL_SCREEN)) != 0);
-		ini_write_real(SECTION_VIDEO, "vsync",					(settingFlags & (1 << VERTICAL_SYNC)) != 0);
-		ini_write_real(SECTION_VIDEO, "gamma",					gamma);
-		ini_write_real(SECTION_VIDEO, "bloom",					(settingFlags & (1 << BLOOM_EFFECT)) != 0);
-		ini_write_real(SECTION_VIDEO, "chromatic_aberration",	(settingFlags & (1 << ABERRATION_EFFECT)) != 0);
-		ini_write_real(SECTION_VIDEO, "film_grain",				(settingFlags & (1 << FILM_GRAIN_FILTER)) != 0);
-		ini_write_real(SECTION_VIDEO, "scanlines",				(settingFlags & (1 << SCANLINE_FILTER)) != 0);
+		// The video settings are stored first in the section fittingly titled "[VIDEO]". Each non-flag
+		// value is stored as the number that they are currently set to, and flags will be stored as 0s
+		// or 1s depending on what the bitwise ANDing of the desire bits returns.
+		ini_write_real(SECTION_VIDEO, "resolution_scale",			resolutionScale);
+		ini_write_real(SECTION_VIDEO, "aspect_ratio",				aspectRatio);
+		ini_write_real(SECTION_VIDEO, "fullscreen",					(settingFlags & (1 << FULL_SCREEN)));
+		ini_write_real(SECTION_VIDEO, "vsync",						(settingFlags & (1 << VERTICAL_SYNC)));
+		ini_write_real(SECTION_VIDEO, "gamma",						gamma);
+		ini_write_real(SECTION_VIDEO, "bloom",						(settingFlags & (1 << BLOOM_EFFECT)));
+		ini_write_real(SECTION_VIDEO, "chromatic_aberration",		(settingFlags & (1 << ABERRATION_EFFECT)));
+		ini_write_real(SECTION_VIDEO, "film_grain",					(settingFlags & (1 << FILM_GRAIN_FILTER)));
+		ini_write_real(SECTION_VIDEO, "scanlines",					(settingFlags & (1 << SCANLINE_FILTER)));
 		
-		// 
-		ini_write_real(SECTION_AUDIO, "global_volume",			globalVolume);
-		ini_write_real(SECTION_AUDIO, "music_volume",			musicVolume);
-		ini_write_real(SECTION_AUDIO, "play_music",				(settingFlags & (1 << PLAY_MUSIC)) != 0);
-		ini_write_real(SECTION_AUDIO, "game_volume",			gameVolume);
-		ini_write_real(SECTION_AUDIO, "ui_volume",				uiVolume);
+		// The audio settings come next; each non-flag value will be stored as a decimal between 0 and 1 
+		// determining the percentage value for the given volume group before the global volume is taken 
+		// into account.
+		ini_write_real(SECTION_AUDIO, "global_volume",				globalVolume);
+		ini_write_real(SECTION_AUDIO, "music_volume",				musicVolume);
+		ini_write_real(SECTION_AUDIO, "play_music",					settingFlags & (1 << PLAY_MUSIC));
+		ini_write_real(SECTION_AUDIO, "sound_volume",				soundVolume);
+		ini_write_real(SECTION_AUDIO, "footstep_volume",			footstepVolume);
+		ini_write_real(SECTION_AUDIO, "ambience_volume",			ambienceVolume);
+		ini_write_real(SECTION_AUDIO, "ui_volume",					uiVolume);
 		
-		// 
-		ini_write_real(SECTION_KEYBOARD, "game_right",			buffer_peek(inputBindings, KEY_GAME_RIGHT, buffer_u16));
-		ini_write_real(SECTION_KEYBOARD, "game_left",			buffer_peek(inputBindings, KEY_GAME_LEFT, buffer_u16));
-		ini_write_real(SECTION_KEYBOARD, "game_up",				buffer_peek(inputBindings, KEY_GAME_UP, buffer_u16));
-		ini_write_real(SECTION_KEYBOARD, "game_down",			buffer_peek(inputBindings, KEY_GAME_DOWN, buffer_u16));
-		ini_write_real(SECTION_KEYBOARD, "run",					buffer_peek(inputBindings, KEY_RUN, buffer_u16));
-		ini_write_real(SECTION_KEYBOARD, "interact",			buffer_peek(inputBindings, KEY_INTERACT, buffer_u16));
+		// Writes all of the keyboard constants used by the player in their input configuation for
+		// the game's various actions that can be triggered when the game allows it and the player
+		// presses/holds the necessary input(s).
+		ini_write_real(SECTION_KEYBOARD, "game_right",				buffer_peek(inputBindings, KEY_GAME_RIGHT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "game_left",				buffer_peek(inputBindings, KEY_GAME_LEFT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "game_up",					buffer_peek(inputBindings, KEY_GAME_UP, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "game_down",				buffer_peek(inputBindings, KEY_GAME_DOWN, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "run",						buffer_peek(inputBindings, KEY_RUN, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "interact",				buffer_peek(inputBindings, KEY_INTERACT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "ready_weapon",			buffer_peek(inputBindings, KEY_READY_WEAPON, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "use_weapon",				buffer_peek(inputBindings, KEY_USE_WEAPON, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "ammo_swap",				buffer_peek(inputBindings, KEY_AMMO_SWAP, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "reload",					buffer_peek(inputBindings, KEY_RELOAD, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "flashlight",				buffer_peek(inputBindings, KEY_FLASHLIGHT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "light_swap",				buffer_peek(inputBindings, KEY_LIGHT_SWAP, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "items",					buffer_peek(inputBindings, KEY_ITEMS, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "notes",					buffer_peek(inputBindings, KEY_NOTES, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "maps",					buffer_peek(inputBindings, KEY_MAPS, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "pause",					buffer_peek(inputBindings, KEY_PAUSE, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "menu_right",				buffer_peek(inputBindings, KEY_MENU_RIGHT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "menu_left",				buffer_peek(inputBindings, KEY_MENU_LEFT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "menu_up",					buffer_peek(inputBindings, KEY_MENU_UP, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "menu_down",				buffer_peek(inputBindings, KEY_MENU_DOWN, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "aux_menu_right",			buffer_peek(inputBindings, KEY_AUX_MENU_RIGHT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "aux_menu_left",			buffer_peek(inputBindings, KEY_AUX_MENU_LEFT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "select",					buffer_peek(inputBindings, KEY_SELECT, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "return",					buffer_peek(inputBindings, KEY_RETURN, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "file_delete",				buffer_peek(inputBindings, KEY_FILE_DELETE, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "advance",					buffer_peek(inputBindings, KEY_ADVANCE, buffer_u16));
+		ini_write_real(SECTION_KEYBOARD, "log",						buffer_peek(inputBindings, KEY_LOG, buffer_u16));
 		
+		// Just like above, the player's input configuration is stored into the ini file. However,
+		// this is for the gamepad input configuration and the above code is for the default input
+		// method (The keyboard) configuration.
+		ini_write_real(SECTION_GAMEPAD, "game_right",				buffer_peek(inputBindings, PAD_GAME_RIGHT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "game_left",				buffer_peek(inputBindings, PAD_GAME_LEFT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "game_up",					buffer_peek(inputBindings, PAD_GAME_UP, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "game_down",				buffer_peek(inputBindings, PAD_GAME_DOWN, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "run",						buffer_peek(inputBindings, PAD_RUN, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "interact",					buffer_peek(inputBindings, PAD_INTERACT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "ready_weapon",				buffer_peek(inputBindings, PAD_READY_WEAPON, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "use_weapon",				buffer_peek(inputBindings, PAD_USE_WEAPON, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "ammo_swap",				buffer_peek(inputBindings, PAD_AMMO_SWAP, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "reload",					buffer_peek(inputBindings, PAD_RELOAD, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "flashlight",				buffer_peek(inputBindings, PAD_FLASHLIGHT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "light_swap",				buffer_peek(inputBindings, PAD_LIGHT_SWAP, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "items",					buffer_peek(inputBindings, PAD_ITEMS, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "notes",					buffer_peek(inputBindings, PAD_NOTES, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "maps",						buffer_peek(inputBindings, PAD_MAPS, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "pause",					buffer_peek(inputBindings, PAD_PAUSE, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "menu_right",				buffer_peek(inputBindings, PAD_MENU_RIGHT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "menu_left",				buffer_peek(inputBindings, PAD_MENU_LEFT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "menu_up",					buffer_peek(inputBindings, PAD_MENU_UP, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "menu_down",				buffer_peek(inputBindings, PAD_MENU_DOWN, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "aux_menu_right",			buffer_peek(inputBindings, PAD_AUX_MENU_RIGHT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "aux_menu_left",			buffer_peek(inputBindings, PAD_AUX_MENU_LEFT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "select",					buffer_peek(inputBindings, PAD_SELECT, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "return",					buffer_peek(inputBindings, PAD_RETURN, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "file_delete",				buffer_peek(inputBindings, PAD_FILE_DELETE, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "advance",					buffer_peek(inputBindings, PAD_ADVANCE, buffer_u16));
+		ini_write_real(SECTION_GAMEPAD, "log",						buffer_peek(inputBindings, PAD_LOG, buffer_u16));
 		
-		/*
-
-		(ini_read_real(SECTION_ACCESSIBILITY, "objective_hints", 0) <<	OBJECTIVE_HINTS) |
-		(ini_read_real(SECTION_ACCESSIBILITY, "item_highlights", 0) <<	ITEM_HIGHLIGHTING) |
-		(ini_read_real(SECTION_ACCESSIBILITY, "interact_prompts", 1) <<	INTERACTION_PROMPTS) |
-		(ini_read_real(SECTION_ACCESSIBILITY, "is_run_toggle", 0) <<	IS_RUN_TOGGLE) |
-		(ini_read_real(SECTION_ACCESSIBILITY, "is_aim_toggle", 0) <<	IS_AIM_TOGGLE) |
-		(ini_read_real(SECTION_ACCESSIBILITY, "swap_movement", 0) <<	SWAP_MOVEMENT_STICK);
+		// Saving the gamepad settings that aren't input constants; the vibration strength, stick 
+		// deadzone region, and trigger threshold for input activation, respectively.
+		ini_write_real(SECTION_GAMEPAD, "vibrate_intensity",		vibrationIntensity);
+		ini_write_real(SECTION_GAMEPAD, "stick_deadzone",			stickDeadzone);
+		ini_write_real(SECTION_GAMEPAD, "trigger_threshold",		triggerThreshold);
 		
-		*/
+		// Finally, write all of the values for the accessibility settings in the game to the file.
+		ini_write_real(SECTION_ACCESSIBILITY, "text_speed",			textSpeed);
+		ini_write_real(SECTION_ACCESSIBILITY, "objective_hints",	(settingFlags & (1 << OBJECTIVE_HINTS)));
+		ini_write_real(SECTION_ACCESSIBILITY, "item_highlights",	(settingFlags & (1 << ITEM_HIGHLIGHTING)));
+		ini_write_real(SECTION_ACCESSIBILITY, "interact_prompt",	(settingFlags & (1 << INTERACTION_PROMPTS)));
+		ini_write_real(SECTION_ACCESSIBILITY, "is_run_toggle",		(settingFlags & (1 << IS_RUN_TOGGLE)));
+		ini_write_real(SECTION_ACCESSIBILITY, "is_aim_toggle",		(settingFlags & (1 << IS_AIM_TOGGLE)));
+		ini_write_real(SECTION_ACCESSIBILITY, "swap_movement",		(settingFlags & (1 << SWAP_MOVEMENT_STICK)));
 		
 		ini_close();
 	}
 }
 
-/// @description 
+/// @description Sets the desired bit in the "settingFlags" variable to the value (Either 0 or 1) determined 
+/// by the state of the "flagState" boolean (False = 0, True = any number >= 1). 
+/// @param {Real}	flagID
+/// @param {Real}	flagState
+function game_set_setting_flag(_flagID, _flagState){
+	with(GAME_SETTINGS){
+		if (_flagState)	{settingFlags = settingFlags | (_flagState << _flagID);}
+		else			{settingFlags = settingFlags & ~(1 << _flagID);}
+	}
+}
+
+/// @description Gets the value for the bit stored in the location specified by the value passed into 
+/// the "_flagID" argument space; returning a value of 1 for the setting being enabled, or a 0 for a
+/// setting that has been disabled by the player.
+/// @param {Real}	flagID
+function game_get_setting_flag(_flagID){
+	with(GAME_SETTINGS) {return (settingFlags & (1 << _flagID));}
+}
+
+/// @description Gets the value for the bit in the "difficultyFlags" variable at the posiiton specified 
+/// by the value given as an argument. If it's a 1, the flag for that difficulty setting is toggled to 
+/// be active. Otherwise, it should be a value of zero.
+/// @param {Real}	flagID
+function game_get_difficulty_flag(_flagID){
+	with(GAME_SETTINGS) {return (difficultyFlags & (1 << _flagID));}
+}
+
+/// @description Assigns a new keyboard/gamepad constant to the buffer that stores all the player's
+/// input bindings at an offset inside (Offset meaning the "_inputID" variable's value) the buffer.
 /// @param {Real}	inputID
 /// @param {Real}	inputConstant
 function game_set_input_binding(_inputID, _inputConstant){
-	with(GAME_SETTINGS) {set_input_binding(_inputID, _inputConstant);}
+	with(GAME_SETTINGS) {buffer_poke(inputBindings, _inputID, buffer_u16, _inputConstant);}
 }
 
-/// @description 
+/// @description Grabs the input constant that is stored within the buffer at the specified offset;
+/// that offset being the value provided for the "_inputID"'s value.
 /// @param {Real}	inputID
 function game_get_input_binding(_inputID){
-	with(GAME_SETTINGS) {return get_input_binding(_inputID);}
+	with(GAME_SETTINGS) {return buffer_peek(inputBindings, _inputID, buffer_u16);}
 }
 
-/// @description 
+/// @description Returns the width for the game's viewport for the currently active aspect ratio.
+/// This value is independent to the window's actual width, which is a combination of this and the
+/// current scale value when the game isn't in fullscreen mode.
+/// @param {Real}	arConstant
+function game_get_aspect_ratio_width(_arConstant){
+	switch(_arConstant){
+		default: // Undefined aspect ratios are considered 16:9 as a failsafe.
+		case AR_SIXTEEN_BY_NINE:	return 320;
+		case AR_SIXTEEN_BY_TEN:		return 320;
+		case AR_THREE_BY_TWO:		return 324;
+		case AR_SEVEN_BY_THREE:		return 420;
+	}
+}
+
+/// @description Returns the height for the game's viewport for the currently active aspect ratio.
+/// This value is independent to the window's actual height, which is a combination of this and the
+/// current scale value when the game isn't in fullscreen mode.
+/// @param {Real}	arConstant
+function game_get_aspect_ratio_height(_arConstant){
+	switch(_arConstant){
+		default: // Undefined aspect ratios are considered 16:9 as a failsafe.
+		case AR_SEVEN_BY_THREE:
+		case AR_SIXTEEN_BY_NINE:	return 180;
+		case AR_SIXTEEN_BY_TEN:		return 200;
+		case AR_THREE_BY_TWO:		return 216;
+	}
+}
+
+/// @description Gets the percentage value for the desired audio group. All audio groups besides the
+/// global volume level will be affected by the value of said global volume, and the music volume can
+/// be set to 0 if the player has disabled background music playback.
 /// @param {Real}	volumeGroup
 function game_get_group_volume(_volumeGroup){
 	with(GAME_SETTINGS){
 		switch(_volumeGroup){
 			case GLOBAL_VOLUME:		return globalVolume;
 			case MUSIC_VOLUME:		return (settingFlags & (1 << PLAY_MUSIC)) ? (globalVolume * musicVolume) : 0;
-			case GAME_VOLUME:		return (globalVolume * gameVolume);
+			case SOUND_VOLUME:		return (globalVolume * soundVolume);
+			case FOOTSTEP_VOLUME:	return (globalVolume * footstepVolume);
+			case AMBIENCE_VOLUME:	return (globalVolume * ambienceVolume);
 			case UI_VOLUME:			return (globalVolume * uiVolume);
 			default:				return 0;
 		}
 	}
 }
 
-/// @description 
+/// @description Sets up the "difficultyFlag" variable's necessary bits to reflect the combat difficulty
+/// that was set by the value stored in the "_difficultyFlag" argument space. It also clears any of the
+/// bits that go unused by that difficulty configuration to avoid features of one difficulty being used
+/// in another that it isn't supposed to (Ex. Limited saving being enabled on "Forgiving" and "Standard"
+/// difficulty because the bit wasn't cleared).
 /// @param {Real}	difficultyFlag
 function game_set_combat_difficulty(_difficultyFlag){
 	with(GAME_SETTINGS){
@@ -512,6 +647,8 @@ function game_set_combat_difficulty(_difficultyFlag){
 					(1 << CHECKPOINTS);
 				pDamageModifier = 1.4;	// Player given a 40% boost to their damage; enemies have their
 				eDamageModifier = 0.5;	// damage output cut in half.
+				minItemSlots = 10;
+				maxItemSlots = 24;		// (24 - 10) / 2 = 7 available inventory expansion pickups.
 				break;
 			case CDIFF_STANDARD:	// Flag states for the standard combat experience.
 				difficultyFlags = difficultyFlags &	// Compiles to "& ~31773"
@@ -529,6 +666,8 @@ function game_set_combat_difficulty(_difficultyFlag){
 					(1 << CHECKPOINTS);
 				pDamageModifier = 1.0;	// No modification to player or enemy damage numbers.
 				eDamageModifier = 1.0;
+				minItemSlots = 8;
+				maxItemSlots = 20;		// (20 - 12) / 2 = 6 available inventory expansion pickups.
 				break;
 			case CDIFF_PUNISHING:	// Flag states for the first difficulty above the standard configuration.
 				difficultyFlags = difficultyFlags & // Compiles to "& ~27675"
@@ -546,6 +685,8 @@ function game_set_combat_difficulty(_difficultyFlag){
 					(1 << CHECKPOINTS);
 				pDamageModifier = 0.8;	// Player reveives a 20% cut to their damage output; enemies
 				eDamageModifier = 1.2;	// see an increase in damage output of 20%.
+				minItemSlots = 8;
+				maxItemSlots = 16;		// (16 - 8) / 2 = 4 available inventory expansion pickups.
 				break;
 			case CDIFF_NIGHTMARE:	// Flag states for the second difficulty above the standard configuration.
 				difficultyFlags = difficultyFlags &	// Compiles to "& ~52253"
@@ -563,6 +704,8 @@ function game_set_combat_difficulty(_difficultyFlag){
 					(1 << ITEMS_HAVE_DURABILITY);
 				pDamageModifier = 0.7;	// Player takes a 30% cut in damage output; enemies see a damage
 				eDamageModifier = 1.4;	// output increase of 40%.
+				minItemSlots = 6;
+				maxItemSlots = 12;		// (12 - 6) / 2 = 3 available inventory expansion pickups.
 				break;
 			case CDIFF_ONELIFEMODE:	// Flag states for the final difficulty above the standard configuration.
 				difficultyFlags = difficultyFlags & // Compiles to "& ~39951"
@@ -578,14 +721,19 @@ function game_set_combat_difficulty(_difficultyFlag){
 					(1 << CDIFF_ONELIFEMODE) |		// Setting required bits for difficulty configuration.
 					(1 << ITEMS_HAVE_DURABILITY) |
 					(1 << ONE_LIFE_MODE);
-				pDamageModifier = 0.6;
-				eDamageModifier = 1.6;
+				pDamageModifier = 0.6;	// Player takes a 40% cut in overall damage output; enemies see a
+				eDamageModifier = 1.6;	// 60% boost in their damage to the player.
+				minItemSlots = 4;
+				maxItemSlots = 10;		// (10 - 4) / 2 = 3 available inventory expansion pickups.
 				break;
 		}
 	}
 }
 
-/// @description 
+/// @description Much like the above function, this will apply various difficulty flag configurations to
+/// the "difficultyFlags" variable; clearing unused bits for a given difficulty configuration when required. 
+/// However, unlike the combat difficulty setting function, these flags all relate to the difficulty of the 
+/// various puzzles found throughout the game that impede player progress until they're solved.
 /// @param puzzleDifficulty
 function game_set_puzzle_difficulty(_difficultyFlag){
 	with(GAME_SETTINGS){
@@ -615,20 +763,6 @@ function game_set_puzzle_difficulty(_difficultyFlag){
 					(1 << PDIFF_PUNISHING);			// Setting required bits for difficulty configuration.
 		}
 	}
-}
-
-/// @description 
-/// @param {Real}	difficultyFlag
-function game_check_combat_difficulty(_difficultyFlag){
-	if (_difficultyFlag < 0 || _difficultyFlag > CDIFF_ONELIFEMODE) {return false;}
-	with(GAME_SETTINGS) {return (difficultyFlags & (1 << _difficultyFlag) != 0);}
-}
-
-/// @description 
-/// @param {Real}	difficultyFlag
-function game_check_puzzle_difficulty(_difficultyFlag){
-	if (_difficultyFlag < PDIFF_FORGIVING || _difficultyFlag > PDIFF_PUNISHING) {return false;}
-	with(GAME_SETTINGS) {return (difficultyFlags & (1 << _difficultyFlag) != 0);}
 }
 
 #endregion

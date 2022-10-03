@@ -44,11 +44,12 @@
 
 #region The main object code for obj_weather_rain
 
-/// @description isLightningEnabled
+/// @param {Bool} isLightningEnabled
 function obj_weather_rain(_isLightningEnabled) constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_weather_rain;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = WEATHER_RAIN_ID;
 	
 	// A flag that determines if the lightning effect will be active alongside the standard rain effect.
 	// This is determined by if the weather calls for lightning AND if the user has the accessibility setting
@@ -136,8 +137,8 @@ function obj_weather_rain(_isLightningEnabled) constructor{
 		var _cameraX, _cameraY, _cameraWidth, _cameraHeight, _deltaTime;
 		_cameraX = CAMERA.x;
 		_cameraY = CAMERA.y;
-		_cameraWidth = CAM_WIDTH;
-		_cameraHeight = CAM_HEIGHT;
+		_cameraWidth = camera_get_width();
+		_cameraHeight = camera_get_height();
 		_deltaTime = DELTA_TIME;
 		
 		// Loop through all of the currently existing raindrop instances, updating their positions; each x
@@ -357,8 +358,8 @@ function obj_weather_rain(_isLightningEnabled) constructor{
 		// Add the sound that will loop for the duration of the rain weather effect into memory and then
 		// begin its playing; starting the volume at zero until the code elsewhere would fade it in along
 		// with the animation or skipping of the animation, respectively.
-		ds_map_add(soundData, "rain", load_external_sound_wav("sounds/rain/rain_loop.wav", 32000, audio_stereo));
-		rainSound = audio_play_sound_ext(soundData[? "rain"][AUDIO_DATA], 1000, 0, 1, true, true);
+		ds_map_add(soundData, "rain", audio_load_sound_wav("sounds/rain/rain_loop", "rain", 32000, audio_stereo));
+		rainSound = audio_play_sound_ext(soundData[? "rain"].audioBuffer, 0, 1, 1000, true);
 		
 		// Since all of the files used for the different thunder sounds all share the same template for
 		// their naming scheme, sample rate, and audio channel settings; they will be added in a loop to 
@@ -366,7 +367,7 @@ function obj_weather_rain(_isLightningEnabled) constructor{
 		var _string; // Created outside of the loop since it will be used in it.
 		for (var i = 1; i < 6; i++){ // There are a total of five different sound effects for the thunder, so loop five times.
 			_string = "thunder_" + string(i);
-			ds_map_add(soundData, _string, load_external_sound_wav("sounds/rain/" + _string + ".wav", 32000, audio_mono));
+			ds_map_add(soundData, _string, audio_load_sound_wav("sounds/rain/" + _string, _string, 32000, audio_mono));
 		}
 	}
 	
@@ -376,10 +377,10 @@ function obj_weather_rain(_isLightningEnabled) constructor{
 	initialize_raindrop = function(){
 		var _startY = CAMERA.y - RAIN_Y_START_OFFSET;
 		ds_list_add(raindrops, {
-			x :			CAMERA.x + irandom_range(2, CAM_WIDTH - 2),
+			x :			CAMERA.x + irandom_range(2, camera_get_width() - 2),
 			y :			_startY, // All raindrops will initially spawn at the same Y offset.
 			fractionY : 0, // Prevents fractional vertical position values.
-			targetY :	_startY + irandom_range(32, CAM_HEIGHT + 64),
+			targetY :	_startY + irandom_range(32, camera_get_height() + 64),
 			vspd :		4 + random(1.25), // Makes each raindrop have a slightly offset vertical velocity.
 			alpha :		random_range(0.5, 1),
 		});
@@ -398,8 +399,8 @@ function obj_weather_rain(_isLightningEnabled) constructor{
 /// the starting animation that slowly adds more and more raindrops as the sound for the rain smoothly fades
 /// in can be skipped if an area already has rain, for example. Otherwise, the starting animation will play 
 /// out as it normally does.
-/// @param skipStartingAnimation
-/// @param enableLightning
+/// @param {Bool}	skipStartingAnimation
+/// @param {Bool}	enableLightning
 function effect_create_weather_rain(_skipStartingAnimation, _enableLightning){
 	if (WEATHER_RAIN == noone){
 		WEATHER_RAIN = new obj_weather_rain(_enableLightning);
@@ -423,7 +424,7 @@ function effect_create_weather_rain(_skipStartingAnimation, _enableLightning){
 /// Optionally, the ending animation can be skipped over; having this struct clean itself up and delete
 /// itself simply when the rain sound fully fades out. (The fade out being shorter when the animation is
 /// skipped over)
-/// @param skipEndingAnimation
+/// @param {Bool}	skipEndingAnimation
 function effect_end_weather_rain(_skipEndingAnimation){
 	with(WEATHER_RAIN){
 		audio_sound_gain(rainSound, 0, 3500 - (3000 * _skipEndingAnimation));

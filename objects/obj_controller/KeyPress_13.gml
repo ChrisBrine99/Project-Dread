@@ -7,7 +7,17 @@
 
 //show_debug_message(CAM_HEIGHT);
 
-textbox_add_text("Do you think... God stays in heaven because he, too, lives in fear of what he's created?", 1, 1, Actor.Claire, 3);
+/*var _volume = GET_SOUND_VOLUME * random_range(0.85, 1);
+var _pitch = random_range(0.97, 1.03);
+audio_play_sound_ext(snd_player_hurt1, _volume, _pitch);
+audio_sound_set_pitch_target(_pitch + choose(0.25, -0.25), 0.005);
+audio_sound_apply_echo(7, 8, 0.65);*/
+
+audio_load_sound_wav("sounds/smw_jump", "Test", 22050, audio_mono);
+audio_play_sound_ext(global.soundData[? "Test"].audioBuffer, GET_SOUND_VOLUME, 1);
+audio_sound_apply_echo(5, 5, 0.75);
+
+/*textbox_add_text("Do you think... God stays in heaven because he, too, lives in fear of what he's created?", 1, 1, Actor.Claire, 3);
 textbox_add_player_choice("Yeah, I'd say so.", 1);
 textbox_add_player_choice("No, God loves his creations!", 2);
 textbox_add_player_choice("Is God even real?", 4);

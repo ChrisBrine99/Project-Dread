@@ -22,9 +22,10 @@ global.entities = ds_grid_create(2, 0);
 #region The main object code for obj_depth_sorter
 
 function obj_depth_sorter() constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_depth_sorter;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = DEPTH_SORTER_ID;
 	
 	// Stores the total number of entities that exist within the current room. In short, its simply the size
 	// of the ds_grid that is used to sort the entities based on their y/z positions in the room.

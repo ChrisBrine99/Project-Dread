@@ -45,9 +45,10 @@ global.musicData = encrypted_json_load("music_data.json", "");
 #region The main object code for obj_music_handler
 
 function obj_music_handler() constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_music_handler;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = MUSIC_HANDLER_ID;
 	
 	// A struct that contains all the information about the background music that is currently playing. It
 	// stores the audio index given to the song when it's played by the built-in function "audio_play_sound".
@@ -128,7 +129,7 @@ function obj_music_handler() constructor{
 					// So, the ID stored in "song" is placed within the loop buffer variable, which is then
 					// faded out.
 					loopBuffer = song;
-					audio_sound_gain(loopBuffer, 0, LOOP_CROSSFADE_LENGTH + 25);
+					audio_sound_gain(loopBuffer, 0, LOOP_CROSSFADE_LENGTH);
 				
 					// All the while the loop buffer ID is set to begin fading out, the new loop for the song
 					// is created; with its volume faded into audibility.

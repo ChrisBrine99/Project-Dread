@@ -22,9 +22,10 @@
 #region The main object code for obj_weather_fog
 
 function obj_weather_fog() constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_weather_fog;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = WEATHER_FOG_ID;
 	
 	// Create the array that is responsible for storing and managing all of the fog layer data structs in
 	// the effect itself. They will simply store the position, movement velocities, scaling, and alpha level
@@ -163,7 +164,7 @@ function obj_weather_fog() constructor{
 /// Optionally, the starting animation can be skipped in order to have all the layers at their full 
 /// visibility insntantly with no starting animation having them all slowly fade in from nothing. Useful 
 /// for transitions between indoor and outdoor areas that already have the fog effect active, for example.
-/// @param skipStartingAnimation
+/// @param {Bool}	skipStartingAnimation
 function effect_create_weather_fog(_skipStartingAnimation){
 	if (WEATHER_FOG == noone){
 		WEATHER_FOG = new obj_weather_fog();
@@ -183,7 +184,7 @@ function effect_create_weather_fog(_skipStartingAnimation){
 /// the effect. Depending on the "_playEndingAnimation" flag's value, the struct will either be set up to
 /// begin executing its closing animation, or it will simply be cleaned up and deleted instantly; skipping
 /// said animation in its entirety. (Useful for transitioning between outdoor and indoor areas)
-/// @param skipEndingAnimation
+/// @param {Bool}	skipEndingAnimation
 function effect_end_weather_fog(_skipEndingAnimation){
 	with(WEATHER_FOG){
 		if (!_skipEndingAnimation){

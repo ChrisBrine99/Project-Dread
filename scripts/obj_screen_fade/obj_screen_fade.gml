@@ -20,13 +20,14 @@
 
 #region The main object code for obj_screen_fade
 
-/// @param fadeColor
-/// @param fadeSpeed
-/// @param fadeDuration
+/// @param {Id.Color}	fadeColor
+/// @param {Real}		fadeSpeed
+/// @param {Real}		fadeDuration
 function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_depth_sorter;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = SCREEN_FADE_ID;
 	
 	// The main variables that effect how the fade looks on the screen when it's executing its effect. The
 	// first value will determine the color of the fade, the second will determine how fast the fade will
@@ -55,7 +56,7 @@ function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
 			fadeDuration -= DELTA_TIME;
 			if (fadeDuration <= 0) {alphaTarget = 0;}
 		} else if (alpha == 0 && alphaTarget == 0){ // The fade has completed; clear its pointer from the singleton map.
-			if (GAME_STATE_CURRENT == GameState.Paused) {GAME_SET_STATE(GAME_STATE_PREVIOUS, true);}
+			if (GAME_STATE_CURRENT == GameState.Paused) {game_set_state(GAME_PREVIOUS_STATE, true);}
 			delete SCREEN_FADE;
 			SCREEN_FADE = noone;
 		}
@@ -69,9 +70,9 @@ function obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration) constructor{
 /// @description Creates an instance of the screen fade effect struct that will perform its fading effect
 /// into the color provided, at the speed supplied for fading it in and out of visibility, while remaining
 /// fully opaque for the duration in "frames" (1/60th of a real-world second) provided by the function.
-/// @param fadeColor
-/// @param fadeSpeed
-/// @param fadeDuration
+/// @param {Id.Color}	fadeColor
+/// @param {Real}		fadeSpeed
+/// @param {Real}		fadeDuration
 function effect_create_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration){
 	// If another screen fade struct currently exists within the singleton variable for managing any insatnces
 	// of this effect, this function will simply exit before creating another insatnce of said struct.
@@ -81,7 +82,7 @@ function effect_create_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration){
 	// arguments values for this function; storing its unique pointer in the singleton management variable.
 	// The game state will be set to "Paused" for the duration of the screen fade.
 	SCREEN_FADE = new obj_screen_fade(_fadeColor, _fadeSpeed, _fadeDuration);
-	if (GAME_STATE_CURRENT != GameState.Cutscene) {GAME_SET_STATE(GameState.Paused, true);}
+	if (GAME_CURRENT_STATE != GameState.Cutscene) {game_set_state(GameState.Paused);}
 }
 
 #endregion

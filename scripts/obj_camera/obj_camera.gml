@@ -2,18 +2,6 @@
 
 #region	Initializing any macros that are useful/related to obj_camera
 
-// Constants for the game's camera dimensions (Not the actual application window's dimensions) that determine
-// the true resolution. There are three valid aspect ratios for the user to choose from, and the values for
-// the width and height cooresponding to each are found here.
-#macro	WIDTH_SIXTEEN_BY_NINE		320		// 16:9 aspect
-#macro	HEIGHT_SIXTEEN_BY_NINE		180
-#macro	WIDTH_SIXTEEN_BY_TEN		320		// 16:10 aspect
-#macro	HEIGHT_SIXTEEN_BY_TEN		200
-#macro	WIDTH_TWENTYONE_BY_NINE		420		// 21:9 aspect (USUSED DUE TO BUG)
-#macro	HEIGHT_TWENTYONE_BY_NINE	180
-#macro	WIDTH_THREE_BY_TWO			324		// 3:2 aspect
-#macro	HEIGHT_THREE_BY_TWO			216
-
 // Constants that store the key values for each camera function represented in the global.cameraStates
 // map. This will prevent any accidental typos when referencing said keys.
 #macro	KEY_FOLLOW_OBJECT			"follow_object"
@@ -33,16 +21,6 @@
 #endregion
 
 #region Initializing enumerators that are useful/related to obj_camera
-
-/// @description A simple enumerator that stores each of the game's support aspect ratios as an index. In 
-/// order they are 16:9 (0), 16:10 (1), 21:9 (2), and 3:2 (3).
-enum AspectRatio{
-	SixteenByNine,
-	SixteenByTen,
-	TwentyOneByNine,
-	ThreeByTwo,
-}
-
 #endregion
 
 #region Initializing any globals that are useful/related to obj_camera
@@ -61,9 +39,10 @@ function obj_camera() constructor{
 	x = 0;
 	y = 0;
 	
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_camera;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = CAMERA_ID;
 	
 	// 
 	cameraID = camera_create();
@@ -71,8 +50,6 @@ function obj_camera() constructor{
 	// 
 	curWidth = 0;
 	curHeight = 0;
-	halfWidth = 0;
-	halfHeight = 0;
 	
 	// This pair of variables store the fractional values for the camera's movement on both the x-axis and
 	// y-axis, respectively. When a whole number can be parsed from either of the values, they will be added
@@ -138,48 +115,6 @@ function obj_camera() constructor{
 		cameraID = undefined;
 	}
 	
-	/// @description 
-	/// @param {Real}	x
-	/// @param {Real}	y
-	/// @param {Real}	width
-	/// @param {Real}	height
-	/// @param {Real}	scale
-	camera_initialize = function(_x, _y, _width, _height, _scale){
-		// 
-		x = _x;
-		y = _y;
-		curWidth = _width;
-		curHeight = _height;
-		halfWidth = (_width / 2);
-		halfHeight = (_height / 2);
-		
-		// 
-		camera_set_view_size(cameraID, _width, _height);
-		camera_set_view_pos(cameraID, _x, _y);
-		
-		// 
-		surface_resize(application_surface, _width, _height);
-		display_set_gui_size(_width, _height);
-		
-		// 
-		window_initialize(_width * _scale, _height * _scale);
-		
-		// 
-		with(EFFECT_HANDLER){
-			windowTexelWidth = 1 / _width;
-			windowTexelHeight = 1 / _height;
-		}
-	}
-	
-	/// @description 
-	/// @param {Real}	width
-	/// @param {Real}	height
-	window_initialize = function(_width, _height){
-		var _maxScale = floor(min(display_get_width() / curWidth, display_get_height() / curHeight));
-		window_set_size(clamp(_width, curWidth, curWidth * _maxScale), clamp(_height, curHeight, curHeight * _maxScale));
-		window_set_position(floor((display_get_width() - _width) / 2),  floor((display_get_height() - _height) / 2));
-	}
-	
 	/// @description Updates the camera's position based on how many pixels it's been set to move for the
 	/// given "frame" of game physics' speed. (60 = 1 second of real-time) On top of that, it prevents the
 	/// camera's position from being a non-integer value, which would cause the pixels to be rendered in
@@ -210,8 +145,8 @@ function obj_camera() constructor{
 		// as well--make sure this is true by clamping whatever the x and y values plus their delta values
 		// would be to the room's valid range of possible camera coordinates.
 		if (lockViewBounds){
-			x = clamp(x + _hspdDelta, 0, room_width - CAM_WIDTH);
-			y = clamp(y + _vspdDelta, 0, room_width - CAM_HEIGHT);
+			x = clamp(x + _hspdDelta, 0, room_width - curWidth);
+			y = clamp(y + _vspdDelta, 0, room_width - curHeight);
 		} else{
 			x += _hspdDelta;
 			y += _vspdDelta;
@@ -235,7 +170,8 @@ function obj_camera() constructor{
 		// current coordinates to see if movement needs to occur. If there is no valid object for the given
 		// ID value, the target variables will remain undefined. This will prevent the function from performing
 		// any of its positioning calculations.
-		var _targetX, _targetY;
+		var _targetX = x;
+		var _targetY = y;
 		with(_objectID){
 			_targetX = x;
 			_targetY = y;
@@ -245,11 +181,17 @@ function obj_camera() constructor{
 		// an object's respective coordinates if it exists, and both are undefined otherwise.
 		if (is_undefined(_targetX)) {return;}
 		
+		// Calculate half the height and width of the camera's current dimensions and store them in two local
+		// variables so they can be referenced when said values are needed instead of performing the same
+		// division calculations multiple times throughout the function.
+		var _cameraHalfWidth = (curWidth / 2);
+		var _cameraHalfHeight = (curHeight / 2);
+		
 		// First, create two variables that store the camera's position within the room, but offset it by half
 		// the width and height in order to center to coordinate within the camera. This will then be used in
 		// tandem with the _deadzoneSize variable in order to see if movement should occur.
-		var _cameraX = x + CAM_HALF_WIDTH;
-		var _cameraY = y + CAM_HALF_HEIGHT;
+		var _cameraX = x + _cameraHalfWidth;
+		var _cameraY = y + _cameraHalfHeight;
 		
 		// Checking for horizontal movement; clamping the player to the edge of the deadzone for that 
 		// respective direction until they cease moving in said direction.
@@ -264,11 +206,11 @@ function obj_camera() constructor{
 		// object it is currently following has surpassed the deadzone range in the camera's center. After,
 		// make sure the camera doesn't exceed its bounds if the view is locked to only show the room's
 		// area. Finally, update the camera's view position and shake effect's new origin position.
-		x = _cameraX - CAM_HALF_WIDTH;
-		y = _cameraY - CAM_HALF_HEIGHT;
+		x = _cameraX - _cameraHalfWidth;
+		y = _cameraY - _cameraHalfHeight;
 		if (lockViewBounds){
-			x = clamp(x, 0, room_width - CAM_WIDTH);
-			y = clamp(y, 0, room_height - CAM_HEIGHT);
+			x = clamp(x, 0, room_width - curWidth);
+			y = clamp(y, 0, room_height - curHeight);
 		}
 		camera_set_view_pos(cameraID, x, y);
 		shakeData.originX = x;
@@ -285,8 +227,8 @@ function obj_camera() constructor{
 		// If the camera is set to lock its bounds within the valid values for the current room make sure 
 		// that the target values are clamped to said ranges for the X and Y axis, respectively.
 		if (lockViewBounds){
-			_targetX = clamp(_targetX, 0, room_width - CAM_WIDTH);
-			_targetY = clamp(_targetY, 0, room_height - CAM_HEIGHT);
+			_targetX = clamp(_targetX, 0, room_width - curWidth);
+			_targetY = clamp(_targetY, 0, room_height - curHeight);
 		}
 		
 		// If the camera has reached its position OR it's about to reach its position, prevent the camera 
@@ -350,9 +292,11 @@ function obj_camera() constructor{
 		// by the object's position in the room, and the camera is moved to that position.
 		var _targetX = x;
 		var _targetY = y;
+		var _cameraHalfWidth = (curWidth / 2);
+		var _cameraHalfHeight = (curHeight / 2);
 		with(_objectID){
-			_targetX = x - CAM_HALF_WIDTH;
-			_targetY = y - CAM_HALF_HEIGHT;
+			_targetX = x - _cameraHalfWidth;
+			_targetY = y - _cameraHalfHeight;
 		}
 		
 		// Since this works identically to the "camera_move_to_position" function, take the target position
@@ -374,16 +318,17 @@ function obj_camera() constructor{
 	/// @param {Real}			moveSpeed
 	/// @param {Real}			nextFunction
 	/// @param {Array<Any>}		nextFunctionArgs
-	move_to_object_smooth = function(_objectID, _moveSpeed, _nextFunction = NO_STATE, _nextFunctionArgs = -1){
+	move_to_object_smooth = function(_objectID, _moveSpeed, _nextFunction = NO_STATE, _nextFunctionArgs = array_create(0)){
 		// This chunk of code works the exact same way as it does in the non-smooth variation of this camera
 		// state; taking the target variables and applying the followed object's coordinates only if it's a
 		// valid instance--otherwise, use the camera's coordinates instead.
-		var _targetX, _targetY;
-		_targetX = x;
-		_targetY = y;
+		var _targetX = x;
+		var _targetY = y;
+		var _cameraHalfWidth = (curWidth / 2);
+		var _cameraHalfHeight = (curHeight / 2);
 		with(_objectID){
-			_targetX = x - CAM_HALF_WIDTH;
-			_targetY = y - CAM_HALF_HEIGHT;
+			_targetX = x - _cameraHalfWidth;
+			_targetY = y - _cameraHalfHeight;
 		}
 		
 		// Call the default smooth movement position function to handle the movement and camera locking
@@ -410,78 +355,39 @@ function obj_camera() constructor{
 
 #region Global functions related to obj_camera
 
-/// @description Sets the camera's aspect ratio to one of the three possible ratios: 16:9, 16:10, and 21:9.
-/// After updating the width and height of the camera's viewport, the window is adjust to match as well.
-/// @param {Enum.AspectRatio}	aspectRatio
-function camera_set_aspect_ratio(_aspectRatio){
-	// First, jump into the camera dimensions struct in order to update the variables from within; changing
-	// them all to reflect the new aspect ratio if the one in the argument field is in face a new ratio.
-	with(global.cameraDimensions){
-		// If there supplied aspect ratio is identical to the current aspect ratio; don't change anything.
-		if (_aspectRatio == curAspectRatio) {return;}
-		
-		// Set the aspect ratio variable within the struct to the new aspect ratio.
-		curAspectRatio = _aspectRatio;
-		if (curAspectRatio == AspectRatio.TwentyOneByNine) {curAspectRatio = AspectRatio.ThreeByTwo;}
-		
-		// Search through the switch statement below and adjust the camera's width and height values to
-		// reflect the new aspect ratio. Then, update the dimension's of the camera viewport to reflect
-		// those new changes--along with the application surface and GUI dimensions.
-		switch(curAspectRatio){
-			case AspectRatio.SixteenByNine:
-				curWidth =		WIDTH_SIXTEEN_BY_NINE;
-				curHeight =		HEIGHT_SIXTEEN_BY_NINE;
-				break;
-			case AspectRatio.SixteenByTen:
-				curWidth =		WIDTH_SIXTEEN_BY_TEN;
-				curHeight =		HEIGHT_SIXTEEN_BY_TEN;
-				break;
-			case AspectRatio.TwentyOneByNine: // Unused due to a bug
-				curWidth =		WIDTH_TWENTYONE_BY_NINE;
-				curHeight =		HEIGHT_TWENTYONE_BY_NINE;
-				break;
-			case AspectRatio.ThreeByTwo:
-				curWidth =		WIDTH_THREE_BY_TWO;
-				curHeight =		HEIGHT_THREE_BY_TWO;
-				break;
+/// @description
+/// @param {Real}	x
+/// @param {Real}	y
+/// @param {Real}	width
+/// @param {Real}	height
+/// @param {Real}	scale
+function camera_initialize(_x, _y, _width, _height, _scale){
+	with(CAMERA){
+		// 
+		x = _x;
+		y = _y;
+		curWidth = _width;
+		curHeight = _height;
+	
+		// 
+		camera_set_view_size(cameraID, _width, _height);
+		camera_set_view_pos(cameraID, _x, _y);
+	
+		// 
+		surface_resize(application_surface, _width, _height);
+		display_set_gui_size(_width, _height);
+	
+		// 
+		var _maxScale = floor(min(display_get_width() / curWidth, display_get_height() / curHeight));
+		window_set_size(clamp(_width, curWidth * _scale, curWidth * _maxScale), clamp(_height, curHeight * _scale, curHeight * _maxScale));
+		window_set_position(floor((display_get_width() - _width) / 2),  floor((display_get_height() - _height) / 2));
+	
+		// 
+		with(EFFECT_HANDLER){
+			windowTexelWidth = 1 / _width;
+			windowTexelHeight = 1 / _height;
 		}
-		camera_set_view_size(CAMERA.cameraID, curWidth, curHeight);
-		surface_resize(application_surface, curWidth, curHeight);
-		display_set_gui_size(curWidth, curHeight);
-		
-		// Update the stored half width and height values before calculating the new aspect ratio's half 
-		// width and half height values. The stored previous values will be used further down in the function 
-		// to determine the offset that camera needs to move by to remained centered on what it's current 
-		// viewing.
-		var _prevHalfWidth = halfWidth;
-		var _prevHalfHeight = halfHeight;
-		halfWidth = (curWidth / 2);
-		halfHeight = (curHeight / 2);
-		
-		// Offset the position of the camera so that it remains centered on its view despite the new aspect
-		// ratio. After that, update the dimensions of the window viewport to reflect the new aspect ratio.
-		camera_set_position(CAMERA.x - (halfWidth - _prevHalfWidth), CAMERA.y - (halfHeight - _prevHalfHeight));
-		window_update_dimensions(curWidth * scale, curHeight * scale);
 	}
-	
-	// Make sure to update the values for the texel width and height of the window to match the newly set
-	// aspect ratio's resolution values. Otherwise, certain post-processing effects won't work properly.
-	with(EFFECT_HANDLER){
-		windowTexelWidth = 1 / CAM_WIDTH;
-		windowTexelHeight = 1 / CAM_HEIGHT;
-	}
-	
-	// Update the position of the textbox on the screen so that it remains centered. Otherwise, it'd be offset
-	// to the right side of the screen if the aspect ratio went from 16:9 or 16:10 to 21:9, or be offset to
-	// the left side of the screen if the change was the other way around.
-	with(TEXTBOX_HANDLER){
-		x = CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2);
-		y = TEXTBOX_TARGET_Y;
-	}
-	
-	// Re-calculate the position of the right-aligned control information, since it will not be anchored to
-	// that edge of the screen if the aspect ratio goes from 16x9 to 3x2, or vice versa.
-	with(CONTROL_INFO) {calculate_control_display_positions(ALIGNMENT_RIGHT);}
 }
 
 /// @description A simple function that will instantly snap the camera to a new position; based on a few
@@ -492,8 +398,8 @@ function camera_set_aspect_ratio(_aspectRatio){
 function camera_set_position(_x, _y){
 	with(CAMERA){
 		if (lockViewBounds){ // Clamp the x and y to remain within the room's dimensions.
-			x = clamp(floor(_x), 0, room_width - CAM_WIDTH);
-			y = clamp(floor(_y), 0, room_height - CAM_HEIGHT);
+			x = clamp(floor(_x), 0, room_width - curWidth);
+			y = clamp(floor(_y), 0, room_height - curHeight);
 		} else{ // The room's dimensions don't matter; set the positions with no changes.
 			x = floor(_x);
 			y = floor(_y);

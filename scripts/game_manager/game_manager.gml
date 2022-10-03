@@ -8,19 +8,22 @@
 // A macro to simplify the look of the code whenever the game manager struct needs to be referenced.
 #macro	GAME_MANAGER			global.gameManager
 
-// 
+// Macros that allow easy referencing of the game's current and previous states, respectively.
 #macro	GAME_CURRENT_STATE		global.gameManager.curState
 #macro	GAME_PREVIOUS_STATE		global.gameManager.lastState
 
-// 
+// The constant that will return the delta time value for the current frame to allow for proper 
+// frame-independent physics calculations and value incrementing/decrementing.
 #macro	DELTA_TIME				global.gameManager.deltaTime
 
-// 
+// Constants that represent each of the game's global states; the priority of said states being determined
+// by the highest value to the lowest value. This means "GSTATE_PAUSED" cannot be overwritten by another 
+// state through normal means.
 #macro	GSTATE_NONE				0
 #macro	GSTATE_NORMAL			1
 #macro	GSTATE_MENU				2
 #macro	GSTATE_CUTSCENE			3
-#macro	GAME_PAUSED				10
+#macro	GSTATE_PAUSED			10
 
 #endregion
 
@@ -33,20 +36,27 @@
 #region The main struct code for the game manager
 
 global.gameManager = {
-	// 
+	// Stores the values for the current and previous global states for the game, respectively.
 	curState :			GSTATE_NONE,
 	lastState :			GSTATE_NONE,
 	
-	// 
+	// The top variable will store the current value for delta timing to apply to all physics calculations
+	// for processing the current game frame, and the target FPS determines how many times a value in processed
+	// in a real-world section (Ex. Increasing a value by 2 every frame with a target FPS of 60 will result in
+	// the value increasing by 120 units every second).
 	deltaTime :			0,
 	targetFPS :			60,
 	
-	// 
+	// Variables that manage the game's current playtime; determined by instances where the "isTimerActive"
+	// flag is set to true. Otherwise, the in-game time will not be added to the overall playtime for however
+	// long the flag is false.
 	curPlaytime :		0,
 	playtimeMillis :	0.0,
 	isTimerActive :		false,
 	
-	/// @description 
+	/// @description A function borrowing the same name as the event that it will be called in within the
+	/// "obj_controller" object for the game. It will update the value of delta time for the new frame, and
+	/// will update the player's in-game playtime if the tracking flag is enabled.
 	begin_step : function(){
 		deltaTime = (delta_time / 1000000) * targetFPS;
 		
@@ -65,9 +75,10 @@ global.gameManager = {
 
 #region Global functions related to the game manager
 
-/// @description 
-/// @param {Real}	state			The new state value. If it is a lower value than the current state, no change will occur.
-/// @param {Bool}	highPriority	A value of "true" will overwrite the current state regardless of the new state's value.
+/// @description Assigns a new state to the entire game. This state will be used to determine the functionality
+/// of all objects, UI, play input capabilities, and so on.
+/// @param {Real}	state			The new state value. If it is a lower priority than the current state, no change will occur.
+/// @param {Bool}	highPriority	A value of "true" will overwrite the current state regardless of the new state's priority.
 function game_set_state(_state, _highPriority = false){
 	with(GAME_MANAGER){
 		if ((!_highPriority && _state > curState) || _highPriority){ 

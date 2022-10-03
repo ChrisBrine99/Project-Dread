@@ -47,6 +47,7 @@
     {"id":{"name":"obj_light_component","path":"scripts/obj_light_component/obj_light_component.yy",},"order":0,},
     {"id":{"name":"spr_fence_chain_4","path":"sprites/spr_fence_chain_4/spr_fence_chain_4.yy",},"order":3,},
     {"id":{"name":"spr_keyboard_icons_small","path":"sprites/spr_keyboard_icons_small/spr_keyboard_icons_small.yy",},"order":0,},
+    {"id":{"name":"snd_test","path":"sounds/snd_test/snd_test.yy",},"order":3,},
     {"id":{"name":"shd_shadow","path":"shaders/shd_shadow/shd_shadow.yy",},"order":0,},
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"order":0,},
     {"id":{"name":"obj_cutscene_trigger","path":"objects/obj_cutscene_trigger/obj_cutscene_trigger.yy",},"order":1,},
@@ -295,6 +296,9 @@
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"the_final_battle.ogg","CopyToMask":-1,"filePath":"datafiles/music",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"beelzebub.ogg","CopyToMask":-1,"filePath":"datafiles/music",},
     {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"item_data.json","CopyToMask":-1,"filePath":"datafiles",},
+    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"snd_player_hurt1_rvb.wav","CopyToMask":-1,"filePath":"datafiles/sounds/claire",},
+    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"smw_jump.wav","CopyToMask":-1,"filePath":"datafiles/sounds",},
+    {"resourceType":"GMIncludedFile","resourceVersion":"1.0","name":"smw_jump.wav.bak","CopyToMask":-1,"filePath":"datafiles/sounds",},
   ],
   "MetaData": {
     "IDEVersion": "2022.8.1.37",

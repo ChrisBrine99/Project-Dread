@@ -2,6 +2,22 @@
 
 #region Initializing any macros that are useful/related to obj_controller
 
+// Gives unique instance ID values to each of the singletons structs that exist within the game. They are all
+// valued starting at 90000 and ending at 99999 because the first instance created by GameMaker itself will
+// always have the value 100000, so placing the singleton structs ID values lower than this will avoid any
+// conflict between the systems.
+#macro	CAMERA_ID					90000
+#macro	MUSIC_HANDLER_ID			90001
+#macro	EFFECT_HANDLER_ID			90002
+#macro	CUTSCENE_MANAGER_ID			90003
+#macro	TEXTBOX_HANDLER_ID			90004
+#macro	DEPTH_SORTER_ID				90005
+#macro	CONTROL_INFO_ID				90006
+#macro	SCREEN_FADE_ID				90007
+#macro	WEATHER_RAIN_ID				90008
+#macro	WEATHER_FOG_ID				90009
+#macro	DEBUGGER_ID					99999
+
 // Constants that store the key values for the singleton instance ds_map that keeps track of all the required
 // objects like the camera, music/effect handlers, and even the player character itself.
 #macro	KEY_CAMERA					"camera"
@@ -76,18 +92,18 @@ global.menuInstances = ds_list_create();
 /// @param {Asset.GMObject}	object
 function get_singleton_object_key(_object){
 	switch(_object){
-		case obj_camera:			return KEY_CAMERA;
-		case obj_music_handler:		return KEY_MUSIC_HANDLER;
-		case obj_effect_handler:	return KEY_EFFECT_HANDLER;
-		case obj_cutscene_manager:	return KEY_CUTSCENE_MANAGER;
-		case obj_textbox_handler:	return KEY_TEXTBOX_HANDLER;
-		case obj_control_info:		return KEY_CONTROL_INFO;
-		case obj_screen_fade:		return KEY_SCREEN_FADE;
-		case obj_weather_rain:		return KEY_WEATHER_RAIN;
-		case obj_weather_fog:		return KEY_WEATHER_FOG;
+		case CAMERA_ID:				return KEY_CAMERA;
+		case MUSIC_HANDLER_ID:		return KEY_MUSIC_HANDLER;
+		case EFFECT_HANDLER_ID:		return KEY_EFFECT_HANDLER;
+		case CUTSCENE_MANAGER_ID:	return KEY_CUTSCENE_MANAGER;
+		case TEXTBOX_HANDLER_ID:	return KEY_TEXTBOX_HANDLER;
+		case CONTROL_INFO_ID:		return KEY_CONTROL_INFO;
+		case SCREEN_FADE_ID:		return KEY_SCREEN_FADE;
+		case WEATHER_RAIN_ID:		return KEY_WEATHER_RAIN;
+		case WEATHER_FOG_ID:		return KEY_WEATHER_FOG;
 		case obj_controller:		return KEY_CONTROLLER;
 		case obj_player:			return KEY_PLAYER;
-		case obj_debugger:			return KEY_DEBUGGER;	// FOR TESTING
+		case DEBUGGER_ID:			return KEY_DEBUGGER;	// FOR TESTING
 		default:					return undefined;
 	}
 }

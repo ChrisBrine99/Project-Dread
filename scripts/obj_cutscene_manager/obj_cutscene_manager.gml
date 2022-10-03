@@ -33,9 +33,10 @@
 #region	The main object code for obj_cutscene_manager
 
 function obj_cutscene_manager() constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_cutscene_manager;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = CUTSCENE_MANAGER_ID;
 	
 	// A simple flag that determines if the cutscene manager is currently executing a cutscene or not. The
 	// second variable stores the unique instance ID for the trigger that activated a given cutscene to 

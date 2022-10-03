@@ -1,4 +1,4 @@
-/// @description Insert summary of this file here.
+/// @description 
 
 #region Initializing any macros that are useful/related to the outline shader handler
 

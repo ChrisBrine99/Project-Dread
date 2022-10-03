@@ -22,7 +22,7 @@ function instance_create_struct(_struct){
 /// with the creation of the structs and prevention of singleton creation--it prevents the deletion of them.
 /// @param {Struct}		instanceID
 function instance_destroy_struct(_structID){
-	if (get_singleton_object_key(_structID.object_index) == undefined){
+	if (get_singleton_object_key(_structID.id) == undefined){
 		if (variable_struct_exists(_structID, "cleanup")) {_structID.cleanup();}
 		delete _structID; // Destroy the struct if it isn't a singleton
 	}
@@ -44,7 +44,7 @@ function instance_create_object(_x, _y, _object){
 /// @param {Id.Instance}	instanceID
 /// @param {Bool}			performEvents
 function instance_destroy_object(_objectID, _performEvents = true){
-	if (get_singleton_object_key(_objectID.object_index) == undefined){
+	if (get_singleton_object_key(_objectID.id) == undefined){
 		instance_destroy(_objectID, _performEvents);
 	}
 }
@@ -81,51 +81,6 @@ function place_meeting_3d(_x, _y, _z, _object){
 	// check) AND the fake z-axis. (This is done using the "rectangle_in_rectangle" check with both instance's
 	// z values and their heights along said axis) Both must be true for a collision to be true.
 	return (_xyMeeting && _zMeeting);
-}
-
-#endregion
-
-#region Audio playback functions with extended functionality
-
-/// @description A simple extension of the standard "audio_play_sound" function that allows the function to
-/// stop any previous instances of a given sound from playing before playing the new instance of it. Also, it
-/// is able to manipulate the volume and pitch of the sound on a per-instance basis.
-/// @param {Asset.GMSound}	sound
-/// @param {Real}			priority
-/// @param {Real}			volume
-/// @param {Real}			pitch
-/// @param {Bool}			stopPrevious
-/// @param {Bool}			loopSound
-function audio_play_sound_ext(_sound, _priority, _volume, _pitch, _stopPrevious = false, _loopSound = false){
-	if (_stopPrevious && audio_is_playing(_sound)) {audio_stop_sound(_sound);}
-	var _soundID = audio_play_sound(_sound, _priority, _loopSound);
-	audio_sound_gain(_soundID, _volume, 0);
-	audio_sound_pitch(_soundID, _pitch);
-	return _soundID; // Returns the unique ID for the sound played for easy manipulation outside of the function.
-}
-
-/// @description Much like the above function, this audo function will extend the functionality of the built-in
-/// "audio_play_sound_at" function, which allows for sounds that fade based on distance and play louder in
-/// whichever ear is closer to the audio's position. The extended functionality allows the previous instance
-/// of the sound to be stopped automatically, and the pitch/volume of the sound can be adjusted in the same
-/// function call. On top of that, the fade's starting distance and the maximum distance for the sound to be
-/// audible can also be adjusted.
-/// @param {Real}			x
-/// @param {Real}			y
-/// @param {Asset.GMSound}	sound
-/// @param {Real}			priority
-/// @param {Real}			volume
-/// @param {Real}			pitch
-/// @param {Real}			refDistance
-/// @param {Real}			maxDistance
-/// @param {Real}			falloffFactor
-/// @param {Bool}			stopPrevious
-function audio_play_sound_at_ext(_x, _y, _sound, _priority, _volume, _pitch, _refDistance, _maxDistance, _falloffFactor = 1, _stopPrevious = false){
-	if (_stopPrevious && audio_is_playing(_sound)) {audio_stop_sound(_sound);}
-	var _soundID = audio_play_sound_at(_sound, _x, _y, 0, _refDistance, _maxDistance, _falloffFactor, false, _priority);
-	audio_sound_gain(_soundID, _volume, 0);
-	audio_sound_pitch(_soundID, _pitch);
-	return _soundID; // Returns the unique ID for the sound played for easy manipulation outside of the function.
 }
 
 #endregion

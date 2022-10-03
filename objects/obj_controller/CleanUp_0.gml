@@ -13,12 +13,12 @@ with(WEATHER_RAIN)		{cleanup();}	delete WEATHER_RAIN;
 with(WEATHER_FOG)		{cleanup();}	delete WEATHER_FOG;
 with(DEBUGGER)			{cleanup();}	delete DEBUGGER;
 with(GAME_SETTINGS)		{cleanup();}	delete GAME_SETTINGS;
-delete SCREEN_FADE;
-delete GAME_MANAGER;
-delete AUDIO_MANAGER;
-delete GAMEPAD_MANAGER;
-delete SHADER_OUTLINE;
-delete SHADER_FEATHERING;
+with(AUDIO_MANAGER)		{cleanup();}	delete AUDIO_MANAGER;
+										delete SCREEN_FADE;
+										delete GAME_MANAGER;
+										delete GAMEPAD_MANAGER;
+										delete SHADER_OUTLINE;
+										delete SHADER_FEATHERING;
 buffer_delete(EVENT_HANDLER);
 
 // Destroy all existing menus and clean up their structs by calling each of their "menu_cleanup" functions.

@@ -205,9 +205,13 @@ global.gamepadIcons = ds_map_create();
 #region The main object code for obj_control_info
 
 function obj_control_info() constructor{
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_control_info;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = CONTROL_INFO_ID;
+	
+	// 
+	curOwner = noone;
 	
 	// Variables that handle the current opacity of all control information being displayed on the screen.
 	// The alpha value will automatically update its value by the modfier value until it equals the target
@@ -316,78 +320,77 @@ function obj_control_info() constructor{
 	/// isn't a gamepad active, the keyboard icons stored in the "global.keyboardIcons" will be used instead.
 	initialize_input_icons = function(){
 		if (GAMEPAD_IS_ACTIVE){ // Assigning icons that match the currently active gamepad.
-			var _gamepad = GAMEPAD_DEVICE_ID;
-			get_gamepad_icons(gamepad_get_description(_gamepad));
+			get_gamepad_icons(gamepad_get_description(GAMEPAD_ID));
 			
 			ds_map_clear(inputIcons);
-			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.gamepadIcons[? PAD_GAME_RIGHT]);		// Player movement inputs
-			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.gamepadIcons[? PAD_GAME_LEFT]);
-			ds_map_add(inputIcons, INPUT_GAME_UP,			global.gamepadIcons[? PAD_GAME_UP]);
-			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.gamepadIcons[? PAD_GAME_DOWN]);
-			ds_map_add(inputIcons, INPUT_RUN,				global.gamepadIcons[? PAD_RUN]);
+			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.gamepadIcons[? PADCODE_GAME_RIGHT]);		// Player movement inputs
+			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.gamepadIcons[? PADCODE_GAME_LEFT]);
+			ds_map_add(inputIcons, INPUT_GAME_UP,			global.gamepadIcons[? PADCODE_GAME_UP]);
+			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.gamepadIcons[? PADCODE_GAME_DOWN]);
+			ds_map_add(inputIcons, INPUT_RUN,				global.gamepadIcons[? PADCODE_RUN]);
 			
-			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.gamepadIcons[? PAD_READY_WEAPON]);	// Weapon inputs
-			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.gamepadIcons[? PAD_USE_WEAPON]);
-			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.gamepadIcons[? PAD_RELOAD_GUN]);
-			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.gamepadIcons[? PAD_AMMO_SWAP]);
+			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.gamepadIcons[? PADCODE_READY_WEAPON]);	// Weapon inputs
+			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.gamepadIcons[? PADCODE_USE_WEAPON]);
+			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.gamepadIcons[? PADCODE_RELOAD]);
+			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.gamepadIcons[? PADCODE_AMMO_SWAP]);
 			
-			ds_map_add(inputIcons, INPUT_INTERACT,			global.gamepadIcons[? PAD_INTERACT]);		// Interaction input
-			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.gamepadIcons[? PAD_FLASHLIGHT]);		// Flashlight inputs
-			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.gamepadIcons[? PAD_LIGHT_SWAP]);
+			ds_map_add(inputIcons, INPUT_INTERACT,			global.gamepadIcons[? PADCODE_INTERACT]);		// Interaction input
+			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.gamepadIcons[? PADCODE_FLASHLIGHT]);		// Flashlight inputs
+			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.gamepadIcons[? PADCODE_LIGHT_SWAP]);
 			
-			ds_map_add(inputIcons, INPUT_ITEMS,				global.gamepadIcons[? PAD_ITEMS]);			// Menu shortcut inputs
-			ds_map_add(inputIcons, INPUT_NOTES,				global.gamepadIcons[? PAD_NOTES]);
-			ds_map_add(inputIcons, INPUT_MAPS,				global.gamepadIcons[? PAD_MAPS]);
-			ds_map_add(inputIcons, INPUT_PAUSE,				global.gamepadIcons[? PAD_PAUSE]);
+			ds_map_add(inputIcons, INPUT_ITEMS,				global.gamepadIcons[? PADCODE_ITEMS]);			// Menu shortcut inputs
+			ds_map_add(inputIcons, INPUT_NOTES,				global.gamepadIcons[? PADCODE_NOTES]);
+			ds_map_add(inputIcons, INPUT_MAPS,				global.gamepadIcons[? PADCODE_MAPS]);
+			ds_map_add(inputIcons, INPUT_PAUSE,				global.gamepadIcons[? PADCODE_PAUSE]);
 			
-			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.gamepadIcons[? PAD_MENU_RIGHT]);		// Menu cursor inputs
-			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.gamepadIcons[? PAD_MENU_LEFT]);
-			ds_map_add(inputIcons, INPUT_MENU_UP,			global.gamepadIcons[? PAD_MENU_UP]);
-			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.gamepadIcons[? PAD_MENU_DOWN]);
-			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.gamepadIcons[? PAD_AUX_MENU_RIGHT]);
-			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.gamepadIcons[? PAD_AUX_MENU_LEFT]);
+			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.gamepadIcons[? PADCODE_MENU_RIGHT]);		// Menu cursor inputs
+			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.gamepadIcons[? PADCODE_MENU_LEFT]);
+			ds_map_add(inputIcons, INPUT_MENU_UP,			global.gamepadIcons[? PADCODE_MENU_UP]);
+			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.gamepadIcons[? PADCODE_MENU_DOWN]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.gamepadIcons[? PADCODE_AUX_MENU_RIGHT]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.gamepadIcons[? PADCODE_AUX_MENU_LEFT]);
 			
-			ds_map_add(inputIcons, INPUT_SELECT,			global.gamepadIcons[? PAD_SELECT]);			// Menu interaction inputs
-			ds_map_add(inputIcons, INPUT_RETURN,			global.gamepadIcons[? PAD_RETURN]);
-			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.gamepadIcons[? PAD_FILE_DELETE]);
+			ds_map_add(inputIcons, INPUT_SELECT,			global.gamepadIcons[? PADCODE_SELECT]);			// Menu interaction inputs
+			ds_map_add(inputIcons, INPUT_RETURN,			global.gamepadIcons[? PADCODE_RETURN]);
+			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.gamepadIcons[? PADCODE_FILE_DELETE]);
 			
-			ds_map_add(inputIcons, INPUT_ADVANCE,			global.gamepadIcons[? PAD_ADVANCE]);		// Textbox inputs
-			ds_map_add(inputIcons, INPUT_LOG,				global.gamepadIcons[? PAD_LOG]);
+			ds_map_add(inputIcons, INPUT_ADVANCE,			global.gamepadIcons[? PADCODE_ADVANCE]);		// Textbox inputs
+			ds_map_add(inputIcons, INPUT_LOG,				global.gamepadIcons[? PADCODE_LOG]);
 		} else{ // Assigning icons for the default input device: the keyboard.
 			ds_map_clear(inputIcons); // Clear out the old struct pointers.
-			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.keyboardIcons[? game_get_input_binding(KEY_GAME_RIGHT)]);	// Player movement inputs
-			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.keyboardIcons[? game_get_input_binding(KEY_GAME_LEFT)]);
-			ds_map_add(inputIcons, INPUT_GAME_UP,			global.keyboardIcons[? game_get_input_binding(KEY_GAME_UP)]);
-			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.keyboardIcons[? game_get_input_binding(KEY_GAME_DOWN)]);
-			ds_map_add(inputIcons, INPUT_RUN,				global.keyboardIcons[? game_get_input_binding(KEY_RUN)]);
+			ds_map_add(inputIcons, INPUT_GAME_RIGHT,		global.keyboardIcons[? KEYCODE_GAME_RIGHT]);	// Player movement inputs
+			ds_map_add(inputIcons, INPUT_GAME_LEFT,			global.keyboardIcons[? KEYCODE_GAME_LEFT]);
+			ds_map_add(inputIcons, INPUT_GAME_UP,			global.keyboardIcons[? KEYCODE_GAME_UP]);
+			ds_map_add(inputIcons, INPUT_GAME_DOWN,			global.keyboardIcons[? KEYCODE_GAME_DOWN]);
+			ds_map_add(inputIcons, INPUT_RUN,				global.keyboardIcons[? KEYCODE_RUN]);
 															
-			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.keyboardIcons[? game_get_input_binding(KEY_READY_WEAPON)]);	// Weapon inputs
-			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.keyboardIcons[? game_get_input_binding(KEY_USE_WEAPON)]);
-			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.keyboardIcons[? game_get_input_binding(KEY_RELOAD)]);
-			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.keyboardIcons[? game_get_input_binding(KEY_AMMO_SWAP)]);
+			ds_map_add(inputIcons, INPUT_READY_WEAPON,		global.keyboardIcons[? KEYCODE_READY_WEAPON]);	// Weapon inputs
+			ds_map_add(inputIcons, INPUT_USE_WEAPON,		global.keyboardIcons[? KEYCODE_USE_WEAPON]);
+			ds_map_add(inputIcons, INPUT_RELOAD_GUN,		global.keyboardIcons[? KEYCODE_RELOAD]);
+			ds_map_add(inputIcons, INPUT_AMMO_SWAP,			global.keyboardIcons[? KEYCODE_AMMO_SWAP]);
 															
-			ds_map_add(inputIcons, INPUT_INTERACT,			global.keyboardIcons[? game_get_input_binding(KEY_INTERACT)]);		// Interaction input
-			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.keyboardIcons[? game_get_input_binding(KEY_FLASHLIGHT)]);	// Flashlight inputs
-			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.keyboardIcons[? game_get_input_binding(KEY_LIGHT_SWAP)]);
+			ds_map_add(inputIcons, INPUT_INTERACT,			global.keyboardIcons[? KEYCODE_INTERACT]);		// Interaction input
+			ds_map_add(inputIcons, INPUT_FLASHLIGHT,		global.keyboardIcons[? KEYCODE_FLASHLIGHT]);	// Flashlight inputs
+			ds_map_add(inputIcons, INPUT_LIGHT_SWAP,		global.keyboardIcons[? KEYCODE_LIGHT_SWAP]);
 															
-			ds_map_add(inputIcons, INPUT_ITEMS,				global.keyboardIcons[? game_get_input_binding(KEY_ITEMS)]);			// Menu shortcut inputs
-			ds_map_add(inputIcons, INPUT_NOTES,				global.keyboardIcons[? game_get_input_binding(KEY_NOTES)]);
-			ds_map_add(inputIcons, INPUT_MAPS,				global.keyboardIcons[? game_get_input_binding(KEY_MAPS)]);
-			ds_map_add(inputIcons, INPUT_PAUSE,				global.keyboardIcons[? game_get_input_binding(KEY_PAUSE)]);
+			ds_map_add(inputIcons, INPUT_ITEMS,				global.keyboardIcons[? KEYCODE_ITEMS]);			// Menu shortcut inputs
+			ds_map_add(inputIcons, INPUT_NOTES,				global.keyboardIcons[? KEYCODE_NOTES]);
+			ds_map_add(inputIcons, INPUT_MAPS,				global.keyboardIcons[? KEYCODE_MAPS]);
+			ds_map_add(inputIcons, INPUT_PAUSE,				global.keyboardIcons[? KEYCODE_PAUSE]);
 			
-			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.keyboardIcons[? game_get_input_binding(KEY_MENU_RIGHT)]);	// Menu cursor inputs
-			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.keyboardIcons[? game_get_input_binding(KEY_MENU_LEFT)]);
-			ds_map_add(inputIcons, INPUT_MENU_UP,			global.keyboardIcons[? game_get_input_binding(KEY_MENU_UP)]);
-			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.keyboardIcons[? game_get_input_binding(KEY_MENU_DOWN)]);
-			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.keyboardIcons[? game_get_input_binding(KEY_AUX_MENU_RIGHT)]);
-			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.keyboardIcons[? game_get_input_binding(KEY_AUX_MENU_LEFT)]);
+			ds_map_add(inputIcons, INPUT_MENU_RIGHT,		global.keyboardIcons[? KEYCODE_MENU_RIGHT]);	// Menu cursor inputs
+			ds_map_add(inputIcons, INPUT_MENU_LEFT,			global.keyboardIcons[? KEYCODE_MENU_LEFT]);
+			ds_map_add(inputIcons, INPUT_MENU_UP,			global.keyboardIcons[? KEYCODE_MENU_UP]);
+			ds_map_add(inputIcons, INPUT_MENU_DOWN,			global.keyboardIcons[? KEYCODE_MENU_DOWN]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_RIGHT,	global.keyboardIcons[? KEYCODE_AUX_MENU_RIGHT]);
+			ds_map_add(inputIcons, INPUT_AUX_MENU_LEFT,		global.keyboardIcons[? KEYCODE_AUX_MENU_LEFT]);
 			
-			ds_map_add(inputIcons, INPUT_SELECT,			global.keyboardIcons[? game_get_input_binding(KEY_SELECT)]);		// Menu interaction inputs
-			ds_map_add(inputIcons, INPUT_RETURN,			global.keyboardIcons[? game_get_input_binding(KEY_RETURN)]);
-			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.keyboardIcons[? game_get_input_binding(KEY_FILE_DELETE)]);
+			ds_map_add(inputIcons, INPUT_SELECT,			global.keyboardIcons[? KEYCODE_SELECT]);		// Menu interaction inputs
+			ds_map_add(inputIcons, INPUT_RETURN,			global.keyboardIcons[? KEYCODE_RETURN]);
+			ds_map_add(inputIcons, INPUT_FILE_DELETE,		global.keyboardIcons[? KEYCODE_FILE_DELETE]);
 			
-			ds_map_add(inputIcons, INPUT_ADVANCE,			global.keyboardIcons[? game_get_input_binding(KEY_ADVANCE)]);		// Textbox inputs
-			ds_map_add(inputIcons, INPUT_LOG,				global.keyboardIcons[? game_get_input_binding(KEY_LOG)]);
+			ds_map_add(inputIcons, INPUT_ADVANCE,			global.keyboardIcons[? KEYCODE_ADVANCE]);		// Textbox inputs
+			ds_map_add(inputIcons, INPUT_LOG,				global.keyboardIcons[? KEYCODE_LOG]);
 		}
 		
 		// Once the valid input icon data have all been added to the "inputIcons" map, it will then be used to
@@ -487,6 +490,29 @@ function obj_control_info() constructor{
 #endregion
 
 #region Global functions related to obj_control_info
+
+/// @description Applies "ownership" to the control info's functionality. This is useful in preventing data
+/// from being overwritten accidentally by an object that isn't currently in control of this object; showing
+/// the wrong input information to the player as a result. Ownership can only be assigned
+/// @param {Id.Instance}	instanceID
+function control_info_set_owner(_instanceID){
+	var _id = id;
+	with(CONTROL_INFO){
+		if (_id == id || (curOwner != noone && instance_exists(curOwner))) {return;}
+		curOwner = _instanceID;
+	}
+}
+
+/// @description Removes the current owner of the control info object's functionality. If an object other
+/// than the one currently in control attempts to remove ownership of the control info object, the function
+/// will not do anything. Otherwise, ownership will be successfully revoked.
+function control_info_remove_owner(){
+	var _id = id;
+	with(CONTROL_INFO){
+		if (_id != curOwner) {return;}
+		curOwner = noone;
+	}
+}
 
 /// @description Creates and stores a new anchor object that will be able to store control information data
 /// that is properly aligned on the screen relative to the alignment setting and position of the anchor. If
@@ -672,7 +698,8 @@ function control_info_initialize_anchor(_anchor){
 	}
 }
 
-/// @description 
+/// @description Clear out all of the control information that is found within the desired anchor. The result
+/// is a now empty list found within said anchor, but the anchor's struct isn't deleted by this function.
 /// @param anchor
 function control_info_clear_anchor(_anchor){
 	with(CONTROL_INFO.anchorPoint[? _anchor]){
@@ -682,7 +709,8 @@ function control_info_clear_anchor(_anchor){
 	}
 }
 
-/// @description Clears out all of the anchor data from the control info object.
+/// @description Clears out all of the anchor data from the control info object. This means that all data in
+/// the anchor ds_map is cleared AND deleted, so no anchor structs will exist.
 function control_info_clear_data(){
 	with(CONTROL_INFO){
 		if (ds_map_size(anchorPoint) > 0) {clear_anchor_data();}

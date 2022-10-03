@@ -40,7 +40,8 @@
 // user is applied to that base value to determine the final interval speed.
 #macro	SCROLL_SOUND_INTERVAL		6 * TEXT_SPEED
 
-// 
+// Stores the anchor names as macros to avoid typos when referencing the control information stored in
+// those anchors.
 #macro	TEXTBOX_MAIN_INFO			"main"
 #macro	TEXTBOX_EXTRA_INFO			"extras"
 
@@ -69,9 +70,10 @@ function obj_textbox_handler() constructor{
 	x = 0;
 	y = 0;
 	
-	// Much like Game Maker's own object_index variable, this will store the unique ID value provided to this
-	// object by Game Maker during runtime; in order to easily use it within a singleton system.
-	object_index = obj_textbox_handler;
+	// Much like Game Maker's own id variable for objects, this will store the unique ID value given to this
+	// singleton, which is a value that is found in the "obj_controller_data" script with all the other
+	// macros and functions for handling singleton objects.
+	id = TEXTBOX_HANDLER_ID;
 	
 	// 
 	initialY = 0;
@@ -102,7 +104,7 @@ function obj_textbox_handler() constructor{
 	cursorTimer = 0;
 	
 	// 
-	prevEntityStates = ds_map_create();
+	prevPlayerState = array_create(3, NO_STATE);
 	
 	// Important variables for processing and managing the textbox data that will end up displaying
 	// so the user can read what each textbox contains. The first variable stores a list that holds
@@ -394,8 +396,7 @@ function obj_textbox_handler() constructor{
 		if (canProcessText && punctuationTimer <= 0){
 			soundTimer -= DELTA_TIME;
 			if (soundTimer <= 0){
-				audio_play_sound(snd_textbox_scroll, 0, false, GET_UI_VOLUME * (0.08 + random_range(-0.02, 0.02)), 0, 1.5);
-				//audio_play_sound_ext(snd_textbox_scroll, 0, GET_UI_VOLUME * (0.08 + random_range(-0.02, 0.02)), 1.5, true);
+				audio_play_sound_ext(snd_textbox_scroll, GET_UI_VOLUME * (0.08 + random_range(-0.02, 0.02)), 1.5);
 				soundTimer = SCROLL_SOUND_INTERVAL;
 			}
 		}
@@ -408,7 +409,7 @@ function obj_textbox_handler() constructor{
 			if (index != NO_SOUND){
 				delay -= DELTA_TIME;
 				if (delay <= 0){
-					audio_play_sound_ext(index, 0, volume, pitch);
+					audio_play_sound_ext(index, volume, pitch);
 					index = NO_SOUND;
 				}
 			}
@@ -421,7 +422,7 @@ function obj_textbox_handler() constructor{
 		with(textbox.shakeData){
 			if (curPower > 0){
 				curPower -= initialPower / duration * DELTA_TIME;
-				other.x = (CAM_HALF_WIDTH - (TEXTBOX_WIDTH / 2)) + irandom_range(-curPower, curPower);
+				other.x = ((camera_get_width() - TEXTBOX_WIDTH) / 2) + irandom_range(-curPower, curPower);
 			}
 		}
 	}
@@ -768,7 +769,7 @@ function obj_textbox_handler() constructor{
 		if (surfAlpha == 1) {object_set_next_state(state_default);}
 	}
 	
-	/// @description
+	/// @description 
 	state_animation_open_decision_window = function(){
 		decisionWindowAlpha = value_set_linear(decisionWindowAlpha, 1, 0.1);
 		if (decisionWindowAlpha == 1){
@@ -778,7 +779,7 @@ function obj_textbox_handler() constructor{
 		}
 	}
 	
-	/// @description
+	/// @description 
 	state_animation_close_decision_window = function(){
 		decisionWindowAlpha = value_set_linear(decisionWindowAlpha, 0, 0.1);
 		if (decisionWindowAlpha == 0){
@@ -1234,7 +1235,6 @@ function obj_textbox_handler() constructor{
 		draw_set_halign(fa_center);
 		
 		// 
-		var _alpha = decisionWindowAlpha * alpha;
 		var _cameraHalfWidth = _cameraWidth / 2;
 		var _textSpacingY = string_height("M") + 2;
 		
@@ -1245,8 +1245,8 @@ function obj_textbox_handler() constructor{
 		
 		// 
 		for (var i = 0; i < _length; i++){
-			if (i == curOption) {draw_text_outline(_cameraHalfWidth, _yOffset, _playerChoices[| i].textString, HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, _alpha);}
-			else				{draw_text_outline(_cameraHalfWidth, _yOffset, _playerChoices[| i].textString, HEX_WHITE, RGB_GRAY, _alpha);}
+			if (i == curOption) {draw_text_outline(_cameraHalfWidth, _yOffset, _playerChoices[| i].textString, HEX_LIGHT_YELLOW, RGB_DARK_YELLOW, decisionWindowAlpha * alpha);}
+			else				{draw_text_outline(_cameraHalfWidth, _yOffset, _playerChoices[| i].textString, HEX_WHITE, RGB_GRAY, decisionWindowAlpha * alpha);}
 			_yOffset += _textSpacingY;
 		}
 		
@@ -1281,7 +1281,7 @@ function obj_textbox_handler() constructor{
 	}
 	// TODO -- Potentially change this to a JSON file of data to simplify the code.
 	
-	/// @description
+	/// @description 
 	initialize_default_control_info = function(){
 		control_info_clear_anchor(TEXTBOX_MAIN_INFO);
 		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_ADVANCE, "Next");
@@ -1298,7 +1298,7 @@ function obj_textbox_handler() constructor{
 		control_info_add_data(TEXTBOX_MAIN_INFO, INPUT_LOG, "Log");
 		control_info_initialize_anchor(TEXTBOX_MAIN_INFO);
 		
-		// If there is already data for controls contained inside of the TEXTBOX_EXTRA_INFO anchor, there is no 
+		// If there is already data for controls contained inside of the "extras" anchor, there is no 
 		// need to add that data again since it has to be the same format as the controls needed for the 
 		// textbox log (The "up" and "down" menu inputs).
 		if (ds_list_size(CONTROL_INFO.anchorPoint[? TEXTBOX_EXTRA_INFO].info) == 0){
@@ -1322,7 +1322,7 @@ function obj_textbox_handler() constructor{
 			return; // Exit before any menu cursor controls can be added.
 		}
 		
-		// If there is already data for controls contained inside of the TEXTBOX_EXTRA_INFO anchor, there is no 
+		// If there is already data for controls contained inside of the "extras" anchor, there is no 
 		// need to add that data again since it has to be the same format as the controls needed for the 
 		// textbox log (The "up" and "down" menu inputs).
 		if (ds_list_size(CONTROL_INFO.anchorPoint[? TEXTBOX_EXTRA_INFO].info) == 0){
@@ -1482,15 +1482,15 @@ function textbox_activate(_startingIndex = 0){
 	with(TEXTBOX_HANDLER){
 		if (ds_list_size(textboxData) == 0 || isTextboxActive) {return;}
 		
-		// 
+		// Prepare the textbox by setting it to the proper coordinates on the screen that will
+		// result in it being centered horizontally and around 14 pixels from the bottommost edge
+		// of the text window. Set its state to its default opening animation.
 		var _cameraWidth = camera_get_width();
-		x = (_cameraWidth - TEXTBOX_WIDTH) / 2;
-		
 		var _cameraHeight = camera_get_height();
-		initialY = _cameraHeight + 60;
+		x = (_cameraWidth - TEXTBOX_WIDTH) / 2;
+		y = _cameraHeight + 60;
 		targetY = _cameraHeight - 58;
-		y = initialY;
-		
+		initialY = y; // Stored for when the textbox needs to perform an actor swap animation.
 		isTextboxActive = true;
 		actorSwap = true; // Allows the first textbox to actually initialize its actor data.
 		prepare_next_textbox(_startingIndex);
@@ -1503,9 +1503,16 @@ function textbox_activate(_startingIndex = 0){
 		initialize_default_control_info();
 		
 		// 
-		var _prevEntityStates = prevEntityStates;
-		with(par_dynamic_entity){
-			ds_map_add(_prevEntityStates, id, [curState, nextState, lastState]);
+		var _prevPlayerState = prevPlayerState;
+		with(PLAYER){
+			if (curState == NO_STATE) {return;}
+			
+			// 
+			array_set(_prevPlayerState, 0, curState);
+			array_set(_prevPlayerState, 1, nextState);
+			array_set(_prevPlayerState, 2, lastState);
+			
+			// 
 			curState = NO_STATE;
 			nextState = NO_STATE;
 			lastState = NO_STATE;
